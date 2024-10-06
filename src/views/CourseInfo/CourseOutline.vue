@@ -76,15 +76,16 @@ onMounted( () => {
 
 
     <div class="interviewVideo_main" id="videoContainer">
-      <!--此处根据pdf的页数动态生成相应数量的canvas画布-->
-      <canvas
-          v-for="pageIndex in pdfPages"
-          :id="`pdf-canvas-` + pageIndex"
-          :key="pageIndex"
-          style="display: block"
-      ></canvas>
+      <div id="pdfContainer">
+        <!--此处根据pdf的页数动态生成相应数量的canvas画布-->
+        <canvas
+            v-for="pageIndex in pdfPages"
+            :id="`pdf-canvas-` + pageIndex"
+            :key="pageIndex"
+            style="display: block"
+        ></canvas>
+      </div>
     </div>
-
 
 
   </div>
@@ -103,9 +104,17 @@ onMounted( () => {
     margin: 20px;
     border-radius: 5px;
     background-color: #9f7390;
+    border: 2px solid black;
+    //width: 100%;
+    //height: 100%;
     //color: black;
     //font-size: 14px;
     //min-height: 20px;
+    #pdfContainer{
+      width: calc(100% + 5px);
+      height: 100%;
+      border: 2px solid black;
+    }
   }
 }
 
