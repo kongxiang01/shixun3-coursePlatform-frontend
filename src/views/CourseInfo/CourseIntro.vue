@@ -18,8 +18,7 @@ import VerticalBar from "../../components/VerticalBar.vue";
 
 <style lang="scss" scoped>
 .info-container{
-  min-height: calc(100% - 10px);
-  //background-color: rgba(100, 238, 176, 0.82);
+  height: 100%;
   .header {
     padding-top: 10px;
     margin-left: 10px;

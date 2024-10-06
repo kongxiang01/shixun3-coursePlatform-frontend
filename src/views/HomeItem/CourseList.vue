@@ -127,7 +127,7 @@ const handleSemesterChange = (value) => {
   }
 
   .course-list{
-    max-height: 600px; /* 限制课程列表的最大高度 */
+    max-height: 620px; /* 限制课程列表的最大高度 */
     overflow-y: auto; /* 启用垂直滚动条 */
     padding-right: 10px; /* 预留空间避免滚动条覆盖内容 */
 

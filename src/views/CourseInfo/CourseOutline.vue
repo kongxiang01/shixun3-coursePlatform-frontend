@@ -93,7 +93,7 @@ onMounted( () => {
 
 <style lang="scss" scoped>
 .outline-container{
-  min-height: calc(100% - 10px);
+  height: 100%;
   .header {
     padding-top: 10px;
     margin-left: 10px;
@@ -104,7 +104,7 @@ onMounted( () => {
     margin: 20px;
     border-radius: 5px;
     background-color: #9f7390;
-    border: 2px solid black;
+    //border: 2px solid black;
     //width: 100%;
     //height: 100%;
     //color: black;
@@ -113,7 +113,7 @@ onMounted( () => {
     #pdfContainer{
       width: calc(100% + 5px);
       height: 100%;
-      border: 2px solid black;
+      //border: 2px solid black;
     }
   }
 }
