@@ -45,7 +45,7 @@ const handlePreview = (row) => {
     </div>
     <div class="content">
 
-      <el-table :data="tableData" stripe style="width: 100%">
+      <el-table :data="tableData" stripe style="width: 100%; border-radius: 5px">
         <el-table-column prop="theme" label="主题" width="400" />
         <el-table-column prop="date" label="日期" width="200" />
         <el-table-column prop="checkTimes" label="查看次数" width="200" />

@@ -32,80 +32,80 @@
             router
         >
           <!-- 课程信息 -->
-          <el-sub-menu  :index="`/course/courseId=${courseId}&courseNumber=${courseNumber}/courseInfo`">
+          <el-sub-menu :index="generateCoursePath('courseInfo')">
             <template #title>
               <el-icon><InfoFilled /></el-icon>
               <span>课程信息</span>
             </template>
-            <el-menu-item :index="`/course/courseId=${courseId}&courseNumber=${courseNumber}/courseIntro`">
+            <el-menu-item :index="generateCoursePath('courseIntro')">
               <span>课程介绍</span>
             </el-menu-item>
-            <el-menu-item :index="`/course/courseId=${courseId}&courseNumber=${courseNumber}/courseOutline`">
+            <el-menu-item :index="generateCoursePath('courseOutline')">
               <span>课程大纲</span>
             </el-menu-item>
-            <el-menu-item :index="`/course/courseId=${courseId}&courseNumber=${courseNumber}/teachingCalendar`">
+            <el-menu-item :index="generateCoursePath('teachingCalendar')">
               <span>教学日历</span>
             </el-menu-item>
-            <el-menu-item :index="`/course/courseId=${courseId}&courseNumber=${courseNumber}/courseNotice`">
+            <el-menu-item :index="generateCoursePath('courseNotice')">
               <span>课程通知</span>
             </el-menu-item>
-            <el-menu-item :index="`/course/courseId=${courseId}&courseNumber=${courseNumber}/teacherInfo`">
+            <el-menu-item :index="generateCoursePath('teacherInfo')">
               <span>教师信息</span>
             </el-menu-item>
           </el-sub-menu>
 
           <!-- 课程资源 -->
-          <el-sub-menu  :index="`/course/courseId=${courseId}&courseNumber=${courseNumber}/courseRecourse`">
+          <el-sub-menu :index="generateCoursePath('courseResource')">
             <template #title>
               <el-icon><FolderOpened /></el-icon>
               <span>课程资源</span>
             </template>
-            <el-menu-item :index="`/course/courseId=${courseId}&courseNumber=${courseNumber}/courseware`">
+            <el-menu-item :index="generateCoursePath('courseware')">
               <span>课程课件</span>
             </el-menu-item>
           </el-sub-menu>
 
           <!-- 课程视频 -->
-          <el-sub-menu  :index="`/course/courseId=${courseId}&courseNumber=${courseNumber}/courseVideo`">
+          <el-sub-menu  :index="generateCoursePath('courseVideo')">
             <template #title>
               <el-icon><VideoCamera /></el-icon>
               <span>课程视频</span>
             </template>
-            <el-menu-item :index="`/course/courseId=${courseId}&courseNumber=${courseNumber}/videoReplay`">
+            <el-menu-item :index="generateCoursePath('videoReplay')">
               <span>视频回放</span>
             </el-menu-item>
           </el-sub-menu>
 
           <!-- 课程考核 -->
-          <el-sub-menu  :index="`/course/courseId=${courseId}&courseNumber=${courseNumber}/courseExam`">
-            <template #title>
+          <el-sub-menu :index="generateCoursePath('courseExam')">
+            <template #title >
               <el-icon><Tickets /></el-icon>
               <span>课程考核</span>
             </template>
-            <el-menu-item :index="`/course/courseId=${courseId}&courseNumber=${courseNumber}/homeWork`">
+            <el-menu-item :index="generateCoursePath('homeWork')">
               <span>作业</span>
             </el-menu-item>
-            <el-menu-item :index="`/course/courseId=${courseId}&courseNumber=${courseNumber}/courseReport`">
+            <el-menu-item :index="generateCoursePath('courseReport')">
               <span>课程报告</span>
             </el-menu-item>
-            <el-menu-item :index="`/course/courseId=${courseId}&courseNumber=${courseNumber}/experiment`">
+            <el-menu-item :index="generateCoursePath('experiment')">
               <span>实验</span>
             </el-menu-item>
-            <el-menu-item :index="`/course/courseId=${courseId}&courseNumber=${courseNumber}/regularTest`">
+            <el-menu-item :index="generateCoursePath('regularTest')">
               <span>平时测验</span>
             </el-menu-item>
-            <el-menu-item :index="`/course/courseId=${courseId}&courseNumber=${courseNumber}/finalAssessment`">
+            <el-menu-item :index="generateCoursePath('finalAssessment')">
               <span>结课考核</span>
             </el-menu-item>
           </el-sub-menu>
 
           <!-- 答疑讨论 -->
-          <el-sub-menu :index="`/course/courseId=${courseId}&courseNumber=${courseNumber}/discussArea`">
+          <el-sub-menu :index="generateCoursePath('courseDiscuss')">
             <template #title>
               <el-icon><ChatDotSquare /></el-icon>
               <span>答疑讨论</span>
             </template>
-            <el-menu-item :index="`/course/courseId=${courseId}&courseNumber=${courseNumber}/discussArea`">
+            <el-menu-item :index="generateCoursePath('discussArea')">
               <span>讨论区</span>
             </el-menu-item>
           </el-sub-menu>
@@ -128,6 +128,11 @@ import {ChatDotSquare, FolderOpened, InfoFilled, Tickets, VideoCamera} from "@el
 const route = useRoute();
 const courseId = ref(route.params.id);
 const courseNumber = ref(route.params.courseNumber);
+
+// 动态生成路径的函数
+const generateCoursePath = (suffix) => {
+  return `/course/courseId=${courseId.value}&courseNumber=${courseNumber.value}/${suffix}`;
+};
 </script>
 
 <style lang="scss" scoped>

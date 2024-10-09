@@ -13,7 +13,6 @@ import VerticalBar from "../../components/VerticalBar.vue";
         <iframe src="http://127.0.0.1:5000/get-pdf"
                 width="100%"
                 height="100%"
-                allowfullscreen
                 allow="fullscreen"></iframe>
       </div>
     </div>

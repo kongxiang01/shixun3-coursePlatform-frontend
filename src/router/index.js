@@ -18,6 +18,7 @@ import DiscussArea from "../views/CourseDiscuss/DiscussArea.vue";
 import HomeItems from "../views/HomeItem/HomeItems.vue";
 import UserInfo from "../views/UserInfo/UserInfo.vue";
 import {useUserStore} from "@/stores/user.js";
+import HomeworkDetail from "@/views/CourseExam/HomeworkDetail/HomeworkDetail.vue";
 
 const routes = [
     {
@@ -45,51 +46,28 @@ const routes = [
         path: '/course/courseId=:id&courseNumber=:courseNumber',
         name: 'CoursePage',
         component: CoursePage,
-        redirect: to => {
-            return `/course/courseId=${to.params.id}&courseNumber=${to.params.courseNumber}/courseIntro`;
-        },
+        // redirect: to => {
+        //     return `/course/courseId=${to.params.id}&courseNumber=${to.params.courseNumber}/courseIntro`;
+        // },
         props: true, // 是为了传上面的path: '/course/:id'的id
         meta: { title: '课程内容' },
         children: [
-            {
-                path: 'courseIntro', name: 'CourseIntro', component: CourseIntro,
-            },
-            {
-                path: 'courseNotice', name: 'CourseNotice', component: CourseNotice,
-            },
-            {
-                path: 'courseOutline', name: 'CourseOutline', component: CourseOutline,
-            },
-            {
-                path: 'teacherInfo', name: 'TeacherInfo', component: TeacherInfo,
-            },
-            {
-                path: 'teachingCalendar', name: 'TeachingCalendar', component: TeachingCalendar,
-            },
-            {
-                path: 'courseware', name: 'Courseware', component: Courseware,
-            },
-            {
-                path: 'videoReplay', name: 'VideoReplay', component: VideoReplay,
-            },
-            {
-                path: 'courseReport', name: 'CourseReport', component: CourseReport,
-            },
-            {
-                path: 'experiment', name: 'Experiment', component: Experiment,
-            },
-            {
-                path: 'finalAssessment', name: 'FinalAssessment', component: FinalAssessment,
-            },
-            {
-                path: 'homeWork', name: 'HomeWork', component: HomeWork,
-            },
-            {
-                path: 'regularTest', name: 'RegularTest', component: RegularTest,
-            },
-            {
-                path: 'discussArea', name: 'DiscussArea', component: DiscussArea,
-            }
+            { path: 'courseIntro', name: 'CourseIntro', component: CourseIntro, },
+            { path: 'courseNotice', name: 'CourseNotice', component: CourseNotice,},
+            { path: 'courseOutline', name: 'CourseOutline', component: CourseOutline,},
+            { path: 'teacherInfo', name: 'TeacherInfo', component: TeacherInfo,},
+            { path: 'teachingCalendar', name: 'TeachingCalendar', component: TeachingCalendar,},
+            { path: 'courseware', name: 'Courseware', component: Courseware,},
+            { path: 'videoReplay', name: 'VideoReplay', component: VideoReplay,},
+            { path: 'courseReport', name: 'CourseReport', component: CourseReport,},
+            { path: 'experiment', name: 'Experiment', component: Experiment,},
+            { path: 'finalAssessment', name: 'FinalAssessment', component: FinalAssessment,},
+
+            { path: 'homeWork', name: 'HomeWork', component: HomeWork,},
+            { path: 'homeworkDetail', name: 'HomeworkDetail', component: HomeworkDetail,},
+
+            { path: 'regularTest', name: 'RegularTest', component: RegularTest,},
+            { path: 'discussArea', name: 'DiscussArea', component: DiscussArea,}
         ]
     }
 ]
