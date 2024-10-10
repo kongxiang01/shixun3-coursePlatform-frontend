@@ -17,8 +17,8 @@ import RegularTest from "../views/CourseExam/RegularTest.vue";
 import DiscussArea from "../views/CourseDiscuss/DiscussArea.vue";
 import HomeItems from "../views/HomeItem/HomeItems.vue";
 import UserInfo from "../views/UserInfo/UserInfo.vue";
-import {useUserStore} from "@/stores/user.js";
-import HomeworkDetail from "@/views/CourseExam/HomeworkDetail/HomeworkDetail.vue";
+import {useUserStore} from "../stores/user.js";
+import HomeworkDetail from "../views/CourseExam/HomeworkDetail/HomeworkDetail.vue";
 
 const routes = [
     {

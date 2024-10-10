@@ -32,7 +32,7 @@ const handleClose = () => {
         <div class="formItem">
           <div class="formItemTitle">作业内容：</div>
           <div class="formItemContent">
-            <span>11111111111111111111111111111111111111111111111111111111111111111</span>
+            <span>111111111111111111111111111111111111111111111111111111111111112222222222222222222222222222222222222222</span>
           </div>
         </div>
         <div class="formItem">

@@ -1,8 +1,8 @@
 import axios from 'axios'
 import { useUserStore } from '../stores/user.js'
 import { ElMessage } from 'element-plus'
-import router from '../router'
-const baseURL = '我们的后端URL'
+import { useRouter } from "vue-router"
+const baseURL = 'http://192.168.10.124:8080'
 
 const instance = axios.create({
   // TODO 1. 基础地址，超时时间
@@ -15,9 +15,12 @@ instance.interceptors.request.use(
   (config) => {
     // TODO 2. 携带token
     const userStore = useUserStore()
+      console.log('request.js  1111111')
     if (userStore.token) {
       config.headers.Authorization = userStore.token
+        console.log('request.js  222222')
     }
+      console.log('request.js  33333')
     return config
   },
   (err) => Promise.reject(err)
@@ -27,7 +30,8 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   (res) => {
     // TODO 4. 摘取核心响应数据
-    if (res.data.code === 0) {
+      console.log('request.js  4444444')
+    if (res.data.status === 'success') {
       return res
     }
     // TODO 3. 处理业务失败
@@ -39,6 +43,7 @@ instance.interceptors.response.use(
     // TODO 5. 处理401错误
     // 错误的特殊情况 => 401 权限不足 或 token 过期 => 拦截到登录
     if (err.response?.status === 401) {
+        const router = useRouter()
       router.push('/login')
     }
 
