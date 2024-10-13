@@ -14,12 +14,19 @@
     <div class="calendar-container">
       <!-- 年份和月份选择 -->
       <div class="calendar-header">
-        <select v-model="selectedYear" @change="handleMonthYearChange">
-          <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
-        </select>
-        <select v-model="selectedMonth" @change="handleMonthYearChange">
-          <option v-for="(month, index) in months" :key="index" :value="index">{{ month }}</option>
-        </select>
+        <div class="select-header">
+          <select v-model="selectedYear" @change="handleMonthYearChange">
+            <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
+          </select>
+          <select v-model="selectedMonth" @change="handleMonthYearChange">
+            <option v-for="(month, index) in months" :key="index" :value="index">{{ month }}</option>
+          </select>
+        </div>
+        <div class="teaching-week-info">
+          当前是第
+          <span style="margin: 0 5px; color: #6fc8ee; font-size: 20px">{{ teachingWeek }}</span>
+          教学周
+        </div>
       </div>
 
       <!-- 星期表头 -->
@@ -46,7 +53,7 @@
 
 <script setup>
 import VerticalBar from "../../components/VerticalBar.vue";
-import { ref } from 'vue';
+import {computed, ref} from 'vue';
 
 // 当前年份和月份
 const selectedYear = ref(new Date().getFullYear());
@@ -62,6 +69,9 @@ const dates = ref([]);
 const firstDayOfWeek = ref(0);
 // 当前日期
 const today = new Date();
+const semesterStart = new Date(2024, 8, 2); // 9月2号，月份是从0开始计数
+const nationalDayWeek = 5; // 国庆节是第五周
+
 // 生成日历
 const generateCalendar = () => {
   const daysInMonth = new Date(selectedYear.value, selectedMonth.value + 1, 0).getDate(); // 当月天数
@@ -70,6 +80,15 @@ const generateCalendar = () => {
   firstDayOfWeek.value = firstDay === 0 ? 7 : firstDay;
   dates.value = Array.from({ length: daysInMonth }, (_, i) => i + 1); // 生成日期数组
 };
+
+// 判断当前是第几教学周，排除国庆周
+const teachingWeek = computed(() => {
+  const now = new Date(selectedYear.value, selectedMonth.value, selectedDate.value || today.getDate());
+  const timeDifference = now - semesterStart;
+  const weeksPassed = Math.floor(timeDifference / (1000 * 60 * 60 * 24 * 7));
+
+  return weeksPassed >= nationalDayWeek ? weeksPassed : weeksPassed + 1; // 跳过国庆那一周
+});
 
 // 判断是否是当前日期
 const isToday = (date) => {
@@ -120,7 +139,8 @@ generateCalendar();
 
     .calendar-header {
       display: flex;
-      justify-content: flex-start;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 10px;
       //border: 1px solid black;
       select {
@@ -146,7 +166,7 @@ generateCalendar();
         font-weight: bold;
       }
       .week-day {
-        padding: 5px;
+        padding: 4px;
         background-color: rgba(85, 121, 188, 0.8);
         color: white;
         border-radius: 5px;
@@ -154,7 +174,7 @@ generateCalendar();
       }
 
       .calendar-dates {
-        margin-top: 5px;
+        margin-top: 4px;
         display: grid;
         grid-template-columns: repeat(7, 1fr);
         grid-gap: 5px;
