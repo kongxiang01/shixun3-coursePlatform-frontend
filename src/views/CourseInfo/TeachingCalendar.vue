@@ -10,10 +10,12 @@ import VerticalBar from "../../components/VerticalBar.vue";
     </div>
     <div class="pdfContainer">
       <div class="content">
-        <iframe src="http://127.0.0.1:5000/get-pdf"
-                width="100%"
-                height="100%"
-                allow="fullscreen"></iframe>
+<!--        <iframe src="http://127.0.0.1:5000/get-pdf"-->
+<!--                width="100%"-->
+<!--                height="100%"-->
+<!--                allow="fullscreen"></iframe>-->
+        <iframe src="https://view.officeapps.live.com/op/embed.aspx?src=../../assets/testword.docx" width="100%" height="600px"></iframe>
+
       </div>
     </div>
   </div>
