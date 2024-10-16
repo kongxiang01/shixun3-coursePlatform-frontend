@@ -4,7 +4,7 @@ export const userLoginService = ({ sno, password }) =>
     request.post('/api/login/student', { sno, password })
 
 // 获取用户基本信息
-export const userGetInfoService = () => request.get('/my/userinfo')
+export const userGetInfoService = () => request.get('/api/userinfo')
 
 // 更新用户基本信息
 export const userUpdateInfoService = ({ id, nickname, email }) =>

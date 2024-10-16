@@ -2,19 +2,28 @@
   <div class="container" style="">
     <el-row class="resource-container">
       <el-col class="directory-container" :span="5">
+<!--        :expand-on-click-node="false"-->
+<!--        highlight-current-->
+<!--        default-expand-all-->
         <el-tree
             class="directory"
             :data="treeData"
             :props="defaultProps"
             @node-click="handleNodeClick"
             node-key="label"
-            :expand-on-click-node="false"
-            highlight-current
-            default-expand-all
         ></el-tree>
       </el-col>
       <el-col class="resource-table-container" :span="19">
-        <el-row>
+        <el-row class="some-buttons">
+          <!-- 判断用户是否是教师，只有教师显示这些按钮 -->
+<!--          <template v-if="userStore.data.identity === 'teacher'">-->
+<!--            <el-button @click="uploadFile">上传文件</el-button>-->
+<!--            <el-button @click="createFolder">新建目录</el-button>-->
+<!--            <el-button @click="moveItem">移动</el-button>-->
+<!--            <el-button @click="deleteItem">删除</el-button>-->
+<!--            <el-button @click="publishItem">发布</el-button>-->
+<!--            <el-button @click="unpublishItem">取消发布</el-button>-->
+<!--          </template>-->
           <el-input
               v-model="input"
               placeholder="输入资源名称查找"
@@ -59,54 +68,32 @@ import {onMounted, ref} from 'vue';
 import {Search, Folder, Document } from "@element-plus/icons-vue";
 import axios from "axios";
 import {ElMessage} from "element-plus";
+import { useUserStore } from "@/stores/user.js";
 
 const input = ref('');
-
 const treeData = ref([]);
 const tableData = ref([]);
-const currentPath = ref('/your/base/path'); // 初始化路径
+const currentPath = ref('E:/javaItem/assets'); // 初始化路径
 // const breadcrumb = reactive([{ label: '根目录', path: '/your/base/path' }]);
 const previewVisible = ref(false);
 const previewUrl = ref('');
 
+// 获取用户身份
+const userStore = useUserStore(); // 获取用户角色
+
+
 // 定义 el-tree 的 prop 配置
 const defaultProps = {
-  children: 'children',
   label: 'label',
+  path: 'path',
+  children: 'children',
 };
-
-treeData.value = [
-  {
-    "label": "folder1",
-    "type": "directory",
-    "children": [
-      {
-        "label": "file1.txt",
-        "type": "file"
-      },
-      {
-        "label": "subfolder1",
-        "type": "directory",
-        "children": [
-          {
-            "label": "file2.txt",
-            "type": "file"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "label": "file3.txt",
-    "type": "file"
-  }
-]
 
 // 获取目录内容
 const fetchDirectoryContents = async () => {
   try {
-    const response = await axios.get('/folder-files', {
-      params: { folderPath: currentPath.value },
+    const response = await axios.get('http://192.168.10.124:8080/api/assets/catalogue', {
+      params: { path: currentPath.value },
     });
     tableData.value = response.data;
   } catch (error) {
@@ -119,6 +106,7 @@ const handleNameClick = (item) => {
   if (item.type === 'directory') {
     // 打开目录
     currentPath.value = `${currentPath.value}/${item.label}`;
+    console.log('currentPath.value11111111111: ' + currentPath.value)
     // breadcrumb.push({ label: item.label, path: currentPath.value });
     fetchDirectoryContents();
   } else {
@@ -128,18 +116,32 @@ const handleNameClick = (item) => {
   }
 };
 
-// 下载文件
+// 下载文件***********************有问题：文件名带中文时下载不了***************
 const downloadFile = (item) => {
-  window.open(`/file-download?filePath=${encodeURIComponent(currentPath.value + '/' + item.label)}`);
+  const filePath = encodeURIComponent(currentPath.value + '/' + item.label);
+  const downloadUrl = `http://192.168.10.124:8080/api/assets/download?filePath=${filePath}`;
+
+  // 使用 window.open 打开下载链接
+  window.open(downloadUrl);
+};
+
+// 递归函数：过滤出所有 type 为 'directory' 的项
+const filterDirectories = (data) => {
+  return data
+      .filter(item => item.type === 'directory')  // 只保留 type 为 'directory' 的项
+      .map(item => ({
+        ...item,
+        children: item.children ? filterDirectories(item.children) : [] // 递归处理子目录
+      }));
 };
 
 // 从后端获取目录结构
 const fetchFolderStructure = async () => {
   try {
-    const response = await axios.get('/folder-structure', {
-      params: { folderPath: '/your/folder/path' }
+    const response = await axios.get('http://192.168.10.124:8080/api/assets/catalogue', {
+      params: { path: 'E:/javaItem/assets' }
     });
-    treeData.value = response.data;
+    treeData.value = filterDirectories(response.data);
   } catch (error) {
     console.error('Failed to fetch folder structure', error);
   }
@@ -149,15 +151,65 @@ const fetchFolderStructure = async () => {
 const handleNodeClick = async (node) => {
   if (node.type === 'directory') {
     try {
-      const response = await axios.get('/folder-files', {
-        params: { folderPath: `/your/folder/path${node.path}` } // node.path 是目录路径
+      currentPath.value = node.path;
+      const response = await axios.get('http://192.168.10.124:8080/api/assets/catalogue', {
+        params: { path: currentPath.value } // node.path 是目录路径
       });
       tableData.value = response.data;
+      console.log('node.path: ', node.path)
+      console.log('currentPath.value22222: ', currentPath.value)
+      console.log('tableData.value: ', tableData.value)
+      console.log('node.label: ', node.label)
     } catch (error) {
       console.error('Failed to fetch files', error);
     }
   }
 };
+
+
+
+// 示例按钮的点击处理函数
+const uploadFile = () => {
+  // 实现上传文件逻辑
+};
+
+const createFolder = () => {
+  // 实现新建目录逻辑
+};
+
+const moveItem = () => {
+  // 实现移动功能逻辑
+};
+
+const deleteItem = () => {
+  // 实现删除功能逻辑
+};
+
+const publishItem = () => {
+  // 实现发布功能逻辑
+};
+
+const unpublishItem = () => {
+  // 实现取消发布功能逻辑
+};
+
+
+// treeData.value = [
+//   {
+//     "label": "folder1",
+//     "type": "directory",
+//     "children": [
+//       {
+//         "label": "file1.txt",
+//         "type": "file"
+//       },
+//     ]
+//   },
+//   {
+//     "label": "file3.txt",
+//     "type": "file"
+//   }
+// ]
 
 // 在组件挂载时获取数据
 onMounted(() => {

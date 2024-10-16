@@ -15,12 +15,11 @@ instance.interceptors.request.use(
   (config) => {
     // TODO 2. 携带token
     const userStore = useUserStore()
-      console.log('request.js  1111111')
+      console.log('request.js')
     if (userStore.token) {
       config.headers.Authorization = userStore.token
-        console.log('request.js  222222')
+        console.log('request.js：成功携带token：' + userStore.token)
     }
-      console.log('request.js  33333')
     return config
   },
   (err) => Promise.reject(err)

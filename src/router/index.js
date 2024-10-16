@@ -80,7 +80,7 @@ router.beforeEach((to, from, next) => {
         document.title = 'Smart Course'; // 如果没有设置 meta.title，使用默认标题
     }
 
-    const userStore=useUserStore()
+    const userStore= useUserStore()
     console.log('这是token：' + userStore.token)
     if(!userStore.token && to.path!=='/login'){
         // return '/login';
