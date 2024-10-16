@@ -89,12 +89,15 @@ const defaultProps = {
   children: 'children',
 };
 
+// ****************************************************************************************************************
+import { getDirectoryContents } from "@/api/user.js";
 // 获取目录内容
 const fetchDirectoryContents = async () => {
   try {
-    const response = await axios.get('http://192.168.10.124:8080/api/assets/catalogue', {
-      params: { path: currentPath.value },
-    });
+    // const response = await axios.get('http://192.168.10.124:8080/api/assets/catalogue', {
+    //   params: { path: currentPath.value },
+    // });
+    const response = await getDirectoryContents(currentPath.value)
     tableData.value = response.data;
   } catch (error) {
     ElMessage.error('获取目录内容失败');

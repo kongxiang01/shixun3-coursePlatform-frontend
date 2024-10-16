@@ -17,3 +17,6 @@ export const userUpdateAvatarService = (avatar) =>
 // 更新用户密码
 export const userUpdatePasswordService = ({ old_pwd, new_pwd, re_pwd }) =>
     request.patch('/my/updatepwd', { old_pwd, new_pwd, re_pwd })
+
+export const getDirectoryContents = (path) =>
+    request.get('/api/assets/catalogue', { params: {path: path} })

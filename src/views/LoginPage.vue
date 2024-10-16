@@ -79,7 +79,7 @@ const router = useRouter()
 const handleLogin = async () => {
   await form.value.validate()// 点击登录后等待再一次校验完成
   ElMessage.info('111111')
-  console.log('loginFormModel.value: ' + loginFormModel.value.sno + 'password: ' + loginFormModel.value.password)
+  console.log('loginFormModel.value.sno: ' + loginFormModel.value.sno + 'password: ' + loginFormModel.value.password)
   const res = await userLoginService(loginFormModel.value) // 发送登录表单内容
   ElMessage.info('22222')
   userStore.setToken(res.data.token) // 接收后端的token来设置当前用户的token
