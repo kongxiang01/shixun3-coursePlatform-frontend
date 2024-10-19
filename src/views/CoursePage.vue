@@ -131,7 +131,7 @@ const courseNumber = ref(route.params.courseNumber);
 
 // 动态生成路径的函数
 const generateCoursePath = (suffix) => {
-  return `/course/courseId=${courseId.value}&courseNumber=${courseNumber.value}/${suffix}`;
+  return `/course/${suffix}`;
 };
 </script>
 

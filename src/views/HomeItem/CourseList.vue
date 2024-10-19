@@ -17,14 +17,14 @@
     <!-- 课程列表 -->
     <el-row class="course-list" :gutter="10">
       <el-col v-for="(course, index) in courses" :key="index" :span="8">
-        <el-card shadow="hover" class="course-card" @click="goToCourse(course)">
+        <el-card shadow="hover" class="course-card" @click="goToCourse()">
           <!-- 课程图片 -->
-          <img :src="course.image" alt="课程图片" class="course-image" />
+          <img src="https://via.placeholder.com/150x100" alt="课程图片" class="course-image" />
           <!-- 课程信息 -->
           <div class="course-info">
-            <h3>{{ course.name }}</h3>
-            <p>课程号：{{ course.courseNumber }}</p>
-            <p>课序号：{{ course.sectionNumber }}</p>
+            <h3>{{ course.cname }}</h3>
+            <p>课程号：{{ course.cno }}</p>
+            <p>课序号：{{ course.cid }}</p>
           </div>
         </el-card>
       </el-col>
@@ -33,9 +33,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import {onMounted, ref} from 'vue';
 import { useRouter } from 'vue-router';
 import VerticalBar from "../../components/VerticalBar.vue";
+import {getCourseList} from "@/api/user.js";
+import {useUserStore} from "@/stores/user.js";
 
 const selectedSemester = ref('');
 const semesters = [
@@ -43,73 +45,58 @@ const semesters = [
   '2023-2024第二学期',
 ];
 
-const courses = [
-  {
-    id: 1,
-    name: '课程一',
-    courseNumber: '101',
-    sectionNumber: '01',
-    image: 'https://via.placeholder.com/150x100'
-  },
-  {
-    id: 2,
-    name: '课程二',
-    courseNumber: '102',
-    sectionNumber: '02',
-    image: 'https://via.placeholder.com/150x100'
-  },
-  {
-    id: 3,
-    name: '课程三',
-    courseNumber: '103',
-    sectionNumber: '03',
-    image: 'https://via.placeholder.com/150x100'
-  },
-  {
-    id: 4,
-    name: '课程四',
-    courseNumber: '104',
-    sectionNumber: '04',
-    image: 'https://via.placeholder.com/150x100'
-  },
-  {
-    id: 5,
-    name: '课程五',
-    courseNumber: '105',
-    sectionNumber: '05',
-    image: 'https://via.placeholder.com/150x100'
-  },
-  {
-    id: 6,
-    name: '课程六',
-    courseNumber: '106',
-    sectionNumber: '06',
-    image: 'https://via.placeholder.com/150x100'
-  },
-  {
-    id: 7,
-    name: '课程七',
-    courseNumber: '107',
-    sectionNumber: '07',
-    image: 'https://via.placeholder.com/150x100'
+const userStore = useUserStore()
+const courses = ref([]); // 存储获取的课程信息
+
+// 获取学生课程数据
+const getCourses = async () => {
+  try {
+    // console.log('CourseList.vue111:   userStore.user.sno:', userStore.user.sno);
+    const res = await getCourseList(userStore.user.sno); // 向后端获取学生课程
+    console.log('CourseList.vue2222222:   res.data.courseList:', res.data.courseList);
+    courses.value = res.data.courseList; // 将返回的数据赋值给courses
+    // console.log('CourseList.vue3333333:   courses.value:' , courses.value)
+  } catch (error) {
+    console.error('CourseList.vue:获取课程失败:', error);
   }
-];
+};
+
 const router = useRouter();
 
 // 点击跳转到课程详情页面
-const goToCourse = (course) => {
+const goToCourse = () => {
   // 获取完整的路由路径
   const routePath = router.resolve({
     name: 'CoursePage',
-    params: { id: course.id ,
-              courseNumber: course.courseNumber}
   });
   // 在新标签页中打开该路径
   window.open(routePath.href, '_blank');
 };
+
 const handleSemesterChange = (value) => {
-  console.log(`选择的学期是: ${value}`);
+  console.log(`CourseList.vue:选择的学期是: ${value}`);
 };
+
+onMounted(()=>{
+  getCourses();
+  console.log('CourseList.vue: onMounted：获取课程列表', courses.value);
+})
+// const courses = [
+//   {
+//     id: 1,
+//     name: '课程一',
+//     courseNumber: '101',
+//     sectionNumber: '01',
+//     image: 'https://via.placeholder.com/150x100'
+//   },
+//   {
+//     id: 2,
+//     name: '课程二',
+//     courseNumber: '102',
+//     sectionNumber: '02',
+//     image: 'https://via.placeholder.com/150x100'
+//   },
+// ];
 </script>
 
 <style lang="scss" scoped>
@@ -127,7 +114,7 @@ const handleSemesterChange = (value) => {
   }
 
   .course-list{
-    max-height: 620px; /* 限制课程列表的最大高度 */
+    height: 620px; /* 限制课程列表的最大高度 */
     overflow-y: auto; /* 启用垂直滚动条 */
     padding-right: 10px; /* 预留空间避免滚动条覆盖内容 */
 

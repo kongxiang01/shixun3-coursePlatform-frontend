@@ -39,12 +39,10 @@ const routes = [
         ]
     },
     {
-        path: '/course/courseId=:id&courseNumber=:courseNumber',
+        path: '/course',
         name: 'CoursePage',
         component: CoursePage,
-        redirect: to => {
-            return `/course/courseId=${to.params.id}&courseNumber=${to.params.courseNumber}/courseIntro`;
-        },
+        redirect: '/course/courseIntro',
         props: true, // 是为了传上面的path: '/course/:id'的id
         meta: { title: '课程内容' },
         children: [
@@ -81,7 +79,7 @@ router.beforeEach((to, from, next) => {
     }
 
     const userStore= useUserStore()
-    console.log('这是token：' + userStore.token)
+    console.log('router/index.js:   这是token：' + userStore.token)
     if(!userStore.token && to.path!=='/login'){
         // return '/login';
         next('/login');

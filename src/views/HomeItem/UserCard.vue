@@ -1,6 +1,11 @@
 <script setup>
 import { Edit } from '@element-plus/icons-vue';
 import VerticalBar from "../../components/VerticalBar.vue";
+import { useUserStore } from '@/stores/user.js'
+import {computed} from "vue"; // 引入userStore
+
+const userStore = useUserStore() // 使用userStore
+const userInfo = computed(() => userStore.user) // 从 userStore 获取用户信息
 </script>
 
 <template>
@@ -19,20 +24,17 @@ import VerticalBar from "../../components/VerticalBar.vue";
 <!--      <el-avatar :size="100" src="../../assets/kedaya.jpg"></el-avatar>-->
       <div class="name"
            style="margin-top: 10px; font-size: 20px">
-        张三
+        {{userInfo.teacherName}}
       </div>
-<!--      <div class="identity"
-           style="margin-top: 10px; background-color: bisque; font-size: 20px">
-        学生
-      </div>-->
-      <el-tag type="warning" size="large" style="font-size: 20px; margin-top: 5px">学生</el-tag>
-
+      <el-tag type="warning" size="large" style="font-size: 20px; margin-top: 5px" v-if="userInfo.type === '0'">学生</el-tag>
+      <el-tag type="warning" size="large" style="font-size: 20px; margin-top: 5px" v-else-if="userInfo.type === '1'">{{userInfo.title}}</el-tag>
     </div>
     <div class="userCard-down">
-      <el-col  :offset="6" :span="8">
-        <el-row>学院:</el-row>
-        <el-row>邮箱:</el-row>
-        <el-row>电话:</el-row>
+      <el-col>
+        <el-row justify="center">学院: {{userInfo.major}}</el-row>
+        <el-row justify="center" v-if="userInfo.type === '0'">邮箱: {{userInfo.semail}}</el-row>
+        <el-row justify="center" v-if="userInfo.type === '1'">邮箱: {{userInfo.temail}}</el-row>
+        <el-row justify="center">电话: {{userInfo.title}}</el-row>
       </el-col>
     </div>
   </el-card>

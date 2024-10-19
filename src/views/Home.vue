@@ -7,7 +7,8 @@
           <!-- 头像和姓名 -->
           <div class="user-info">
             <el-avatar src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
-            <span class="username">张三</span>
+            <span class="username" v-if="userInfo.type === '0'">{{userInfo.studentName}}</span>
+            <span class="username" v-else-if="userInfo === '1'">{{userInfo.teacherName}}</span>
           </div>
           <!-- 个人中心 -->
           <el-link @click="goToProfile" style="color: #865425">个人中心</el-link>
@@ -25,7 +26,13 @@
 <script setup>
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user.js";
+import {computed} from "vue";
 
+const userStore = useUserStore()
+const userInfo = computed(() => userStore.user)
+
+
+console.log('Home.vue:  userInfo: ', userInfo.value)
 const router = useRouter();
 
 // 点击个人中心
@@ -51,7 +58,7 @@ const logout = () => {
 .whole{}
 
 #head {
-  background-image: url("../assets/bg1.jpg");
+  background-image: url("@/assets/bg1.jpg");
   background-size: cover;
   background-position: center;
   background-color: rgb(107, 192, 236);

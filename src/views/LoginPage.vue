@@ -8,10 +8,10 @@
                  ref="form"
                  class="form"
                  autocomplete="off">
-          <el-form-item prop="sno">
+          <el-form-item prop="username">
             <el-input
-                v-model="loginFormModel.sno"
-                placeholder="sno"
+                v-model="loginFormModel.username"
+                placeholder="username"
                 :prefix-icon="User"
             ></el-input>
           </el-form-item>
@@ -24,18 +24,28 @@
                 show-password
             ></el-input>
           </el-form-item>
+<!--          <el-form-item prop="yanzhengma">-->
+<!--            <el-input-->
+<!--                v-model="loginFormModel.yanzhengma"-->
+<!--                placeholder="请输入验证码"-->
+<!--                :prefix-icon="Lock"-->
+<!--                show-password-->
+<!--            ></el-input>-->
+<!--          </el-form-item>-->
           <el-form-item>
-            <el-checkbox v-model="loginFormModel.rememberMe">Remember me</el-checkbox>
-            <a href="#" class="forgot-password" style="margin-left: 40px">Forgot Password?</a>
+            <div style="width: 100%">
+              <a href="#"
+                 class="forgot-password"
+                 style="float: right;
+               font-size: 12px;
+               color: #5e1d41;">Forgot Password?</a>
+            </div>
           </el-form-item>
           <el-form-item>
             <el-button class="login-button" type="primary" @click="handleLogin">
               Login
             </el-button>
           </el-form-item>
-          <div class="register-link">
-            Don't have an account? <a href="#">Register</a>
-          </div>
         </el-form>
       </el-card>
     </div>
@@ -52,14 +62,13 @@ import {userLoginService} from "../api/user.js";
 
 const form = ref()
 const loginFormModel = ref({
-  sno: '',
+  username: '',
   password: '',
-  rememberMe: false,
 });
 
 // 验证规则
 const rules = {
-  sno: [
+  username: [
     { required: true, message: '请输入用户id', trigger: 'blur' },
     { min: 5, max: 10, message: 'id必须是 5-10位 的字符', trigger: 'blur' }
   ],
@@ -78,14 +87,14 @@ const userStore = useUserStore() // 用户仓库
 const router = useRouter()
 const handleLogin = async () => {
   await form.value.validate()// 点击登录后等待再一次校验完成
-  ElMessage.info('111111')
-  console.log('loginFormModel.value.sno: ' + loginFormModel.value.sno + 'password: ' + loginFormModel.value.password)
+  console.log('LoginPage.vue： loginFormModel.value.username: ' + loginFormModel.value.username + 'password: ' + loginFormModel.value.password)
   const res = await userLoginService(loginFormModel.value) // 发送登录表单内容
-  ElMessage.info('22222')
+  ElMessage.info('LoginPage.vue  11111111')
   userStore.setToken(res.data.token) // 接收后端的token来设置当前用户的token
-  // userStore.setToken(loginFormModel.value.sno) // 暂时代替
-  console.log('res.data.message): ' + res.data.message)
-  // ElMessage.success('登录成功')
+  userStore.setUser(res.data)
+  // userStore.setToken(loginFormModel.value.username) // 暂时代替
+  console.log('LoginPage.vue： res.data.message: ' + res.data.message)
+  ElMessage.success('登录成功')
   await router.push('/')
 };
 </script>
@@ -121,9 +130,7 @@ const handleLogin = async () => {
 }
 
 .forgot-password {
-  float: right;
-  font-size: 12px;
-  color: #5e1d41;
+
 }
 
 .el-input {
@@ -144,22 +151,6 @@ const handleLogin = async () => {
 
 .login-button:hover {
   background: linear-gradient(45deg, #38a1db, #42b883);
-}
-
-.register-link {
-  text-align: center;
-  margin-top: 10px;
-  color: #fff;
-}
-
-.register-link a {
-  color: #42b883;
-  margin-left: 20px;
-  text-decoration: none;
-}
-
-.register-link a:hover {
-  text-decoration: underline;
 }
 </style>
 

@@ -66,7 +66,6 @@
 <script setup>
 import {onMounted, ref} from 'vue';
 import {Search, Folder, Document } from "@element-plus/icons-vue";
-import axios from "axios";
 import {ElMessage} from "element-plus";
 import { useUserStore } from "@/stores/user.js";
 
@@ -90,14 +89,14 @@ const defaultProps = {
 };
 
 // ****************************************************************************************************************
-import { getDirectoryContents } from "@/api/user.js";
+import {getDirectory } from "@/api/user.js";
 // 获取目录内容
 const fetchDirectoryContents = async () => {
   try {
     // const response = await axios.get('http://192.168.10.124:8080/api/assets/catalogue', {
     //   params: { path: currentPath.value },
     // });
-    const response = await getDirectoryContents(currentPath.value)
+    const response = await getDirectory(currentPath.value)
     tableData.value = response.data;
   } catch (error) {
     ElMessage.error('获取目录内容失败');
@@ -141,9 +140,10 @@ const filterDirectories = (data) => {
 // 从后端获取目录结构
 const fetchFolderStructure = async () => {
   try {
-    const response = await axios.get('http://192.168.10.124:8080/api/assets/catalogue', {
-      params: { path: 'E:/javaItem/assets' }
-    });
+    // const response = await axios.get('http://192.168.10.124:8080/api/assets/catalogue', {
+    //   params: { path: 'E:/javaItem/assets' }
+    // });
+    const response = await getDirectory('E:/javaItem/assets');
     treeData.value = filterDirectories(response.data);
   } catch (error) {
     console.error('Failed to fetch folder structure', error);
@@ -155,9 +155,11 @@ const handleNodeClick = async (node) => {
   if (node.type === 'directory') {
     try {
       currentPath.value = node.path;
-      const response = await axios.get('http://192.168.10.124:8080/api/assets/catalogue', {
-        params: { path: currentPath.value } // node.path 是目录路径
-      });
+      // const response = await axios.get('http://192.168.10.124:8080/api/assets/catalogue', {
+      //   params: { path: currentPath.value } // node.path 是目录路径
+      // });
+      const response = await getDirectory(currentPath.value)
+
       tableData.value = response.data;
       console.log('node.path: ', node.path)
       console.log('currentPath.value22222: ', currentPath.value)

@@ -2,12 +2,12 @@ import axios from 'axios'
 import { useUserStore } from '../stores/user.js'
 import { ElMessage } from 'element-plus'
 import { useRouter } from "vue-router"
-const baseURL = 'http://192.168.10.124:8080'
+const baseURL = 'http://192.168.10.127:8080'
 
 const instance = axios.create({
   // TODO 1. 基础地址，超时时间
   baseURL,
-  timeout: 10000
+  timeout: 5000
 })
 
 // 请求拦截器
@@ -15,11 +15,15 @@ instance.interceptors.request.use(
   (config) => {
     // TODO 2. 携带token
     const userStore = useUserStore()
-      console.log('request.js')
+      // console.log('request.js  111111')
     if (userStore.token) {
-      config.headers.Authorization = userStore.token
+        // config.headers.Authorization = userStore.token
+        config.headers.token = userStore.token
         console.log('request.js：成功携带token：' + userStore.token)
+        // console.log('request.js：成功携带Authorization：' + config.headers.Authorization)
     }
+    // config.headers["Content-Type"] = '*/*';
+      // console.log('request.js22222222', config)
     return config
   },
   (err) => Promise.reject(err)
@@ -30,7 +34,12 @@ instance.interceptors.response.use(
   (res) => {
     // TODO 4. 摘取核心响应数据
       console.log('request.js  4444444')
+      const userStore = useUserStore()
     if (res.data.status === 'success') {
+        if(res.data.newToken){
+            userStore.setToken(res.data.newToken)
+            // console.log('request.js  成功设置newToken：', res.data.newToken)
+        }
       return res
     }
     // TODO 3. 处理业务失败

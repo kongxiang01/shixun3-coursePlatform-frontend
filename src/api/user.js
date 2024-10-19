@@ -1,7 +1,4 @@
 import request from '../utils/request'
-// 登录接口
-export const userLoginService = ({ sno, password }) =>
-    request.post('/api/login/student', { sno, password })
 
 // 获取用户基本信息
 export const userGetInfoService = () => request.get('/api/userinfo')
@@ -18,5 +15,12 @@ export const userUpdateAvatarService = (avatar) =>
 export const userUpdatePasswordService = ({ old_pwd, new_pwd, re_pwd }) =>
     request.patch('/my/updatepwd', { old_pwd, new_pwd, re_pwd })
 
-export const getDirectoryContents = (path) =>
+// 登录接口
+export const userLoginService = ({ username, password }) =>
+    request.post('/api/login', { username, password })
+
+export const getDirectory = (path) =>
     request.get('/api/assets/catalogue', { params: {path: path} })
+
+export const getCourseList = ( sno ) =>
+    request.post('/api/course', { sno: sno } )
