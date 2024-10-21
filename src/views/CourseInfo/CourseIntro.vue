@@ -1,6 +1,10 @@
 <script setup>
-
 import VerticalBar from "../../components/VerticalBar.vue";
+import {useCourseStore} from "@/stores/course.js";
+import {computed} from "vue";
+const courseStore = useCourseStore()
+
+const courseInfo = computed( () => courseStore.course);
 </script>
 
 <template>
@@ -9,9 +13,7 @@ import VerticalBar from "../../components/VerticalBar.vue";
         <vertical-bar text="课程简介"></vertical-bar>
       </div>
     <div class="content">
-      23232321442342342342342333333333333333333333333333333333333333333333欢迎大家来到《软件项目管理与产品运维》的课程，希望这学期我们一起领略软件项目管理魅力，感受产品运维的魔力。愿我们一起进步，共同成长！ ：）
-      <p>111</p>
-      <p>222</p>
+      {{ courseInfo.description }}
     </div>
   </div>
 </template>

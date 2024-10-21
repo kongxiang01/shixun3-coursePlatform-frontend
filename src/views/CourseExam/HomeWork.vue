@@ -68,29 +68,50 @@
 
 <script setup>
 import {useRoute, useRouter} from "vue-router";
-import {ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import homeworkDetail from "@/views/CourseExam/HomeworkDetail/HomeworkDetail.vue";
+import {getHomeworkList} from "@/api/user.js";
 
-const tableData = [
-  {
-    hTitle: '作业一',
-    hStart: '11-11-1111',
-    hEnd: '22-22-2222',
-    hSubmitNum: 66,
-    hSubmitTime: '11-22-1111',
-    hScore: 80,
-    hStatus: '已批改',
+const route = useRoute();
+
+// 使用 computed 从 query 中获取课程信息
+const courseInfo = computed(() => ({
+  cname: route.query.cname,
+  cno: route.query.cno,
+  cid: route.query.cid
+}));
+const tableData = ref([])
+
+const getHWData = async () => {
+  try {
+    // console.log('CourseList.vue111:   userStore.user.sno:', userStore.user.sno);
+    const res = await getHomeworkList(courseInfo.value.cid, userStore.user.sno); // 向后端获取学生课程
+    console.log('HomeWork.vue111111111:   courseInfo.value.cid:', courseInfo.value.cid);
+    tableData.value = res.data.homeworkInfoList; // 将返回的数据赋值给courses
+  } catch (error) {
+    console.error('Homework.vue:获取作业列表失败:', error);
   }
-]
+};
+
+// const tableData = [
+//   {
+//     hTitle: '作业一',
+//     hStart: '11-11-1111',
+//     hEnd: '22-22-2222',
+//     hSubmitNum: 66,
+//     hSubmitTime: '11-22-1111',
+//     hScore: 80,
+//     hStatus: '已批改',
+//   }
+// ]
 
 const router = useRouter();
-const route = useRoute();
-const courseId = ref(route.params.id);
-const courseNumber = ref(route.params.courseNumber);
+// const courseId = ref(route.params.id);
+// const courseNumber = ref(route.params.courseNumber);
 
 // 动态生成路径的函数
 const generateCoursePath = (suffix) => {
-  return `/course/courseId=${courseId.value}&courseNumber=${courseNumber.value}/${suffix}`;
+  return `/course/${suffix}`;
 };
 
 const handleHW = () => {
@@ -110,6 +131,11 @@ const submitForm = () => {
   // 提交逻辑，例如发送请求
   drawerVisible.value = false; // 提交后关闭抽屉
 };
+
+onMounted(()=>{
+  getHWData();
+  console.log('HomeWork.vue: onMounted：获取作业列表', tableData.value);
+})
 </script>
 
 <style lang="scss" scoped>

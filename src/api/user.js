@@ -24,3 +24,9 @@ export const getDirectory = (path) =>
 
 export const getCourseList = ( sno ) =>
     request.post('/api/course', { sno: sno } )
+
+export const getHomeworkList = ( cid, sno ) =>
+    request.post('/api/homework/display', { cid, sno } )
+
+export const getCourseInfo = (cid, cno) =>
+    request.post('/api/course/info', {}, { params: { cid, cno } })

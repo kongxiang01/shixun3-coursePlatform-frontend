@@ -2,7 +2,7 @@
 import { Edit } from '@element-plus/icons-vue';
 import VerticalBar from "../../components/VerticalBar.vue";
 import { useUserStore } from '@/stores/user.js'
-import {computed} from "vue"; // 引入userStore
+import {computed} from "vue";
 
 const userStore = useUserStore() // 使用userStore
 const userInfo = computed(() => userStore.user) // 从 userStore 获取用户信息

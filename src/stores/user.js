@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { userGetInfoService } from '../api/user.js'
 
-// 用户模块 token setToken removeToken
 export const useUserStore = defineStore(
     'big-user', () => {
     const token = ref('')

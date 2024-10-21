@@ -1,7 +1,8 @@
 <script setup>
 
 import VerticalBar from "../../components/VerticalBar.vue";
-import {reactive} from "vue";
+import {computed, reactive} from "vue";
+import {useCourseStore} from "@/stores/course.js";
 
 const personalInfo = reactive({
   name: '张三',
@@ -11,6 +12,9 @@ const personalInfo = reactive({
   class: '软件2000',
   email: 'zhangsan@example.com'
 })
+
+const courseStore = useCourseStore()
+const teacherInfo = computed(() => courseStore.teacher)
 
 const editInfo = () => {
   console.log('编辑个人信息')

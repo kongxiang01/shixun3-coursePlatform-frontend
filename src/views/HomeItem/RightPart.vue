@@ -53,7 +53,8 @@
 
 <script setup>
 import VerticalBar from "../../components/VerticalBar.vue";
-import {computed, ref} from 'vue';
+import {computed, ref, watchEffect} from 'vue';
+import {useCourseStore} from "@/stores/course.js";
 
 // 当前年份和月份
 const selectedYear = ref(new Date().getFullYear());
@@ -81,6 +82,8 @@ const generateCalendar = () => {
   dates.value = Array.from({ length: daysInMonth }, (_, i) => i + 1); // 生成日期数组
 };
 
+const courseStore = useCourseStore()
+
 // 判断当前是第几教学周，排除国庆周
 const teachingWeek = computed(() => {
   const now = new Date(selectedYear.value, selectedMonth.value, selectedDate.value || today.getDate());
@@ -88,6 +91,10 @@ const teachingWeek = computed(() => {
   const weeksPassed = Math.floor(timeDifference / (1000 * 60 * 60 * 24 * 7));
 
   return weeksPassed >= nationalDayWeek ? weeksPassed : weeksPassed + 1; // 跳过国庆那一周
+});
+
+watchEffect(() => {
+  courseStore.setTeachingWeek(teachingWeek.value);
 });
 
 // 判断是否是当前日期
@@ -116,6 +123,7 @@ const handleMonthYearChange = () => {
 
 // 页面加载时生成当前月份日历
 generateCalendar();
+
 </script>
 
 <style lang="scss" scoped>

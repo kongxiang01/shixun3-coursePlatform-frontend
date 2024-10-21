@@ -17,7 +17,7 @@
     <!-- 课程列表 -->
     <el-row class="course-list" :gutter="10">
       <el-col v-for="(course, index) in courses" :key="index" :span="8">
-        <el-card shadow="hover" class="course-card" @click="goToCourse()">
+        <el-card shadow="hover" class="course-card" @click="goToCourse(course)">
           <!-- 课程图片 -->
           <img src="https://via.placeholder.com/150x100" alt="课程图片" class="course-image" />
           <!-- 课程信息 -->
@@ -34,10 +34,11 @@
 
 <script setup>
 import {onMounted, ref} from 'vue';
-import { useRouter } from 'vue-router';
+import {useRouter} from 'vue-router';
 import VerticalBar from "../../components/VerticalBar.vue";
-import {getCourseList} from "@/api/user.js";
+import {getCourseInfo, getCourseList} from "@/api/user.js";
 import {useUserStore} from "@/stores/user.js";
+import {useCourseStore} from "@/stores/course.js";
 
 const selectedSemester = ref('');
 const semesters = [
@@ -45,7 +46,9 @@ const semesters = [
   '2023-2024第二学期',
 ];
 
+const router = useRouter();
 const userStore = useUserStore()
+const courseStore = useCourseStore()
 const courses = ref([]); // 存储获取的课程信息
 
 // 获取学生课程数据
@@ -61,10 +64,13 @@ const getCourses = async () => {
   }
 };
 
-const router = useRouter();
 
-// 点击跳转到课程详情页面
-const goToCourse = () => {
+// 点击跳转到课程详情页面******************************************************************************
+const goToCourse = async (course) => {
+  const res = await getCourseInfo(course.cid, course.cno);
+  console.log('CourseList.vue33333333333:   res.data.courseInfo:', res.data.courseInfo)
+  courseStore.setCourse(res.data.courseInfo)
+  console.log('CourseList.vue444444444444444444444444444:   courseStore.course:', courseStore.course)
   // 获取完整的路由路径
   const routePath = router.resolve({
     name: 'CoursePage',
@@ -81,22 +87,6 @@ onMounted(()=>{
   getCourses();
   console.log('CourseList.vue: onMounted：获取课程列表', courses.value);
 })
-// const courses = [
-//   {
-//     id: 1,
-//     name: '课程一',
-//     courseNumber: '101',
-//     sectionNumber: '01',
-//     image: 'https://via.placeholder.com/150x100'
-//   },
-//   {
-//     id: 2,
-//     name: '课程二',
-//     courseNumber: '102',
-//     sectionNumber: '02',
-//     image: 'https://via.placeholder.com/150x100'
-//   },
-// ];
 </script>
 
 <style lang="scss" scoped>
