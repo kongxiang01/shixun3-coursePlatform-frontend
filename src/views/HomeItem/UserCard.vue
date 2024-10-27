@@ -3,9 +3,15 @@ import { Edit } from '@element-plus/icons-vue';
 import VerticalBar from "../../components/VerticalBar.vue";
 import { useUserStore } from '@/stores/user.js'
 import {computed} from "vue";
+import { useRouter } from "vue-router";
 
+const router = useRouter()
 const userStore = useUserStore() // 使用userStore
 const userInfo = computed(() => userStore.user) // 从 userStore 获取用户信息
+
+const handleEdit = () => {
+  router.push('/userInfo')
+}
 </script>
 
 <template>
@@ -16,7 +22,7 @@ const userInfo = computed(() => userStore.user) // 从 userStore 获取用户信
       </div>
       <div class="right">
         <el-icon><Edit /></el-icon>
-        <span class="label" @click="handleEdit" style="color: #ec2ba7">编辑</span>  <!-- 编辑文字 -->
+        <span class="label" @click="handleEdit" style="color: #ec2ba7; cursor: pointer">编辑</span>  <!-- 编辑文字 -->
       </div>
     </div>
     <div class="userCard-mid">

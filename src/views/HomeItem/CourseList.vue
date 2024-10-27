@@ -60,7 +60,7 @@ const getCourses = async () => {
     courses.value = res.data.courseList; // 将返回的数据赋值给courses
     // console.log('CourseList.vue3333333:   courses.value:' , courses.value)
   } catch (error) {
-    console.error('CourseList.vue:获取课程失败:', error);
+    console.log('CourseList.vue:获取课程失败:', error);
   }
 };
 

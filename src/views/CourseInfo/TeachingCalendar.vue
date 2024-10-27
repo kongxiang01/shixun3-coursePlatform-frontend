@@ -14,7 +14,7 @@ import VerticalBar from "../../components/VerticalBar.vue";
 <!--                width="100%"-->
 <!--                height="100%"-->
 <!--                allow="fullscreen"></iframe>-->
-        <iframe src="https://view.officeapps.live.com/op/embed.aspx?src=../../assets/testword.docx" width="100%" height="600px"></iframe>
+<!--        <iframe src="https://view.officeapps.live.com/op/embed.aspx?src=../../assets/testword.docx" width="100%" height="600px"></iframe>-->
 
       </div>
     </div>

@@ -2,8 +2,8 @@
 import VerticalBar from "../../components/VerticalBar.vue";
 import {useCourseStore} from "@/stores/course.js";
 import {computed} from "vue";
-const courseStore = useCourseStore()
 
+const courseStore = useCourseStore()
 const courseInfo = computed( () => courseStore.course);
 </script>
 

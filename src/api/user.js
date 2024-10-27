@@ -19,14 +19,26 @@ export const userUpdatePasswordService = ({ old_pwd, new_pwd, re_pwd }) =>
 export const userLoginService = ({ username, password }) =>
     request.post('/api/login', { username, password })
 
+export const changePasswordService = ( password ) =>
+    request.post('/api/change', { password })
+
+
+
+
+
+
+
 export const getDirectory = (path) =>
     request.get('/api/assets/catalogue', { params: {path: path} })
+
+export const getDownloadFile = (filePath) =>
+    request.get('/api/assets/download', { params: {filePath} })
 
 export const getCourseList = ( sno ) =>
     request.post('/api/course', { sno: sno } )
 
 export const getHomeworkList = ( cid, sno ) =>
-    request.post('/api/homework/display', { cid, sno } )
+    request.post('/api/course/homework/display', { cid, sno } )
 
 export const getCourseInfo = (cid, cno) =>
     request.post('/api/course/info', {}, { params: { cid, cno } })

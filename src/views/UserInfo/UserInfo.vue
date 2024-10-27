@@ -12,7 +12,24 @@
               <span class="info-title">{{ userInfo.type === '0' ? '学生信息' : '老师信息' }}</span>
             </el-col>
             <el-col span="12">
-              <el-button type="primary" @click="editInfo">编辑</el-button>
+              <el-button type="primary" @click="openDialog">修改密码</el-button>
+              <el-dialog v-model="dialogVisible" title="修改密码">
+                <el-form :model="form" ref="formRef">
+<!--                  <el-form-item label="原密码" prop="oldPassword" :rules="[{ required: true, message: '请输入原密码' }]">-->
+<!--                    <el-input v-model="form.oldPassword" type="password" placeholder="请输入原密码"></el-input>-->
+<!--                  </el-form-item>-->
+                  <el-form-item label="新密码" prop="newPassword" :rules="[{ required: true, message: '请输入新密码' }]">
+                    <el-input v-model="form.newPassword" type="password" placeholder="请输入新密码"></el-input>
+                  </el-form-item>
+                  <el-form-item label="确认新密码" prop="confirmPassword" :rules="[{ required: true, message: '请确认新密码' }]">
+                    <el-input v-model="form.confirmPassword" type="password" placeholder="请确认新密码"></el-input>
+                  </el-form-item>
+                </el-form>
+                <span class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="handleChangePassword">确 定</el-button>
+      </span>
+              </el-dialog>
             </el-col>
           </el-row>
 
@@ -33,7 +50,7 @@
                 </tr>
                 <tr class="info-row">
                   <th class="info-left">学号</th>
-                  <td>{{ userInfo.studentName }}</td>
+                  <td>{{ userInfo.sno }}</td>
                 </tr>
                 <tr class="info-row">
                   <th class="info-left">学院</th>
@@ -49,7 +66,6 @@
                 </tr>
                 </tbody>
               </table>
-
               <table v-else-if="userInfo.type === '1'"> <!-- 老师信息 -->
                 <tbody>
                 <tr class="info-row">
@@ -87,15 +103,50 @@
 </template>
 
 <script setup>
-import {computed} from "vue";
+import {computed, ref} from "vue";
 import { useUserStore } from '@/stores/user.js' // 引入userStore
+import { ElMessage } from 'element-plus';
+import {changePasswordService} from "@/api/user.js";
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const dialogVisible = ref(false);
+const form = ref({
+  newPassword: '',
+  confirmPassword: ''
+});
 
 const userStore = useUserStore() // 使用userStore
 const userInfo = computed(() => userStore.user) // 从 userStore 获取用户信息
 
-const editInfo = () => {
-  console.log('UserInfo.vue: 编辑个人信息')
-}
+// 打开对话框
+const openDialog = () => {
+  dialogVisible.value = true;
+};
+// 修改密码逻辑
+const handleChangePassword = async () => {
+  // 验证新密码与确认密码是否一致
+  if (form.value.newPassword !== form.value.confirmPassword) {
+    ElMessage.error('新密码与确认密码不一致');
+    return;
+  }
+  try {
+    // 发送修改密码的请求
+    console.log('form.value.newPassword: ', form.value.newPassword)
+    await changePasswordService(form.value.newPassword);
+    ElMessage.success('密码修改成功');
+    dialogVisible.value = false; // 关闭对话框
+    // 清空表单
+    form.value.newPassword = '';
+    form.value.confirmPassword = '';
+    userStore.removeToken() // 清空token重新登录
+    await router.push('/login')
+  } catch (error) {
+    ElMessage.error('修改密码时出错');
+  }
+};
+
+
 // 下面这个设置userInfo为响应式数据的方法行不通，用computed()可以，为什么呢
 // const userInfo = ref()
 //

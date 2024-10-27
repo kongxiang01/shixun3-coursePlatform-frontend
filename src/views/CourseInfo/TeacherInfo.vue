@@ -14,7 +14,7 @@ const personalInfo = reactive({
 })
 
 const courseStore = useCourseStore()
-const teacherInfo = computed(() => courseStore.teacher)
+const teacherInfo = computed(() => courseStore.course.teacherInfo)
 
 const editInfo = () => {
   console.log('编辑个人信息')
@@ -39,7 +39,6 @@ const editInfo = () => {
                 <span class="info-title">个人信息</span>
               </el-col>
               <el-col span="12">
-                <el-button type="primary" @click="editInfo">编辑</el-button>
               </el-col>
             </el-row>
 
@@ -52,27 +51,23 @@ const editInfo = () => {
                   <tbody>
                   <tr class="info-row">
                     <th class="info-left">姓名</th>
-                    <td>{{ personalInfo.name }}</td>
+                    <td>{{ teacherInfo.tname }}</td>
                   </tr>
                   <tr class="info-row">
                     <th class="info-left">性别</th>
-                    <td>{{ personalInfo.gender }}</td>
+                    <td>{{ teacherInfo.gender }}</td>
                   </tr>
                   <tr class="info-row">
-                    <th class="info-left">学号</th>
-                    <td>{{ personalInfo.studentId }}</td>
+                    <th class="info-left">职称</th>
+                    <td>{{ teacherInfo.title }}</td>
                   </tr>
                   <tr class="info-row">
                     <th class="info-left">学院</th>
-                    <td>{{ personalInfo.academy }}</td>
-                  </tr>
-                  <tr class="info-row">
-                    <th class="info-left">班级</th>
-                    <td>{{ personalInfo.class }}</td>
+                    <td>{{ teacherInfo.major }}</td>
                   </tr>
                   <tr class="info-row">
                     <th class="info-left">邮件</th>
-                    <td>{{ personalInfo.email }}</td>
+                    <td>{{ teacherInfo.temail }}</td>
                   </tr>
                   </tbody>
                 </table>

@@ -24,14 +24,6 @@
                 show-password
             ></el-input>
           </el-form-item>
-<!--          <el-form-item prop="yanzhengma">-->
-<!--            <el-input-->
-<!--                v-model="loginFormModel.yanzhengma"-->
-<!--                placeholder="请输入验证码"-->
-<!--                :prefix-icon="Lock"-->
-<!--                show-password-->
-<!--            ></el-input>-->
-<!--          </el-form-item>-->
           <el-form-item>
             <div style="width: 100%">
               <a href="#"
@@ -89,12 +81,10 @@ const handleLogin = async () => {
   await form.value.validate()// 点击登录后等待再一次校验完成
   console.log('LoginPage.vue： loginFormModel.value.username: ' + loginFormModel.value.username + 'password: ' + loginFormModel.value.password)
   const res = await userLoginService(loginFormModel.value) // 发送登录表单内容
-  ElMessage.info('LoginPage.vue  11111111')
   userStore.setToken(res.data.token) // 接收后端的token来设置当前用户的token
   userStore.setUser(res.data)
-  // userStore.setToken(loginFormModel.value.username) // 暂时代替
   console.log('LoginPage.vue： res.data.message: ' + res.data.message)
-  ElMessage.success('登录成功')
+  ElMessage.success(res.data.message)
   await router.push('/')
 };
 </script>

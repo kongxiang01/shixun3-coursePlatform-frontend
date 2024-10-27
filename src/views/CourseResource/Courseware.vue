@@ -89,7 +89,8 @@ const defaultProps = {
 };
 
 // ****************************************************************************************************************
-import {getDirectory } from "@/api/user.js";
+import {getDirectory, getDownloadFile} from "@/api/user.js";
+import axios from "axios";
 // 获取目录内容
 const fetchDirectoryContents = async () => {
   try {
@@ -120,11 +121,34 @@ const handleNameClick = (item) => {
 
 // 下载文件***********************有问题：文件名带中文时下载不了***************
 const downloadFile = (item) => {
-  const filePath = encodeURIComponent(currentPath.value + '/' + item.label);
-  const downloadUrl = `http://192.168.10.124:8080/api/assets/download?filePath=${filePath}`;
+  // const filePath = currentPath.value + '/' + item.label;
+  // // 使用 getDownloadFile 获取下载链接
+  // getDownloadFile(filePath)
+  //     .then((response) => {
+  //       // 处理返回的下载链接
+  //       const downloadUrl = response.data;
+  //       window.open(downloadUrl);
+  //     })
+  //     .catch((error) => {
+  //       console.error("下载失败:", error);
+  //     });
 
-  // 使用 window.open 打开下载链接
-  window.open(downloadUrl);
+
+  axios.get('/api/assets/generateDownloadLink', { params: { fileName } })
+      .then(response => {
+        if (response.data.status === "success") {
+          const downloadLink = response.data.downloadLink;
+          // 生成链接元素并触发点击
+          const link = document.createElement('a');
+          link.href = downloadLink;
+          link.click();
+        } else {
+          console.error("Error:", response.data.message);
+        }
+      })
+      .catch(error => {
+        console.error("Download link generation failed:", error);
+      });
 };
 
 // 递归函数：过滤出所有 type 为 'directory' 的项
@@ -140,13 +164,11 @@ const filterDirectories = (data) => {
 // 从后端获取目录结构
 const fetchFolderStructure = async () => {
   try {
-    // const response = await axios.get('http://192.168.10.124:8080/api/assets/catalogue', {
-    //   params: { path: 'E:/javaItem/assets' }
-    // });
     const response = await getDirectory('E:/javaItem/assets');
-    treeData.value = filterDirectories(response.data);
+    // console.log(' response.data.folderStructure：', response.data.folderStructure);
+    treeData.value = filterDirectories(response.data.folderStructure);
   } catch (error) {
-    console.error('Failed to fetch folder structure', error);
+    console.log('fetch 目录结构失败：', error);
   }
 };
 
@@ -155,16 +177,16 @@ const handleNodeClick = async (node) => {
   if (node.type === 'directory') {
     try {
       currentPath.value = node.path;
+      // console.log('node.path: 333333333333333', node.path)
+      // console.log('currentPath.value22222: ', currentPath.value)
       // const response = await axios.get('http://192.168.10.124:8080/api/assets/catalogue', {
       //   params: { path: currentPath.value } // node.path 是目录路径
       // });
       const response = await getDirectory(currentPath.value)
 
-      tableData.value = response.data;
-      console.log('node.path: ', node.path)
-      console.log('currentPath.value22222: ', currentPath.value)
-      console.log('tableData.value: ', tableData.value)
-      console.log('node.label: ', node.label)
+      tableData.value = response.data.folderStructure;
+      // console.log('tableData.value: ', tableData.value)
+      // console.log('node.label: ', node.label)
     } catch (error) {
       console.error('Failed to fetch files', error);
     }

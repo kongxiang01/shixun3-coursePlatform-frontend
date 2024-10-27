@@ -1,17 +1,17 @@
 <template>
   <div class="container">
     <el-table :data="tableData">
-      <el-table-column prop="hTitle" label="作业标题" align="center">
+      <el-table-column prop="homeworkName" label="作业标题" align="center">
         <template #default="scope">
-          <el-link type="primary" :underline="false" @click="handleHW">{{scope.row.hTitle}}</el-link>
+          <el-link type="primary" :underline="false" @click="handleHW">{{scope.row.homeworkName}}</el-link>
         </template>
       </el-table-column>
-      <el-table-column prop="hStart" label="作业开始" align="center"></el-table-column>
-      <el-table-column prop="hEnd" label="作业截止" align="center"></el-table-column>
-      <el-table-column prop="hSubmitNum" label="提交人数" align="center"></el-table-column>
-      <el-table-column prop="hSubmitTime" label="提交时间" align="center"></el-table-column>
-      <el-table-column prop="hScore" label="得分" align="center"></el-table-column>
-      <el-table-column prop="hStatus" label="批改状态" align="center"></el-table-column>
+      <el-table-column prop="start" label="作业开始" align="center"></el-table-column>
+      <el-table-column prop="end" label="作业截止" align="center"></el-table-column>
+      <el-table-column prop="submitRatio" label="提交人数" align="center"></el-table-column>
+      <el-table-column prop="submitTime" label="提交时间" align="center"></el-table-column>
+      <el-table-column prop="score" label="得分" align="center"></el-table-column>
+      <el-table-column prop="reviestatus" label="批改状态" align="center"></el-table-column>
       <el-table-column label="操作" align="center">
         <template #default>
           <el-link type="primary" :underline="false" @click="drawerVisible = true">提交</el-link>
@@ -71,25 +71,34 @@ import {useRoute, useRouter} from "vue-router";
 import {computed, onMounted, ref} from "vue";
 import homeworkDetail from "@/views/CourseExam/HomeworkDetail/HomeworkDetail.vue";
 import {getHomeworkList} from "@/api/user.js";
+import {useCourseStore} from "@/stores/course.js";
+import {useUserStore} from "@/stores/user.js";
 
 const route = useRoute();
 
 // 使用 computed 从 query 中获取课程信息
-const courseInfo = computed(() => ({
-  cname: route.query.cname,
-  cno: route.query.cno,
-  cid: route.query.cid
-}));
+// const courseInfo = computed(() => ({
+//   cname: route.query.cname,
+//   cno: route.query.cno,
+//   cid: route.query.cid
+// }));
+
+const courseStore = useCourseStore()
+const courseInfo = computed(() => courseStore.course)
+const userStore = useUserStore()
+const userInfo = computed(() => userStore.user)
+
 const tableData = ref([])
 
 const getHWData = async () => {
   try {
-    // console.log('CourseList.vue111:   userStore.user.sno:', userStore.user.sno);
-    const res = await getHomeworkList(courseInfo.value.cid, userStore.user.sno); // 向后端获取学生课程
-    console.log('HomeWork.vue111111111:   courseInfo.value.cid:', courseInfo.value.cid);
+    console.log('HomeWork.vue111111111111111:   courseInfo.value.cid, userInfo.sno:', courseInfo.value.cid, userInfo.value.sno);
+    const res = await getHomeworkList(courseInfo.value.cid, userInfo.value.sno); // 向后端获取学生课程
     tableData.value = res.data.homeworkInfoList; // 将返回的数据赋值给courses
+    console.log('HomeWork.vue22222222222222:   courseInfo.value.cid:', res.data.homeworkInfoList);
+    console.log('HomeWork.vue3333333333333:   tableData:', tableData);
   } catch (error) {
-    console.error('Homework.vue:获取作业列表失败:', error);
+    console.log('Homework.vue:获取作业列表失败:', error);
   }
 };
 

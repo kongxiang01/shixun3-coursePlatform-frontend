@@ -128,7 +128,7 @@ import {useCourseStore} from "@/stores/course.js";
 
 const route = useRoute();
 const courseStore = useCourseStore()
-
+console.log('CoursePage.vue:  courseStore: ', courseStore)
 const courseInfo = computed( () => courseStore.course);
 
 // 动态生成路径的函数
