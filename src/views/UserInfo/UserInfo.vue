@@ -8,12 +8,16 @@
             <el-avatar size="large" :src="userInfo.avatar" />
           </el-row>
           <el-row justify="space-between" align="middle">
-            <el-col span="12">
+            <el-col :span="12">
               <span class="info-title">{{ userInfo.type === '0' ? '学生信息' : '老师信息' }}</span>
             </el-col>
-            <el-col span="12">
+            <el-col :span="12" style="text-align: right;">
               <el-button type="primary" @click="openDialog">修改密码</el-button>
-              <el-dialog v-model="dialogVisible" title="修改密码">
+              <el-dialog class="change-psw-dialog"
+                         v-model="dialogVisible"
+                         title="修改密码"
+                         width="500"
+                         align-center>
                 <el-form :model="form" ref="formRef">
 <!--                  <el-form-item label="原密码" prop="oldPassword" :rules="[{ required: true, message: '请输入原密码' }]">-->
 <!--                    <el-input v-model="form.oldPassword" type="password" placeholder="请输入原密码"></el-input>-->
@@ -26,9 +30,9 @@
                   </el-form-item>
                 </el-form>
                 <span class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="handleChangePassword">确 定</el-button>
-      </span>
+                  <el-button @click="dialogVisible = false">取 消</el-button>
+                  <el-button type="primary" @click="handleChangePassword">确 定</el-button>
+                </span>
               </el-dialog>
             </el-col>
           </el-row>
@@ -190,5 +194,9 @@ const handleChangePassword = async () => {
   .info-left {
     width: 100px;
   }
+}
+
+.change-psw-dialog{
+  width: 300px;
 }
 </style>

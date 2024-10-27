@@ -30,7 +30,7 @@
               class="search-input"
           >
             <template #append>
-              <el-button :icon="Search" @click="handleSearchResource" class="search-button"></el-button>
+              <el-button :icon="Search" class="search-button"></el-button>
             </template>
           </el-input>
         </el-row>
@@ -64,22 +64,28 @@
 </template>
 
 <script setup>
-import {onMounted, ref} from 'vue';
+import {computed, onMounted, ref} from 'vue';
 import {Search, Folder, Document } from "@element-plus/icons-vue";
 import {ElMessage} from "element-plus";
 import { useUserStore } from "@/stores/user.js";
+import {useCourseStore} from "@/stores/course.js";
+
+const courseStore = useCourseStore()
+const courseInfo = computed( () => courseStore.course);
+console.log('CoursePage.vue:   courseInfo.value.cid: ', courseInfo.value.cid)
 
 const input = ref('');
 const treeData = ref([]);
 const tableData = ref([]);
-const currentPath = ref('E:/javaItem/assets'); // 初始化路径
+const currentPath = ref(); // 初始化路径
+const treePath = ref('E:/javaItem/assets' + '/' + courseInfo.value.cid); // 初始化路径
+console.log('CoursePage.vue:   treePath.value: ', treePath.value)
+
 // const breadcrumb = reactive([{ label: '根目录', path: '/your/base/path' }]);
 const previewVisible = ref(false);
 const previewUrl = ref('');
 
-// 获取用户身份
 const userStore = useUserStore(); // 获取用户角色
-
 
 // 定义 el-tree 的 prop 配置
 const defaultProps = {
@@ -90,7 +96,44 @@ const defaultProps = {
 
 // ****************************************************************************************************************
 import {getDirectory, getDownloadFile} from "@/api/user.js";
-import axios from "axios";
+
+// 递归函数：过滤出所有 type 为 'directory' 的项
+const filterDirectories = (data) => {
+  return data
+      .filter(item => item.type === 'directory')  // 只保留 type 为 'directory' 的项
+      .map(item => ({
+        ...item,
+        children: item.children ? filterDirectories(item.children) : [] // 递归处理子目录
+      }));
+};
+
+// 从后端获取目录结构
+const fetchFolderStructure = async () => {
+  try {
+    const response = await getDirectory(treePath.value);
+    // console.log(' response.data.folderStructure：', response.data.folderStructure);
+    treeData.value = filterDirectories(response.data.folderStructure);
+  } catch (error) {
+    console.log('fetch 目录结构失败：', error);
+  }
+};
+
+// 处理节点点击事件，获取对应目录下的文件
+const handleNodeClick = async (node) => {
+  if (node.type === 'directory') {
+    try {
+      currentPath.value = node.path;
+      console.log('Courseware.vue:  node.path: 333333333333333', node.path)
+      const response = await getDirectory(currentPath.value)
+      tableData.value = response.data.folderStructure;
+      // console.log('Courseware.vue:  tableData.value: ', tableData.value)
+      // console.log('node.label: ', node.label)
+    } catch (error) {
+      console.error('Failed to fetch files', error);
+    }
+  }
+};
+
 // 获取目录内容
 const fetchDirectoryContents = async () => {
   try {
@@ -98,9 +141,9 @@ const fetchDirectoryContents = async () => {
     //   params: { path: currentPath.value },
     // });
     const response = await getDirectory(currentPath.value)
-    tableData.value = response.data;
+    tableData.value = response.data.folderStructure;
   } catch (error) {
-    ElMessage.error('获取目录内容失败');
+    ElMessage.error('获取内容失败');
   }
 };
 
@@ -132,65 +175,6 @@ const downloadFile = (item) => {
   //     .catch((error) => {
   //       console.error("下载失败:", error);
   //     });
-
-
-  axios.get('/api/assets/generateDownloadLink', { params: { fileName } })
-      .then(response => {
-        if (response.data.status === "success") {
-          const downloadLink = response.data.downloadLink;
-          // 生成链接元素并触发点击
-          const link = document.createElement('a');
-          link.href = downloadLink;
-          link.click();
-        } else {
-          console.error("Error:", response.data.message);
-        }
-      })
-      .catch(error => {
-        console.error("Download link generation failed:", error);
-      });
-};
-
-// 递归函数：过滤出所有 type 为 'directory' 的项
-const filterDirectories = (data) => {
-  return data
-      .filter(item => item.type === 'directory')  // 只保留 type 为 'directory' 的项
-      .map(item => ({
-        ...item,
-        children: item.children ? filterDirectories(item.children) : [] // 递归处理子目录
-      }));
-};
-
-// 从后端获取目录结构
-const fetchFolderStructure = async () => {
-  try {
-    const response = await getDirectory('E:/javaItem/assets');
-    // console.log(' response.data.folderStructure：', response.data.folderStructure);
-    treeData.value = filterDirectories(response.data.folderStructure);
-  } catch (error) {
-    console.log('fetch 目录结构失败：', error);
-  }
-};
-
-// 处理节点点击事件，获取对应目录下的文件
-const handleNodeClick = async (node) => {
-  if (node.type === 'directory') {
-    try {
-      currentPath.value = node.path;
-      // console.log('node.path: 333333333333333', node.path)
-      // console.log('currentPath.value22222: ', currentPath.value)
-      // const response = await axios.get('http://192.168.10.124:8080/api/assets/catalogue', {
-      //   params: { path: currentPath.value } // node.path 是目录路径
-      // });
-      const response = await getDirectory(currentPath.value)
-
-      tableData.value = response.data.folderStructure;
-      // console.log('tableData.value: ', tableData.value)
-      // console.log('node.label: ', node.label)
-    } catch (error) {
-      console.error('Failed to fetch files', error);
-    }
-  }
 };
 
 
