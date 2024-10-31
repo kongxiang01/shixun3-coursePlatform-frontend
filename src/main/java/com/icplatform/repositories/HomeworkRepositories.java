@@ -11,6 +11,8 @@ public interface HomeworkRepositories extends JpaRepository<Homework, Integer> {
 
     List<Homework> findByCidAndSno(String cid, String sno);
 
+    Homework findByHname(String hname);
+
     // 根据 cid 统计已提交的作业数量
     @Query("SELECT COUNT(h) FROM Homework h WHERE h.cid = :cid")
     int countByCid(@Param("cid") String cid);

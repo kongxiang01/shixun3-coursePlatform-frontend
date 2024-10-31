@@ -8,11 +8,12 @@ import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class HomeworkService {
-    private final HomeworkRepositories homeworkRepositories;
+    private HomeworkRepositories homeworkRepositories;
 
     public HomeworkService(HomeworkRepositories homeworkRepositories) {
         this.homeworkRepositories = homeworkRepositories;
@@ -57,4 +58,43 @@ public class HomeworkService {
         return null;
     }
 
+    public Homework save(Homework homework) {
+        return homeworkRepositories.save(homework);
+    }
+
+    //更新作业
+    public void updateHomeworkByHname(String hname, String path, String cid, String sno, int workid, String cno, LocalDateTime submit_time, String reviestatus) {
+        Homework homework = homeworkRepositories.findByHname(hname);
+        if (homework == null) {
+            throw new IllegalArgumentException("资产未找到");
+        }
+        homework.setCid(cid);
+        homework.setSno(sno);
+        homework.setPath(path);
+        homework.setWorkid(workid);
+        homework.setCno(cno);
+        homework.setStime(submit_time);
+        homework.setReviestatus(reviestatus);
+        homeworkRepositories.save(homework);
+    }
+
+    //插入作业
+    public void insertNewHomework(String hname, String path, String cid, String sno, int workid, String cno, LocalDateTime submit_time,LocalDateTime start, LocalDateTime end, String reviestatus) {
+        Homework homework = new Homework();
+        homework.setHname(hname);
+        homework.setCid(cid);
+        homework.setSno(sno);
+        homework.setPath(path);
+        homework.setWorkid(workid);
+        homework.setCno(cno);
+        homework.setStime(submit_time);
+        homework.setStart(start);
+        homework.setEnd(end);
+        homework.setReviestatus(reviestatus);
+        homeworkRepositories.save(homework);
+    }
+
+    public String searchPathByHname(String hname) {
+        return homeworkRepositories.findByHname(hname).getPath();
+    }
 }

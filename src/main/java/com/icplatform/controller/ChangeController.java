@@ -27,7 +27,7 @@ public class ChangeController {
     public TeacherService teacherService;
 
     @PostMapping("")
-    public ResponseEntity<Map<String, Object>> changeData(@RequestHeader Map<String, String> header, @RequestBody Map<String, String> changeData) {
+    public ResponseEntity<Map<String, Object>> changeData(@RequestHeader Map<String, String> header, @RequestParam String password) {
 
         Map<String, Object> response = new HashMap<>();
         String token = header.get("token");
@@ -35,9 +35,6 @@ public class ChangeController {
         try {
             decodedJWT = JWTUtil.verifyToken(token);
         }catch (Exception e){
-            return null;
-        }
-        if(token == null){
             response.put("message", "修改密码失败，token被清空或已过期");
             response.put("status", "error");
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
@@ -48,7 +45,7 @@ public class ChangeController {
         if(userType == 0){
             Student student = studentService.searchBySno(username);
             if(student != null){
-                String password = changeData.get("password");
+
                 if(password !=null){
                     student.setPassword(password);
                 }
@@ -57,16 +54,22 @@ public class ChangeController {
         }else if(userType == 1){
             Teacher teacher = teacherService.searchByTno(username);
             if(teacher != null){
-                String password = changeData.get("password");
                 if(password !=null){
                     teacher.setPassword(password);
                 }
                 teacherService.save(teacher);
             }
+        }else{
+            response.put("status", "error");
+            response.put("message","不应存在的用户");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
         }
+
+        String newToken = JWTUtil.generateToken(userType,username);
 
         response.put("message", "成功修改密码!");
         response.put("status", "success");
+        response.put("newToken", newToken);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

@@ -8,4 +8,6 @@ public interface CourseRepositories extends JpaRepository<Course, CourseId> {
 
     Course findByCidAndCno(String cid, String cno);
 
+    Course findByCid(String cid);
+
 }

@@ -15,4 +15,7 @@ public class CourseService {
     public Course findByCidAndCno(String cid, String cno) {
         return courseRepositories.findByCidAndCno(cid,cno);
     }
+    public Course findByCid(String cid) {
+        return courseRepositories.findByCid(cid);
+    }
 }

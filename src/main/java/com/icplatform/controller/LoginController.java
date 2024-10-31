@@ -47,24 +47,24 @@ public class LoginController {
                 response.put("token", JWTUtil.generateToken(0, student.getSno()));
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
-        Teacher teacher = teacherService.searchByTno(number);
-        if (teacher != null && teacher.getPassword().equals(password)) {
-            response.put("message", "登录成功!");
-            response.put("status", "success");
-            response.put("teacherName", teacher.getTname());
-            response.put("tno", teacher.getTno());
-            response.put("type", "1");
-            response.put("temail", teacher.getTemail());
-            response.put("gender", teacher.getGender());
-            response.put("major", teacher.getMajor());
-            response.put("title", teacher.getTitle());
-            response.put("token", JWTUtil.generateToken(1, teacher.getTno()));
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
+                Teacher teacher = teacherService.searchByTno(number);
+                if (teacher != null && teacher.getPassword().equals(password)) {
+                    response.put("message", "登录成功!");
+                    response.put("status", "success");
+                    response.put("teacherName", teacher.getTname());
+                    response.put("tno", teacher.getTno());
+                    response.put("type", "1");
+                    response.put("temail", teacher.getTemail());
+                    response.put("gender", teacher.getGender());
+                    response.put("major", teacher.getMajor());
+                    response.put("title", teacher.getTitle());
+                    response.put("token", JWTUtil.generateToken(1, teacher.getTno()));
+                    return new ResponseEntity<>(response, HttpStatus.OK);
+                }
 
-        // 登录失败
-        response.put("message", "登录失败! 用户名或密码错误");
-        response.put("status", "error");
-        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            // 登录失败
+            response.put("message", "登录失败!");
+            response.put("status", "error");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 }
