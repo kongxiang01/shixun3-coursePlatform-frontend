@@ -11,16 +11,12 @@ export const userUpdateInfoService = ({ id, nickname, email }) =>
 export const userUpdateAvatarService = (avatar) =>
     request.patch('/my/update/avatar', { avatar })
 
-// 更新用户密码
-export const userUpdatePasswordService = ({ old_pwd, new_pwd, re_pwd }) =>
-    request.patch('/my/updatepwd', { old_pwd, new_pwd, re_pwd })
-
 // 登录接口
 export const userLoginService = ({ username, password }) =>
     request.post('/api/login', { username, password })
 
 export const changePasswordService = ( password ) =>
-    request.post('/api/change', { password })
+    request.post('/api/change', { password: password })
 
 
 
@@ -28,17 +24,27 @@ export const changePasswordService = ( password ) =>
 
 
 
-export const getDirectory = (path) =>
+export const getDirectoryService = ( path ) =>
     request.get('/api/assets/catalogue', { params: {path: path} })
 
-export const getDownloadFile = (filePath) =>
-    request.get('/api/assets/download', { params: {filePath} })
+export const getDownloadFileService = ( filePath ) =>
+    request.get('/api/assets/generateDownloadLink', { params: {fileName: filePath} })
 
-export const getCourseList = ( sno ) =>
-    request.post('/api/course', { sno: sno } )
+export const getCourseListService = ( sno ) =>
+    request.post('/api/course', { username: sno } )
 
-export const getHomeworkList = ( cid, sno ) =>
+export const getHomeworkListService = ( cid, sno ) =>
     request.post('/api/course/homework/display', { cid, sno } )
 
-export const getCourseInfo = (cid, cno) =>
+export const getCourseInfoService = (cid, cno) =>
     request.post('/api/course/info', {}, { params: { cid, cno } })
+
+export const uploadCourseWareService = (file, cid) =>{
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("cid", cid);
+    return request.post('/api/assets/upload', formData)
+}
+
+export const createFolderService = ( folderPath ) =>
+    request.post('/api/assets/folder/create', { folderPath } )

@@ -70,18 +70,11 @@
 import {useRoute, useRouter} from "vue-router";
 import {computed, onMounted, ref} from "vue";
 import homeworkDetail from "@/views/CourseExam/HomeworkDetail/HomeworkDetail.vue";
-import {getHomeworkList} from "@/api/user.js";
+import {getHomeworkListService} from "@/api/user.js";
 import {useCourseStore} from "@/stores/course.js";
 import {useUserStore} from "@/stores/user.js";
 
 const route = useRoute();
-
-// 使用 computed 从 query 中获取课程信息
-// const courseInfo = computed(() => ({
-//   cname: route.query.cname,
-//   cno: route.query.cno,
-//   cid: route.query.cid
-// }));
 
 const courseStore = useCourseStore()
 const courseInfo = computed(() => courseStore.course)
@@ -93,7 +86,7 @@ const tableData = ref([])
 const getHWData = async () => {
   try {
     console.log('HomeWork.vue111111111111111:   courseInfo.value.cid, userInfo.sno:', courseInfo.value.cid, userInfo.value.sno);
-    const res = await getHomeworkList(courseInfo.value.cid, userInfo.value.sno); // 向后端获取学生课程
+    const res = await getHomeworkListService(courseInfo.value.cid, userInfo.value.sno); // 向后端获取学生课程
     tableData.value = res.data.homeworkInfoList; // 将返回的数据赋值给courses
     console.log('HomeWork.vue22222222222222:   courseInfo.value.cid:', res.data.homeworkInfoList);
     console.log('HomeWork.vue3333333333333:   tableData:', tableData);

@@ -38,12 +38,13 @@ instance.interceptors.response.use(
       const userStore = useUserStore()
 
       const contentType = res.headers['content-type'];
-      if (contentType && contentType.includes('application/octet-stream')) {
-          // 直接返回文件流进行下载处理
-          return res;
-      }
+      console.log('request.js  contentType77777777777777777777：', contentType)
+      // if (contentType && contentType.includes('application/octet-stream')) {
+      //     // 直接返回文件流进行下载处理
+      //     return res;
+      // }
 
-      if (res.data.status === 'success') {
+      if (res.data.status === 'success' || res.headers.status === 'success') {
           if(res.data.newToken){
               userStore.setToken(res.data.newToken)
           }
@@ -52,7 +53,7 @@ instance.interceptors.response.use(
       }
       // TODO 3. 处理业务失败
       // 处理业务失败, 给错误提示，抛出错误
-      ElMessage.error(res.data.message || '服务异常')
+      ElMessage.error(res.data.message || '服务异常1111')
       return Promise.reject(res.data)
   },
   (err) => {
@@ -60,12 +61,12 @@ instance.interceptors.response.use(
     // 错误的特殊情况 => 401 权限不足 或 token 过期 => 拦截到登录
     if (err.response?.status === 'error') {
         const router = useRouter()
-        ElMessage.error(err.response.data.message || '未知异常')
+        ElMessage.error(err.response.data.message || '未知异常2222')
         router.push('/login')
     }
 
     // 错误的默认情况 => 只要给提示
-    ElMessage.error(err.response.data.message || '未知异常')
+    ElMessage.error(err.response.data.message || '未知异常2222')
     return Promise.reject(err)
   }
 )

@@ -36,7 +36,7 @@
 import {onMounted, ref} from 'vue';
 import {useRouter} from 'vue-router';
 import VerticalBar from "../../components/VerticalBar.vue";
-import {getCourseInfo, getCourseList} from "@/api/user.js";
+import {getCourseInfoService, getCourseListService, uploadCourseWareService} from "@/api/user.js";
 import {useUserStore} from "@/stores/user.js";
 import {useCourseStore} from "@/stores/course.js";
 
@@ -55,7 +55,14 @@ const courses = ref([]); // 存储获取的课程信息
 const getCourses = async () => {
   try {
     // console.log('CourseList.vue111:   userStore.user.sno:', userStore.user.sno);
-    const res = await getCourseList(userStore.user.sno); // 向后端获取学生课程
+
+    let res = ref();
+    //加个判断传sno还是tno
+    if(userStore.user.type === '0'){
+      res = await getCourseListService(userStore.user.sno); // 向后端获取学生课程
+    }else {
+      res = await getCourseListService(userStore.user.tno); // 向后端获取学生课程
+    }
     console.log('CourseList.vue2222222:   res.data.courseList:', res.data.courseList);
     courses.value = res.data.courseList; // 将返回的数据赋值给courses
     // console.log('CourseList.vue3333333:   courses.value:' , courses.value)
@@ -67,7 +74,8 @@ const getCourses = async () => {
 
 // 点击跳转到课程详情页面******************************************************************************
 const goToCourse = async (course) => {
-  const res = await getCourseInfo(course.cid, course.cno);
+  console.log('CourseList.vue12312333333333333333333333333333:   course.cid, course.cno:', course.cid, course.cno)
+  const res = await getCourseInfoService(course.cid, course.cno);
   console.log('CourseList.vue33333333333:   res.data.courseInfo:', res.data.courseInfo)
   courseStore.setCourse(res.data.courseInfo)
   console.log('CourseList.vue444444444444444444444444444:   courseStore.course:', courseStore.course)
