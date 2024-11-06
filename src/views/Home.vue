@@ -26,7 +26,7 @@
 <script setup>
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user.js";
-import {computed} from "vue";
+import {computed, onMounted, watch} from "vue";
 
 const userStore = useUserStore()
 const userInfo = computed(() => userStore.user)
@@ -50,8 +50,17 @@ const logout = () => {
   const userStore = useUserStore()
   userStore.removeToken()
   router.push('/login');
-  console.log("已安全退出");
+  console.log("Home.vue, 清空了token，已安全退出");
 };
+
+// watch(
+//     () => userStore.token,
+//     (newToken) => {
+//       if (!newToken) {
+//         router.push('/login');
+//       }
+//     }
+// );
 </script>
 
 <style lang="scss" scoped>

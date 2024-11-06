@@ -30,20 +30,15 @@
                 v-model="drawerVisible"
                 width="600px"
             >
-              <el-form ref="form" :model="uploadFormData" class="form">
-                <el-form-item>
-                  <div>
-                    <span style="margin-right: 20px">课程资源名称</span>
+              <el-form ref="form" :model="uploadFormData" :rules="uploadRules" class="form">
+                <el-form-item label="课程资源名称" prop="courseWareTitle">
                     <el-input
                         v-model="uploadFormData.courseWareTitle"
                         style="width: 240px"
                         placeholder=""
                     ></el-input>
-                  </div>
                 </el-form-item>
-                <div>
-                  <span style="margin-right: 20px">描述</span>
-                  <el-form-item>
+                  <el-form-item label="描述" prop="content">
                     <el-input
                         type="textarea"
                         :rows="6"
@@ -51,25 +46,18 @@
                         v-model="uploadFormData.content"
                     ></el-input>
                   </el-form-item>
-                </div>
-
                 <!-- 上传文件按钮 -->
                 <!-- 选择文件按钮 -->
                 <div>
                   <el-button type="text" @click="selectFile">选择文件</el-button>
-                  <span v-if="uploadFormData.courseWareTitle">{{ uploadFormData.courseWareTitle }}</span>
+                  <span v-if="uploadFormData.fileName">{{ uploadFormData.fileName }}</span>
                   <input type="file" ref="fileInput" style="display: none" @change="handleFileChange" />
                 </div>
-
                 <!-- 分割线 -->
                 <el-divider style="height: 2px; background-color: #a8a2a2; margin: 10px 0"></el-divider>
-
-                <!-- 文件上传提示 -->
                 <div class="el-upload__tip" style="margin: 0;padding: 0">
                   允许上传的文件类型: doc, pdf, ppt, xls, docx, pptx, xlsx, jpg, gif, jpeg, png, bmp
                 </div>
-
-                <!-- 确定和取消按钮 -->
                 <div class="buttons" style="margin-top: 20px; display: flex; justify-content: space-between">
                   <el-button type="primary" @click="submitUploadForm">确定</el-button>
                   <el-button @click="drawerVisible = false">取消</el-button>
@@ -81,28 +69,22 @@
                 v-model="createFolderVisible"
                 width="600px"
             >
-              <el-form ref="form" :model="createFolderFormData" class="form">
-                <el-form-item>
-                  <div>
-                    <span style="margin-right: 20px">目录名称</span>
-                    <el-input
-                        v-model="createFolderFormData.folderName"
-                        style="width: 240px"
-                        placeholder=""
-                    ></el-input>
-                  </div>
+              <el-form ref="form" :model="createFolderFormData" :rules="createRules" class="form">
+                <el-form-item label="目录名称" prop="folderName">
+                  <el-input
+                      v-model="createFolderFormData.folderName"
+                      style="width: 240px"
+                      placeholder=""
+                  ></el-input>
                 </el-form-item>
-                <div>
-                  <span style="margin-right: 20px">描述</span>
-                  <el-form-item>
-                    <el-input
-                        type="textarea"
-                        :rows="6"
-                        placeholder="请输入3000字以内的描述！"
-                        v-model="createFolderFormData.describe"
-                    ></el-input>
-                  </el-form-item>
-                </div>
+                <el-form-item label="描述" prop="describe">
+                  <el-input
+                      type="textarea"
+                      :rows="6"
+                      placeholder="请输入3000字以内的描述！"
+                      v-model="createFolderFormData.describe"
+                  ></el-input>
+                </el-form-item>
                 <!-- 确定和取消按钮 -->
                 <div class="buttons" style="margin-top: 20px; display: flex; justify-content: space-between">
                   <el-button type="primary" @click="submitCreateFolderForm">确定</el-button>
@@ -157,6 +139,7 @@ import {ElMessage} from "element-plus";
 import { useUserStore } from "@/stores/user.js";
 import {useCourseStore} from "@/stores/course.js";
 import {createFolderService, getDirectoryService, getDownloadFileService, uploadCourseWareService} from "@/api/user.js";
+import { useRouter } from 'vue-router'
 
 const courseStore = useCourseStore()
 const courseInfo = computed( () => courseStore.course);
@@ -169,11 +152,10 @@ const currentPath = ref('E:/ICPlatformStorage/CourseResources' + '/' + courseInf
 const treePath = ref('E:/ICPlatformStorage/CourseResources' + '/' + courseInfo.value.cid); // 初始化路径
 console.log('CoursePage.vue:   treePath.value: ', treePath.value)
 
-const previewVisible = ref(false);
-const previewUrl = ref('');
-
 const userStore = useUserStore(); // 获取用户角色
 const userInfo = computed(() => userStore.user)
+
+const router = useRouter();
 
 // 定义 el-tree 的 prop 配置
 const defaultProps = {
@@ -182,7 +164,7 @@ const defaultProps = {
   children: 'children',
 };
 
-// ****************************************************************************************************************
+// ******************************************************上传文件**********************************************************
 const drawerVisible = ref(false);
 const createFolderVisible = ref(false);
 // 表单数据
@@ -190,11 +172,35 @@ const uploadFormData = ref({
   courseWareTitle: '',
   content: '',
   file: null,
+  fileName: '',
 });
 const createFolderFormData = ref({
   folderName: '',
   describe: '',
 });
+
+
+const uploadRules = {
+  courseWareTitle: [
+    { required: false, message: '请输入课程资源名称', trigger: 'blur' },
+    { min: 2, max: 30, message: '长度在 2 到 30 个字符', trigger: 'blur' }
+  ],
+  content: [
+    { required: false, message: '请输入描述', trigger: 'blur' },
+    { max: 3000, message: '描述不能超过3000字', trigger: 'blur' }
+  ]
+};
+
+const createRules = {
+  folderName: [
+    { required: true, message: '请输入目录名称', trigger: 'blur' },
+    { min: 2, max: 30, message: '长度在 2 到 30 个字符', trigger: 'blur'}
+  ],
+  describe: [
+    { required: false, message: '描述不能超过3000字', trigger: 'blur'},
+    { max: 3000, message: '描述不能超过3000字', trigger: 'blur' }
+  ]
+}
 
 // 选择文件
 const selectFile = () => {
@@ -219,7 +225,7 @@ const submitUploadForm = async () => {
       await uploadCourseWareService(uploadFormData.value.file, courseInfo.value.cid)
       ElMessage.success('文件上传成功')
     } else {
-      ElMessage.info('请填写课程资源名称并选择文件')
+      ElMessage.info('请先选择文件')
     }
   } catch (error) {
     ElMessage.error('上传失败', error)
@@ -243,9 +249,8 @@ const submitCreateFolderForm = async () => {
     console.log('Courseware.vue: 上传失败222222222222222222222222', error)
   }
 };
-// ****************************************************************************************************************
 
-
+// *****************************************************显示目录***************************************************
 // 递归函数：过滤出所有 type 为 'directory' 的项
 const filterDirectories = (data) => {
   return data
@@ -263,7 +268,7 @@ const fetchFolderStructure = async () => {
     // console.log(' response.data.folderStructure：', response.data.folderStructure);
     treeData.value = filterDirectories(response.data.folderStructure);
   } catch (error) {
-    console.log('fetch 目录结构失败：', error);
+    console.log('Courseware.vue: fetch 目录结构失败：', error);
   }
 };
 
@@ -278,7 +283,7 @@ const handleNodeClick = async (node) => {
       // console.log('Courseware.vue:  tableData.value: ', tableData.value)
       // console.log('node.label: ', node.label)
     } catch (error) {
-      console.error('Failed to fetch files', error);
+      console.error('Courseware.vue: Failed to fetch files', error);
     }
   }
 };
@@ -293,6 +298,7 @@ const fetchDirectoryContents = async () => {
   }
 };
 
+// ***************************************************点击文件名预览课件**************************************************
 // 点击文件名
 const handleNameClick = (item) => {
   if (item.type === 'directory') {
@@ -303,20 +309,21 @@ const handleNameClick = (item) => {
     fetchDirectoryContents();
   } else {
     // 预览文件
-    previewUrl.value = `/file-preview?filePath=${encodeURIComponent(currentPath.value + '/' + item.label)}`;
-    previewVisible.value = true;
+    const fileName = item.label;
+    console.log("Courseware.vue: iiiiiiiiiiiiiiiiiiiiiiiiii  item.label：", item.label);
+    router.push({ name: 'FilePreview', query: { fileName: fileName } });
   }
 };
 
-// *****************************************************************************下载文件
+// ******************************************************下载文件*******************************************
 const downloadFile = async (item) => {
   try {
     // 获取带 Token 的下载链接
 
-    console.log("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqitem.label：", item.label);
+    console.log("Courseware.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqitem.label：", item.label);
     const res = await getDownloadFileService(item.label); // 假设你在 api 中定义了 getDownloadFileService
     const downloadUrl = res.data.downloadLink;
-    console.log("qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq  downloadUrl：", downloadUrl);
+    console.log("Courseware.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq  downloadUrl：", downloadUrl);
     // 创建一个临时的 <a> 元素并触发点击事件来下载文件
     const link = document.createElement("a");
     link.href = downloadUrl;
@@ -328,17 +335,6 @@ const downloadFile = async (item) => {
     console.error("下载文件失败:", error);
     ElMessage.error("下载文件失败，请重试");
   }
-};
-
-
-
-// 示例按钮的点击处理函数
-const uploadFile = () => {
-  // 实现上传文件逻辑
-};
-
-const createFolder = () => {
-  // 实现新建目录逻辑
 };
 
 const moveItem = () => {

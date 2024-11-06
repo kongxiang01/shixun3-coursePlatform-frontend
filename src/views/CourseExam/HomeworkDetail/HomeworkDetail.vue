@@ -1,12 +1,43 @@
 <script setup>
+import { ref, onMounted } from "vue";
 import VerticalBar from "@/components/VerticalBar.vue";
-import {InfoFilled} from "@element-plus/icons-vue";
+import { InfoFilled } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
+import { getHomeworkInfoService } from "@/api/user.js"; // 假设已封装的请求方法路径
 
-const router = useRouter()
+const router = useRouter();
+const homeworkInfo = ref(); // 用于存储作业信息
+
 const handleClose = () => {
   router.back();
-}
+};
+
+// 获取作业信息
+onMounted(async () => {
+  try {
+    const response = await getHomeworkInfoService();
+    homeworkInfo.value = response.data; // 假设接口返回的数据存储在data字段
+  } catch (error) {
+    console.error("获取作业信息失败：", error);
+  }
+});
+
+// 附件预览和下载方法
+const handlePreviewAttachment = () => {
+  // 假设预览功能需要访问某个URL
+  const previewUrl = homeworkInfo.value?.attachmentPreviewUrl;
+  if (previewUrl) {
+    window.open(previewUrl, "_blank"); // 在新窗口打开预览
+  }
+};
+
+const handleDownloadAttachment = () => {
+  // 假设下载功能需要访问某个URL
+  const downloadUrl = homeworkInfo.value?.attachmentDownloadUrl;
+  if (downloadUrl) {
+    window.location.href = downloadUrl; // 下载文件
+  }
+};
 </script>
 
 <template>
@@ -19,20 +50,19 @@ const handleClose = () => {
         <div class="formItem">
           <div class="formItemTitle">作业标题：</div>
           <div class="formItemContent">
-            <span>作业1</span>
+            <span>{{ homeworkInfo?.title || '暂无数据' }}</span>
           </div>
         </div>
         <div class="formItem">
           <div class="formItemTitle">作业满分：</div>
           <div class="formItemContent">
-            <span>100</span>
-            分
+            <span>{{ homeworkInfo?.fullScore || '未设置' }}</span> 分
           </div>
         </div>
         <div class="formItem">
           <div class="formItemTitle">作业内容：</div>
           <div class="formItemContent">
-            <span>111111111111111111111111111111111111111111111111111111111111112222222222222222222222222222222222222222</span>
+            <span>{{ homeworkInfo?.content || '暂无数据' }}</span>
           </div>
         </div>
         <div class="formItem">
@@ -44,17 +74,26 @@ const handleClose = () => {
         <div class="formItem">
           <div class="formItemTitle">提交时间：</div>
           <div class="formItemContent">
-            <time class="custom-time" datetime="2024-10-09T12:00">2024-10-09 12:00</time>
+            <time class="custom-time" :datetime="homeworkInfo?.submitStartTime">
+              {{ homeworkInfo?.submitStartTime || '暂无数据' }}
+            </time>
             <span> - </span>
-            <time class="custom-time" datetime="2024-10-10T12:00">2024-10-10 12:00</time>
+            <time class="custom-time" :datetime="homeworkInfo?.submitEndTime">
+              {{ homeworkInfo?.submitEndTime || '暂无数据' }}
+            </time>
           </div>
         </div>
 
         <div class="formItem">
           <div class="formItemTitle">作业附件：</div>
           <div class="formItemContent">
-            <span>作业内容见附件,提交时请按照要求命名文件.</span>
+            <span>{{ homeworkInfo?.attachmentInfo || '无附件' }}</span>
           </div>
+        </div>
+
+        <div class="formItem" style="margin-left: 100px">
+          <el-button type="primary" @click="handlePreviewAttachment">预览附件</el-button>
+          <el-button type="success" @click="handleDownloadAttachment">下载附件</el-button>
         </div>
 
         <div class="closeButtonBox">

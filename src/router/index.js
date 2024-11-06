@@ -19,6 +19,7 @@ import HomeItems from "../views/HomeItem/HomeItems.vue";
 import UserInfo from "../views/UserInfo/UserInfo.vue";
 import {useUserStore} from "../stores/user.js";
 import HomeworkDetail from "../views/CourseExam/HomeworkDetail/HomeworkDetail.vue";
+import FilePreview from "@/views/CourseResource/FilePreview.vue";
 
 const routes = [
     {
@@ -51,7 +52,10 @@ const routes = [
             { path: 'courseOutline', name: 'CourseOutline', component: CourseOutline,},
             { path: 'teacherInfo', name: 'TeacherInfo', component: TeacherInfo,},
             { path: 'teachingCalendar', name: 'TeachingCalendar', component: TeachingCalendar,},
+
             { path: 'courseware', name: 'Courseware', component: Courseware,},
+            { path: 'filePreview', name: 'FilePreview', component: FilePreview, },
+
             { path: 'videoReplay', name: 'VideoReplay', component: VideoReplay,},
             { path: 'courseReport', name: 'CourseReport', component: CourseReport,},
             { path: 'experiment', name: 'Experiment', component: Experiment,},
@@ -84,7 +88,8 @@ router.beforeEach((to, from, next) => {
         // return '/login';
         next('/login');
     }
-    next();
+    // 继续导航
+    next(); // 如果 token 存在，允许用户继续访问目标路由
 });
 
 export default router

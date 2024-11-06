@@ -18,7 +18,7 @@
           <div class="cid">课程cid: {{ courseInfo.cid }}</div>
         </el-col>
         <el-col class="time" :span="8" :offset="8">
-          学期： 当前教学周：第 <span style="font-size: 20px; color: #f1dfa9">{{ courseStore.teachingWeek}}</span> 周
+          当前教学周：第 <span style="font-size: 20px; color: #f1dfa9">{{ courseStore.teachingWeek}}</span> 周
         </el-col>
       </el-row>
     </el-header>

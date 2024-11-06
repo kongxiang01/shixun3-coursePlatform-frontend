@@ -3,8 +3,9 @@ import { useUserStore } from '../stores/user.js'
 import { ElMessage } from 'element-plus'
 import { useRouter } from "vue-router"
 // const baseURL = 'http://192.168.10.127:8080'// 寝室网
-// const baseURL = 'http://192.168.245.211:8080'
+// const baseURL = 'http://192.168.245.211:8080'// 杨帆热点
 const baseURL = 'http://localhost:8080'
+const router = useRouter()
 
 const instance = axios.create({
   // TODO 1. 基础地址，超时时间
@@ -32,43 +33,37 @@ instance.interceptors.request.use(
 
 // 响应拦截器
 instance.interceptors.response.use(
-  (res) => {
-    // TODO 4. 摘取核心响应数据
-      console.log('request.js  4444444')
-      const userStore = useUserStore()
+    (res) => {
+        // TODO 4. 摘取核心响应数据
+        console.log('request.js  4444444')
+        const userStore = useUserStore()
 
-      const contentType = res.headers['content-type'];
-      console.log('request.js  contentType77777777777777777777：', contentType)
-      // if (contentType && contentType.includes('application/octet-stream')) {
-      //     // 直接返回文件流进行下载处理
-      //     return res;
-      // }
+        const contentType = res.headers['content-type'];
+        console.log('request.js  contentType77777777777777777777：', contentType)
 
-      if (res.data.status === 'success' || res.headers.status === 'success') {
-          if(res.data.newToken){
-              userStore.setToken(res.data.newToken)
-          }
-          console.log('request.js  返回的完整响应：', res)
-          return res
-      }
-      // TODO 3. 处理业务失败
-      // 处理业务失败, 给错误提示，抛出错误
-      ElMessage.error(res.data.message || '服务异常1111')
-      return Promise.reject(res.data)
-  },
-  (err) => {
-    // TODO 5. 处理401错误
-    // 错误的特殊情况 => 401 权限不足 或 token 过期 => 拦截到登录
-    if (err.response?.status === 'error') {
-        const router = useRouter()
-        ElMessage.error(err.response.data.message || '未知异常2222')
-        router.push('/login')
+        if (res.data.status === 'success' || res.headers.status === 'success') {
+            if(res.data.newToken){
+                userStore.setToken(res.data.newToken)
+            }
+            console.log('request.js  返回的完整响应：', res)
+            return res
+        }
+        // TODO 3. 处理业务失败
+        // 处理业务失败, 给错误提示，抛出错误
+        ElMessage.error(res.data.message || '服务异常1111')
+        return Promise.reject(res.data)
+    },
+    (err) => {
+        // TODO 5. 处理401错误
+        // 错误的特殊情况 => 401 权限不足 或 token 过期 => 拦截到登录
+        if (err.response?.status === 'error') {
+            ElMessage.error(err.response.data.message || '未知异常2222')
+        }
+
+        // 错误的默认情况 => 只要给提示
+        ElMessage.error(err.response.data.message || '未知异常3333')
+        return Promise.reject(err)
     }
-
-    // 错误的默认情况 => 只要给提示
-    ElMessage.error(err.response.data.message || '未知异常2222')
-    return Promise.reject(err)
-  }
 )
 
 export default instance
