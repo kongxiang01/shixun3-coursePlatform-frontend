@@ -143,7 +143,7 @@ onMounted(() => {
     //border: 1px solid black;
   }
   .pdfContainer{
-    height: calc(100vh - 195px);// 刚好填满tc-container-header的高度
+    height: calc(100vh - 205px);// 刚好填满tc-container-header的高度
     padding: 20px;
     //border: 1px solid black;
     .content{

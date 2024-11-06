@@ -1,5 +1,5 @@
 <template>
-  <el-card class="course-container">
+  <el-card class="course-container" shadow="hover">
     <div class="header">
       <VerticalBar text="课程列表" />
     </div>
