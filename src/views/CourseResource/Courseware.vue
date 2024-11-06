@@ -11,6 +11,8 @@
             :props="defaultProps"
             @node-click="handleNodeClick"
             node-key="label"
+            :default-expanded-keys="['电子课件']"
+            :default-checked-keys="['电子课件']"
         ></el-tree>
       </el-col>
       <el-col class="resource-table-container" :span="19">
@@ -148,7 +150,7 @@ console.log('CoursePage.vue:   courseInfo.value.cid: ', courseInfo.value.cid)
 const input = ref('');
 const treeData = ref([]);
 const tableData = ref([]);
-const currentPath = ref('E:/ICPlatformStorage/CourseResources' + '/' + courseInfo.value.cid); // 初始化路径
+const currentPath = ref('E:/ICPlatformStorage/CourseResources' + '/' + courseInfo.value.cid); //  + '/' + '电子课件'
 const treePath = ref('E:/ICPlatformStorage/CourseResources' + '/' + courseInfo.value.cid); // 初始化路径
 console.log('CoursePage.vue:   treePath.value: ', treePath.value)
 
@@ -221,8 +223,8 @@ const submitUploadForm = async () => {
   console.log('提交表单:', uploadFormData.value);
   try {
     if (uploadFormData.value.file) {
-      console.log('Courseware.vue: uploadFormData.value.file:', uploadFormData.value.file);
-      await uploadCourseWareService(uploadFormData.value.file, courseInfo.value.cid)
+      console.log('Courseware.vue: currentPath.value:', currentPath.value);
+      await uploadCourseWareService(uploadFormData.value.file, courseInfo.value.cid, currentPath.value)
       ElMessage.success('文件上传成功')
     } else {
       ElMessage.info('请先选择文件')
@@ -267,6 +269,8 @@ const fetchFolderStructure = async () => {
     const response = await getDirectoryService(treePath.value);
     // console.log(' response.data.folderStructure：', response.data.folderStructure);
     treeData.value = filterDirectories(response.data.folderStructure);
+    console.log(' 22222222222222222222222222222222222222222222222222222222treeData.value：', treeData.value);
+    console.log(' 22222222222222222222222222222222222222222222222222222222treeData.value[0].label：', treeData.value[0].label);
   } catch (error) {
     console.log('Courseware.vue: fetch 目录结构失败：', error);
   }

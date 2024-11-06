@@ -30,10 +30,11 @@ export const getDownloadFileService = ( fileName ) =>
 export const getPreviewFileService = ( fileName ) =>
     request.get('/api/assets/preview', { params: {fileName: fileName} })
 
-export const uploadCourseWareService = (file, cid) =>{
+export const uploadCourseWareService = (file, cid, tPath) =>{
     const formData = new FormData();
     formData.append("file", file);
     formData.append("cid", cid);
+    formData.append("tPath", tPath);
     return request.post('/api/assets/upload', formData)
 }
 
