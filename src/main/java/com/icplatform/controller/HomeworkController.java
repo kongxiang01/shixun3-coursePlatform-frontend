@@ -69,7 +69,7 @@ public class HomeworkController {
 
         System.out.println("Received homeworkDate: " + homeworkDate);
 
-        if (userType == 0) {
+        if (userType == 0 || userType == 1) {
             String cid = homeworkDate.get("cid");
             String sno = homeworkDate.get("sno");
 
