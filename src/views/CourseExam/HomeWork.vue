@@ -2,17 +2,25 @@
   <template v-if="userInfo.type === '0'">
     <div class="container">
       <el-table :data="tableData">
-        <el-table-column prop="homeworkName" label="作业标题" align="center">
+        <el-table-column prop="cname" label="作业标题" align="center" width="300px">
           <template #default="scope">
-            <el-link type="primary" :underline="false" @click="handleHW">{{scope.row.homeworkName}}</el-link>
+            <el-link type="primary" :underline="false" @click="handleHWDetail(scope.row)">{{scope.row.cname}}</el-link>
           </template>
         </el-table-column>
-        <el-table-column prop="start" label="作业开始" align="center"></el-table-column>
-        <el-table-column prop="end" label="作业截止" align="center"></el-table-column>
-        <el-table-column prop="submitRatio" label="提交人数" align="center"></el-table-column>
+        <el-table-column prop="start" label="作业开始" align="center">
+          <template #default="scope">
+            {{ formatDate(scope.row.start) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="end" label="作业截止" align="center">
+          <template #default="scope">
+            {{ formatDate(scope.row.end) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="submitRatio" label="提交人数" align="center" width="100px"></el-table-column>
         <el-table-column prop="submitTime" label="提交时间" align="center"></el-table-column>
-        <el-table-column prop="score" label="得分" align="center"></el-table-column>
-        <el-table-column prop="reviestatus" label="批改状态" align="center"></el-table-column>
+        <el-table-column prop="score" label="得分" align="center" width="100px"></el-table-column>
+        <el-table-column prop="reviestatus" label="批改状态" align="center" width="120px"></el-table-column>
         <el-table-column label="操作" align="center">
           <template #default>
             <el-link type="primary" :underline="false" @click="drawerVisible = true">提交</el-link>
@@ -26,41 +34,36 @@
           direction="rtl"
           size="40%"
       >
-        <div style="margin: 20px 0">作业内容</div>
-        <el-form ref="form" :model="formData" class="form">
-          <el-form-item>
+        <el-form ref="validateUploadFrom" :model="uploadFormData" class="form">
+          <el-form-item label="课程资源名称" prop="courseWareTitle">
+            <el-input
+                v-model="uploadFormData.homeworkTitle"
+                style="width: 240px"
+                placeholder=""
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="描述" prop="content">
             <el-input
                 type="textarea"
                 :rows="6"
-                placeholder="请输入3000字以内的作业内容！"
-                v-model="formData.content"
+                placeholder="请输入3000字以内的描述！"
+                v-model="uploadFormData.content"
             ></el-input>
           </el-form-item>
-
-          <!-- 上传文件按钮 -->
           <div>
-            <el-upload
-                action="#"
-                list-type="text"
-                :auto-upload="false"
-                v-model:file-list="formData.fileList"
-            >
-              <el-button size="default" type="primary">上传文件</el-button>
-            </el-upload>
+            <el-button type="text" @click="selectFile">选择文件</el-button>
+            <span v-if="uploadFormData.fileName">{{ uploadFormData.fileName }}</span>
+            <input type="file" ref="fileInput" style="display: none" @change="handleFileChange" />
           </div>
-
           <!-- 分割线 -->
           <el-divider style="height: 2px; background-color: #a8a2a2; margin: 10px 0"></el-divider>
-
-          <!-- 文件上传提示 -->
           <div class="el-upload__tip" style="margin: 0;padding: 0">
+            请勿上传与已存在文件同名的文件，否则已存在文件将被替换。
             允许上传的文件类型: doc, pdf, ppt, xls, docx, pptx, xlsx, jpg, gif, jpeg, png, bmp
-          </div>
-
-          <!-- 确定和取消按钮 -->
-          <div class="buttons">
-            <el-button type="primary" @click="submitForm">确定</el-button>
-            <el-button @click="drawerVisible = false">取消</el-button>
+          </div><!--doc, pdf, ppt, xls, docx, pptx, xlsx, jpg, gif, jpeg, png, bmp-->
+          <div class="buttons" style="margin-top: 20px; display: flex; justify-content: space-between">
+            <el-button type="primary" @click="submitUploadForm">确定</el-button>
+            <el-button @click="handleSubmitCancel">取消</el-button>
           </div>
         </el-form>
       </el-drawer>
@@ -68,140 +71,108 @@
   </template>
   <template v-else-if="userInfo.type === '1'">
     <div class="container">
-      <div class="header" style="margin-bottom: 5px">
+      <div class="header" style="margin-bottom: 5px; display: flex; justify-content: space-between">
         <vertical-bar text="课程作业"></vertical-bar>
-      </div>
-      <div style="margin-bottom: 5px">
-        <el-button size="default" @click="assignVisible = true">布置作业</el-button>
-
-        <el-button size="default" @click="goToHomeworkDetail">跳转作业详情</el-button>
-
-        <el-dialog
-            title="布置作业"
-            v-model="assignVisible"
-            width="600px"
-            :close-on-click-modal="false"
-        >
-          <el-form ref="form" :model="assignFormData" class="form">
-            <el-form-item label="作业名称">
-              <div>
-                <el-input
-                    v-model="assignFormData.assignHomeworkTitle"
-                    style="width: 240px"
-                    placeholder=""
-                ></el-input>
-              </div>
-            </el-form-item>
-            <el-form-item label="作业满分">
-              <div>
-                <el-input
-                    v-model="assignFormData.fullScore"
-                    style="width: 40px"
-                    placeholder=""
-                ></el-input>
-                <span style="margin-left: 5px">分</span>
-              </div>
-            </el-form-item>
-            <div>
-              <el-form-item label="作业内容">
-                <el-input
-                    type="textarea"
-                    :rows="6"
-                    placeholder="3000字以内！"
-                    v-model="assignFormData.content"
-                ></el-input>
+        <div>
+          <el-button size="default" @click="assignVisible = true">布置作业</el-button>
+          <el-button size="default" @click="goToHomeworkDetail">测试跳转</el-button>
+          <el-dialog
+              title="布置作业"
+              v-model="assignVisible"
+              width="600px"
+              :close-on-click-modal="false"
+          >
+            <el-form ref="validateFrom" :model="assignFormData" :rules="assignRules" class="form">
+              <el-form-item label="作业序号" prop="workId">
+                <div>
+                  <el-input
+                      v-model="assignFormData.workId"
+                      style="width: 240px"
+                      placeholder=""
+                  ></el-input>
+                </div>
               </el-form-item>
-            </div>
-            <el-form-item label="提交时间">
-              <el-date-picker
-                  v-model="assignFormData.timeRange"
-                  type="datetimerange"
-                  range-separator="至"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                  format="YYYY-MM-DD HH:mm"
-                  value-format="YYYY-MM-DDTHH:mm:ss"
-                  style="width: 100%;"
-              />
-            </el-form-item>
-            <div>
-              <el-button type="text" @click="selectFile">选择文件</el-button>
-              <span v-if="uploadFormData.fileName" style="margin-left: 10px">{{ uploadFormData.fileName }}</span>
-              <input type="file" ref="fileInput" style="display: none" @change="handleFileChange" />
-            </div>
-            <!-- 分割线 -->
-            <el-divider style="height: 2px; background-color: #a8a2a2; margin: 10px 0"></el-divider>
-            <!-- 文件上传提示 -->
-            <div class="el-upload__tip" style="margin: 0;padding: 0">
-              允许上传的文件类型: doc, pdf, ppt, xls, docx, pptx, xlsx, jpg, gif, jpeg, png, bmp
-            </div>
-            <!-- 确定和取消按钮 -->
-            <div class="buttons" style="margin-top: 20px; display: flex; justify-content: space-between">
-              <el-button type="primary" @click="submitUploadForm">确定</el-button>
-              <el-button @click="handleCancel">取消</el-button>
-            </div>
-          </el-form>
-        </el-dialog>
+              <el-form-item label="作业满分" prop="fullScore">
+                <div>
+                  <el-input
+                      v-model="assignFormData.fullScore"
+                      style="width: 40px"
+                      placeholder=""
+                  ></el-input>
+                  <span style="margin-left: 5px">分</span>
+                </div>
+              </el-form-item>
+              <div>
+                <el-form-item label="作业内容" prop="content">
+                  <el-input
+                      type="textarea"
+                      :rows="6"
+                      placeholder="选填，3000字以内！"
+                      v-model="assignFormData.content"
+                  ></el-input>
+                </el-form-item>
+              </div>
+              <el-form-item label="提交时间" porp="timeRange">
+                <el-date-picker
+                    v-model="assignFormData.timeRange"
+                    type="datetimerange"
+                    range-separator="至"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期"
+                    format="YYYY-MM-DD HH:mm"
+                    value-format="YYYY-MM-DDTHH:mm:ss"
+                    style="width: 100%;"
+                />
+              </el-form-item>
+              <div>
+                <el-button type="text" @click="selectFile">选择文件</el-button>
+                <span v-if="assignFormData.fileName" style="margin-left: 10px">{{ assignFormData.fileName }}</span>
+                <input type="file" ref="fileInput" style="display: none" @change="handleAssignFileChange" />
+              </div>
+              <!-- 分割线 -->
+              <el-divider style="height: 2px; background-color: #a8a2a2; margin: 10px 0"></el-divider>
+              <!-- 文件上传提示 -->
+              <div class="el-upload__tip" style="margin: 0;padding: 0">
+                允许上传的文件类型: doc, pdf, ppt, xls, docx, pptx, xlsx, jpg, gif, jpeg, png, bmp
+              </div>
+              <!-- 确定和取消按钮 -->
+              <div class="buttons" style="margin-top: 20px; display: flex; justify-content: space-between">
+                <el-button type="primary" @click="submitAssignForm">确定</el-button>
+                <el-button @click="handleAssignCancel">取消</el-button>
+              </div>
+            </el-form>
+          </el-dialog>
+        </div>
       </div>
       <el-table :data="assignedTableData">
-        <el-table-column prop="homeworkName" label="作业标题" align="center">
+        <el-table-column prop="cname" label="作业标题" align="center">
+<!--          <template #default="scope">-->
+<!--            <el-link type="primary" :underline="false" @click="handleAssignHW">{{scope.row.cname}}</el-link>-->
+<!--          </template>-->
+        </el-table-column>
+        <el-table-column prop="start" label="作业开始" align="center">
           <template #default="scope">
-            <el-link type="primary" :underline="false" @click="handleHW">{{scope.row.homeworkName}}</el-link>
+            {{ formatDate(scope.row.start) }}
           </template>
         </el-table-column>
-        <el-table-column prop="start" label="作业开始" align="center"></el-table-column>
-        <el-table-column prop="end" label="作业截止" align="center"></el-table-column>
+        <el-table-column prop="end" label="作业截止" align="center">
+          <template #default="scope">
+            {{ formatDate(scope.row.end) }}
+          </template>
+        </el-table-column>
         <el-table-column prop="submitRatio" label="提交人数" align="center"></el-table-column>
-        <el-table-column prop="correctHW" label="批阅" align="center"></el-table-column>
+        <el-table-column label="批阅" align="center">
+          <template #default="scope">
+            <el-button size="small" type="primary" :underline="false" @click="handleCorrect(scope.row.cname)" :icon="Document"></el-button>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" align="center">
-          <template #default>
-            <el-link type="primary" :underline="false" @click="handlePublish">公布成绩</el-link>
-            <el-link type="primary" :underline="false" @click="handleDelete">删除</el-link>
+          <template #default="scope">
+            <el-link type="primary" :underline="false" @click="handlePublish" style="margin-right: 20px">公布成绩</el-link>
+            <el-link type="danger" :underline="false" @click="handleDelete(scope.row)">删除</el-link>
           </template>
         </el-table-column>
       </el-table>
-
-      <el-drawer
-          title="提交作业"
-          v-model="drawerVisible"
-          direction="rtl"
-          size="40%"
-      >
-        <div style="margin: 20px 0">作业内容</div>
-        <el-form ref="form" :model="formData" class="form">
-          <el-form-item>
-            <el-input
-                type="textarea"
-                :rows="6"
-                placeholder="请输入3000字以内的作业内容！"
-                v-model="formData.content"
-            ></el-input>
-          </el-form-item>
-
-          <!-- 上传文件按钮 -->
-          <div>
-            <div>
-              <el-button type="text" @click="selectFile">选择文件</el-button>
-              <span v-if="uploadFormData.courseWareTitle">{{ uploadFormData.courseWareTitle }}</span>
-              <input type="file" ref="fileInput" style="display: none" @change="handleFileChange" />
-            </div>
-          </div>
-
-          <!-- 分割线 -->
-          <el-divider style="height: 2px; background-color: #a8a2a2; margin: 10px 0"></el-divider>
-
-          <!-- 文件上传提示 -->
-          <div class="el-upload__tip" style="margin: 0;padding: 0">
-            允许上传的文件类型: doc, pdf, ppt, xls, docx, pptx, xlsx, jpg, gif, jpeg, png, bmp
-          </div>
-
-          <!-- 确定和取消按钮 -->
-          <div class="buttons">
-            <el-button type="primary" @click="submitForm">确定</el-button>
-            <el-button @click="drawerVisible = false">取消</el-button>
-          </div>
-        </el-form>
-      </el-drawer>
     </div>
   </template>
 </template>
@@ -209,16 +180,17 @@
 <script setup>
 import {useRoute, useRouter} from "vue-router";
 import {computed, onMounted, ref} from "vue";
-import homeworkDetail from "@/views/CourseExam/HomeworkDetail/HomeworkDetail.vue";
 import {
-  getAssignedHomeworkListService,
   getHomeworkListService,
   uploadHomeworkService
 } from "@/api/user.js";
 import {useCourseStore} from "@/stores/course.js";
 import {useUserStore} from "@/stores/user.js";
 import VerticalBar from "@/components/VerticalBar.vue";
-import {ElMessage} from "element-plus";
+import {ElMessage, ElMessageBox} from "element-plus";
+import {assignHomeworkService, getAssignedHomeworkListService} from "@/api/homework.js";
+import {Document} from "@element-plus/icons-vue";
+import {useHomeworkStore} from "@/stores/homework.js";
 
 const route = useRoute();
 
@@ -226,12 +198,12 @@ const courseStore = useCourseStore()
 const courseInfo = computed(() => courseStore.course)
 const userStore = useUserStore()
 const userInfo = computed(() => userStore.user)
+const homeworkStore = useHomeworkStore()
 const router = useRouter();
 
 const tableData = ref([])
 const assignedTableData = ref([])
 
-// ******************************************************上传文件********************************************************
 const drawerVisible = ref(false);
 const assignVisible = ref(false);
 // 表单数据
@@ -243,7 +215,7 @@ const uploadFormData = ref({
 });
 
 const assignFormData = ref({
-  assignHomeworkTitle: '',
+  workId: '',
   content: '',
   file: null,
   fileName: '',
@@ -251,6 +223,19 @@ const assignFormData = ref({
   timeRange: []
 });
 
+const validateFrom = ref()
+
+const formatDate = (dateStr) => {
+  const date = new Date(dateStr);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+// ******************************************************上传文件(交作业)********************************************************
 // 选择文件
 const selectFile = () => {
   document.querySelector('input[type="file"]').click()
@@ -268,9 +253,7 @@ const handleFileChange = (event) => {
 const submitUploadForm = async () => {
   console.log('提交上传作业表单:', uploadFormData.value);
   try {
-
     // 传输作业相关信息
-
     if (uploadFormData.value.file) {
       console.log('Homework.vue: uploadFormData.value.file:', uploadFormData.value.file);
       await uploadHomeworkService(uploadFormData.value.file, courseInfo.value.cid)
@@ -284,69 +267,181 @@ const submitUploadForm = async () => {
   }
 };
 
+const handleSubmitCancel = () => {
+  // 清空表单和文件
+  uploadFormData.value = {
+    homeworkTitle: '',
+    content: '',
+    file: null,
+    fileName: '',
+  };
+  drawerVisible.value = false; // 关闭对话框
+};
 
 // ************************************************获取作业列表********************************************************
 const getHWData = async () => {
   try {
-    console.log('HomeWork.vue111111111111111:   courseInfo.value.cid, userInfo.sno:', courseInfo.value.cid, userInfo.value.sno);
-    const res = await getHomeworkListService(courseInfo.value.cid, userInfo.value.sno); // 向后端获取学生课程
-    tableData.value = res.data.homeworkInfoList; // 将返回的数据赋值给courses
-    console.log('HomeWork.vue22222222222222:   courseInfo.value.cid:', res.data.homeworkInfoList);
+    // if(userInfo.value.type === '0'){
+    //   console.log('HomeWork.vue:  courseInfo.value.cid: ', courseInfo.value.cid, 'userInfo.value.sno:', userInfo.value.sno, 'userInfo.value.type:', userInfo.value.type);
+    //   const res = await getHomeworkListService(courseInfo.value.cid, userInfo.value.sno); // 向后端获取作业列表
+    //   tableData.value = res.data.homeworkInfoList; // 将返回的数据赋值给tableData
+    // }else{
+      console.log('HomeWork.vue: courseInfo.value.cid是',courseInfo.value.cid,'userInfo.value.type是',userInfo.value.type);
+      const res = await getAssignedHomeworkListService(courseInfo.value.cid); // 向后端获取学生课程
+      assignedTableData.value = res.data.homeworkList; // 将返回的数据赋值给courses
+      tableData.value = res.data.homeworkList;
+    // }
+
+    // console.log('HomeWork.vue22222222222222:   courseInfo.value.cid:', res.data.homeworkInfoList);
     console.log('HomeWork.vue3333333333333:   tableData:', tableData);
   } catch (error) {
-    console.log('Homework.vue:获取作业列表失败:', error);
+    ElMessage.error('Homework.vue:获取作业列表失败:', error);
   }
 };
 
-const getassignedHWData = async () => {
-  try {
-    console.log('HomeWork.vue111111111111111:   courseInfo.value.cid, userInfo.sno:', courseInfo.value.cid, userInfo.value.sno);
-    const res = await getAssignedHomeworkListService(courseInfo.value.cid, userInfo.value.sno); // 向后端获取学生课程
-    tableData.value = res.data.homeworkInfoList; // 将返回的数据赋值给courses
-    console.log('HomeWork.vue22222222222222:   courseInfo.value.cid:', res.data.homeworkInfoList);
-    console.log('HomeWork.vue3333333333333:   tableData:', tableData);
-  } catch (error) {
-    console.log('Homework.vue:获取作业列表失败:', error);
-  }
-};
-
-
-// 动态生成路径的函数
-const generateCoursePath = (suffix) => {
-  return `/course/${suffix}`;
-};
-
-const handleHW = () => {
-  router.push(generateCoursePath('homeworkDetail'))
+const handleHWDetail = (row) => {
+  homeworkStore.setHomework(row)
+  console.log('HomeWork.vue:  homeworkStore.homework: ', homeworkStore.homework)
+  router.push({ name: 'HomeworkDetail'});
 }
 
-// 提交表单的函数
-const submitForm = () => {
-  console.log('提交表单:', formData.value);
-  // 提交逻辑，例如发送请求
-  drawerVisible.value = false; // 提交后关闭抽屉
-};
-
-// ************************************************布置作业对话框********************************************************
-const handleCancel = () => {
+// ************************************************布置作业********************************************************
+const handleAssignHW = () => {
+  // 这里是点击文件名的处理
+}
+const handleAssignCancel = () => {
   // 清空表单和文件
   assignFormData.value = {
-    assignHomeworkTitle: '',
+    workId: '',
     content: '',
     file: null,
     fileName: '',
     fullScore: '',
     timeRange: []
   };
-  uploadFormData.value.file = null;
-  uploadFormData.value.fileName = '';
-
-  assignVisible.value = false; // 关闭对话框
+  assignVisible.value = false; // 关闭抽屉
 };
 
-const goToHomeworkDetail = () => {
-  router.push('/course/homeworkDetail')
+// 文件变化的处理
+const handleAssignFileChange = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    assignFormData.value.file = file
+    assignFormData.value.fileName = file.name
+  }
 }
+
+const assignRules = {
+  workId: [
+    { required: true, message: '请输入作业序号', trigger: 'blur' },
+  ],
+  fullScore: [
+    { required: true, message: '请填写作业满分', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        const score = Number(value);
+        if (isNaN(score)) {
+          callback(new Error('满分必须是数字'));
+        } else if (score < 1 || score > 100) {
+          callback(new Error('满分应在1到100之间'));
+        } else {
+          callback();
+        }
+      },
+      trigger: 'blur'
+    }
+  ],
+  content: [
+    { required: true, message: '请输入作业内容', trigger: 'blur' },
+    { max: 3000, message: '内容不能超过3000字', trigger: 'blur' }
+  ],
+  timeRange: [
+    { type: 'array', required: true, message: '请选择提交时间范围', trigger: 'change' },
+    { validator: (rule, value, callback) => {
+        if (value && value[0] && value[1] && new Date(value[0]) >= new Date(value[1])) {
+          callback(new Error('开始时间应小于结束时间'));
+        } else {
+          callback();
+        }
+      }, trigger: 'change'
+    }
+  ],
+};
+
+const submitAssignForm = async () => {
+  await validateFrom.value.validate()
+  console.log('提交布置作业表单:', assignFormData);
+  try {
+    if (!assignFormData.value.file) {
+      ElMessage.info('请先选择文件');
+      return;
+    }
+    // 上传作业相关信息
+    await assignHomeworkService(
+        assignFormData.value.file,
+        assignFormData.value.timeRange[0],
+        assignFormData.value.timeRange[1],
+        assignFormData.value.workId,
+        courseInfo.value.cid,
+        assignFormData.value.content,
+        assignFormData.value.fullScore,
+    );
+    ElMessage.error('布置作业成功');
+  } catch (error) {
+    ElMessage.error('布置作业失败');
+    console.error('66666666666666Homework.vue: 布置作业失败', error);
+  }
+};
+
+// ****************************************************批阅和操作相关*****************************************
+const goToHomeworkDetail = () => {
+  // router.push({ name: 'HomeworkDetail' });
+  router.push({ name: 'CorrectPreview' });
+}
+// 打开批阅页面
+const handleCorrect = (cname) => {
+  ElMessage.info(cname)
+  // 跳转到批阅页面，可以传递作业ID或其他参数
+  router.push({ name: 'CorrectHomework' });
+};
+
+// 公布成绩
+const handlePublish = async () => {
+  try {
+    await ElMessageBox.confirm(
+        '确认要公布该作业的成绩吗？',
+        '提示',
+        {
+          confirmButtonText: '确认',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+    );
+    // 在这里执行公布成绩的逻辑，例如请求后端 API
+    ElMessage.success('成绩已公布');
+  } catch {
+    ElMessage.info('已取消公布成绩');
+  }
+};
+
+// 删除作业
+const handleDelete = async (row) => {
+  try {
+    await ElMessageBox.confirm(
+        '确认要删除该作业吗？此操作不可撤回',
+        '警告',
+        {
+          confirmButtonText: '删除',
+          cancelButtonText: '取消',
+          type: 'error',
+        }
+    );
+    // 在这里执行删除逻辑，例如请求后端 API 删除作业
+    ElMessage.success('作业已删除');
+  } catch {
+    ElMessage.info('已取消删除');
+  }
+};
 
 onMounted(()=>{
   getHWData();

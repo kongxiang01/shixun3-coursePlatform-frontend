@@ -34,12 +34,12 @@ export const uploadCourseWareService = (file, cid, tPath) =>{
     const formData = new FormData();
     formData.append("file", file);
     formData.append("cid", cid);
-    formData.append("tPath", tPath);
+    formData.append("tpath", tPath);
     return request.post('/api/assets/upload', formData)
 }
 
 export const createFolderService = ( folderPath ) =>
-    request.post('/api/assets/folder/create', { folderPath } )
+    request.post('/api/assets/folder/create', { folderPath: folderPath } )
 
 
 // *************************** homework ***********************
@@ -56,8 +56,6 @@ export const getHomeworkListService = ( cid, sno ) =>
 export const getHomeworkInfoService = ( cid, workId ) =>
     request.post('/api/homework/info', { cid, workId } )
 
-export const getAssignedHomeworkListService = ( cid ) =>
-    request.post('/api/homework/assigned/display', { cid: cid } )
 
 
 

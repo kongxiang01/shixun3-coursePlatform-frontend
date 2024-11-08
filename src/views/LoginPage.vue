@@ -1,4 +1,8 @@
 <template>
+  <video autoplay loop muted class="background-video">
+    <source src="../assets/Basketball_CS2.mp4" type="video/mp4">
+    您的浏览器不支持视频播放。
+  </video>
   <div class="login-page">
     <div class="login-form-container">
       <el-card class="login-form" shadow="hover" style="border: 2px solid #805e73; border-radius: 30px">
@@ -49,8 +53,8 @@ import { ref } from 'vue';
 import { Lock, User } from '@element-plus/icons-vue';
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
-import {useUserStore} from "../stores/user.js";
-import {userLoginService} from "../api/user.js";
+import { useUserStore } from "../stores/user.js";
+import { userLoginService } from "../api/user.js";
 
 const form = ref()
 const loginFormModel = ref({
@@ -78,7 +82,7 @@ const rules = {
 const userStore = useUserStore() // 用户仓库
 const router = useRouter()
 const handleLogin = async () => {
-  await form.value.validate()// 点击登录后等待再一次校验完成
+  await form.value.validate() // 点击登录后等待再一次校验完成
   console.log('LoginPage.vue： loginFormModel.value.username: ' + loginFormModel.value.username + 'password: ' + loginFormModel.value.password)
   const res = await userLoginService(loginFormModel.value) // 发送登录表单内容
   userStore.setToken(res.data.token) // 接收后端的token来设置当前用户的token
@@ -92,23 +96,37 @@ const handleLogin = async () => {
 <style lang="scss" scoped>
 .login-page {
   height: 100vh;
-  background-color: #c48db0;
-  background-image: url("../assets/bg1.jpg");
-  background-size: cover;
-  background-position: center;
+  //background-color: #c48db0;
+  //background-image: url("../assets/bg1.jpg");
+  //background-size: cover;
+  //background-position: center;
+  overflow: hidden;// 为视频背景加的，好像不影响原图片背景
+  position: relative;// 同上
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+.background-video {
+  position: absolute;
+  top: 0;
+  //left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
+
 .login-form-container {
   width: 350px;
   max-width: 90%;
+  z-index: 1;
 }
 
 .login-form {
   padding: 20px;
-  background-color: rgba(241, 167, 214, 0.6);
+  //background-color: rgba(241, 167, 214, 0.6);
+  background-color: rgb(168, 159, 134, 0.6);
   border-radius: 15px;
 }
 
@@ -120,11 +138,6 @@ const handleLogin = async () => {
 }
 
 .forgot-password {
-
-}
-
-.el-input {
-
 }
 
 .el-input::placeholder {
@@ -143,5 +156,3 @@ const handleLogin = async () => {
   background: linear-gradient(45deg, #38a1db, #42b883);
 }
 </style>
-
-

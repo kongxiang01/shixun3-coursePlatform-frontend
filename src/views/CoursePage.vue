@@ -61,7 +61,7 @@
               <span>课程资源</span>
             </template>
             <el-menu-item :index="generateCoursePath('courseware')">
-              <span>课程课件</span>
+              <span>课程资源</span>
             </el-menu-item>
           </el-sub-menu>
 

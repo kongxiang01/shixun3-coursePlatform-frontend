@@ -1,11 +1,9 @@
 import axios from 'axios'
 import { useUserStore } from '../stores/user.js'
 import { ElMessage } from 'element-plus'
-import { useRouter } from "vue-router"
 // const baseURL = 'http://192.168.10.127:8080'// 寝室网
 // const baseURL = 'http://192.168.245.211:8080'// 杨帆热点
 const baseURL = 'http://localhost:8080'
-const router = useRouter()
 
 const instance = axios.create({
   // TODO 1. 基础地址，超时时间

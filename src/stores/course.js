@@ -3,7 +3,7 @@ import { ref } from 'vue'
 
 export const useCourseStore = defineStore(
     'my-course', () => {
-        const course = ref({})
+        const course = ref()
         const getCourse = async () => {
             // const res = await getCourseInfo() // 请求获取数据
             // course.value = res.data.data

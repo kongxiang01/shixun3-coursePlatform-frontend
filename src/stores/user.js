@@ -12,7 +12,7 @@ export const useUserStore = defineStore(
       token.value = ''
     }
 
-    const user = ref({})
+    const user = ref()
     const getUser = async () => {
       const res = await userGetInfoService() // 请求获取数据
       user.value = res.data.data

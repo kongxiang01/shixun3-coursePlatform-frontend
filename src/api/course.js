@@ -20,11 +20,7 @@ export const calendarUploadService = ( file, cid ) =>{
 export const calendarPreviewService = ( cid ) =>
     request.get('/api/course/calendar', { params: {cid} })
 
-
-export const uploadService = (file, cid, tPath) =>{
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("cid", cid);
-    formData.append("tpath", tPath); // 后端用的tpath接收
-    return request.post('/api/assets/upload', formData)
-}
+// export const deleteItemsService = ( selectedItems ) =>
+//     request.post('/api/assets/delete', selectedItems )
+export const deleteItemsService = ( selectedItems ) =>
+    request.post('/api/assets/delete', {fileName: selectedItems})

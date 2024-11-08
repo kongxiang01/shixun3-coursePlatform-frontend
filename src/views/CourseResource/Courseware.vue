@@ -11,8 +11,9 @@
             :props="defaultProps"
             @node-click="handleNodeClick"
             node-key="label"
-            :default-expanded-keys="['电子课件']"
-            :default-checked-keys="['电子课件']"
+            :default-expanded-keys="['课程资源','电子课件']"
+            :default-checked-keys="['课程资源','电子课件']"
+            default-expand-all
         ></el-tree>
       </el-col>
       <el-col class="resource-table-container" :span="19">
@@ -22,10 +23,10 @@
             <template v-if="userInfo.type === '1'">
               <el-button @click="drawerVisible = true" type="primary">上传文件</el-button>
               <el-button @click="createFolderVisible = true">新建目录</el-button>
-              <el-button @click="moveItem">移动</el-button>
+<!--              <el-button @click="moveItem">移动</el-button>-->
               <el-button @click="deleteItem">删除</el-button>
-              <el-button @click="publishItem">发布</el-button>
-              <el-button @click="unpublishItem">取消发布</el-button>
+<!--              <el-button @click="publishItem">发布</el-button>-->
+<!--              <el-button @click="unpublishItem">取消发布</el-button>-->
             </template>
             <el-dialog
                 title="上传课件"
@@ -58,8 +59,9 @@
                 <!-- 分割线 -->
                 <el-divider style="height: 2px; background-color: #a8a2a2; margin: 10px 0"></el-divider>
                 <div class="el-upload__tip" style="margin: 0;padding: 0">
+                  请勿上传与已存在文件同名的文件，否则已存在文件将被替换。
                   允许上传的文件类型: doc, pdf, ppt, xls, docx, pptx, xlsx, jpg, gif, jpeg, png, bmp
-                </div>
+                </div><!--doc, pdf, ppt, xls, docx, pptx, xlsx, jpg, gif, jpeg, png, bmp-->
                 <div class="buttons" style="margin-top: 20px; display: flex; justify-content: space-between">
                   <el-button type="primary" @click="submitUploadForm">确定</el-button>
                   <el-button @click="drawerVisible = false">取消</el-button>
@@ -95,17 +97,18 @@
               </el-form>
             </el-dialog>
           </div>
-          <el-input
-              v-model="input"
-              placeholder="输入资源名称查找"
-              class="search-input"
-          >
-            <template #append>
-              <el-button :icon="Search" class="search-button"></el-button>
-            </template>
-          </el-input>
+<!--          <el-input-->
+<!--              v-model="input"-->
+<!--              placeholder="输入资源名称查找"-->
+<!--              class="search-input"-->
+<!--          >-->
+<!--            <template #append>-->
+<!--              <el-button :icon="Search" class="search-button"></el-button>-->
+<!--            </template>-->
+<!--          </el-input>-->
         </el-row>
-        <el-table :data="tableData" class="resource-table">
+        <el-table :data="tableData" @selection-change="handleSelectionChange" class="resource-table">
+          <el-table-column type="selection" width="55" />
           <el-table-column label="文件名称">
             <template #default="scope">
               <el-link @click="handleNameClick(scope.row)">
@@ -136,12 +139,13 @@
 
 <script setup>
 import {computed, onMounted, ref} from 'vue';
-import {Search, Folder, Document } from "@element-plus/icons-vue";
+import {Folder, Document } from "@element-plus/icons-vue";
 import {ElMessage} from "element-plus";
 import { useUserStore } from "@/stores/user.js";
 import {useCourseStore} from "@/stores/course.js";
 import {createFolderService, getDirectoryService, getDownloadFileService, uploadCourseWareService} from "@/api/user.js";
 import { useRouter } from 'vue-router'
+import {deleteItemsService} from "@/api/course.js";
 
 const courseStore = useCourseStore()
 const courseInfo = computed( () => courseStore.course);
@@ -164,6 +168,33 @@ const defaultProps = {
   label: 'label',
   path: 'path',
   children: 'children',
+};
+
+// 用于存储选中的行
+const selectedItems = ref([]);
+
+// 更新选中的行
+const handleSelectionChange = (selection) => {
+  selectedItems.value = selection;
+  console.log('CCCCCCCCCCCCCCCCourseWare.vue: selectedItems.value', selectedItems.value)
+};
+
+// 删除选中的行
+const deleteItem = async () => {
+  if (selectedItems.value.length === 0) {
+    ElMessage.warning('请先选择要删除的项');
+    return;
+  }
+  try {
+    // 假设后端接收一个包含文件ID的数组
+    const labelsToDelete = selectedItems.value.map((item) => item.label);
+    console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDCourseWare.vue: labelsToDelete', labelsToDelete)
+    let exampleItem = labelsToDelete[0]
+    await deleteItemsService(exampleItem);
+  } catch (error) {
+    ElMessage.error('删除请求出错');
+    console.error(error);
+  }
 };
 
 // ******************************************************上传文件**********************************************************
@@ -343,10 +374,6 @@ const downloadFile = async (item) => {
 
 const moveItem = () => {
   // 实现移动功能逻辑
-};
-
-const deleteItem = () => {
-  // 实现删除功能逻辑
 };
 
 const publishItem = () => {
