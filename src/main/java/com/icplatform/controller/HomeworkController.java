@@ -286,7 +286,7 @@ public class HomeworkController {
 
 
     //下载作业链接
-    @GetMapping("/generateDownloadLink")
+    @GetMapping("/generateDownloadLink")// 生成的是学生提交的作业的下载链接,并且不该通过hname查(下面标记位置)
     public ResponseEntity<DownloadLinkResponse> generateDownloadLink(@RequestHeader Map<String, String> header, @RequestParam String homeworkName) {
         String token = header.get("token");
         DecodedJWT decodedJWT;
@@ -316,7 +316,7 @@ public class HomeworkController {
             }
 
             System.out.println("解码后的文件名: " + correctedFileName);
-            String filePath = homeworkService.searchPathByHname(homeworkName);
+            String filePath = homeworkService.searchPathByHname(homeworkName);//  ************************************************************
             System.out.println("文件路径: " + filePath);
 
             if (filePath == null) {
@@ -359,7 +359,7 @@ public class HomeworkController {
         String username = decodedJWT.getClaim("username").asString();
         int userType = decodedJWT.getClaim("usertype").asInt();
 
-        if (userType == 1) {
+        if (userType == 1 || userType == 0) {
 
             String cid = disData.get("cid");
             if(cid != null){

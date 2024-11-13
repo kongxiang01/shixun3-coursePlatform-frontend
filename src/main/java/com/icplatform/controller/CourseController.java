@@ -220,7 +220,7 @@ public class CourseController {
         String username = decodedJWT.getClaim("username").asString();
         int userType = decodedJWT.getClaim("usertype").asInt();
 
-        if (userType == 1) {
+        if (userType == 1 || userType == 0) {
             // 获取文件资源路径
             Course course = courseService.findByCid(cid);
 
@@ -266,7 +266,7 @@ public class CourseController {
         String username = decodedJWT.getClaim("username").asString();
         int userType = decodedJWT.getClaim("usertype").asInt();
 
-        if (userType == 1) {
+        if (userType == 1 || userType == 0) {
             // 获取文件资源路径
             Course course = courseService.findByCid(cid);
 
