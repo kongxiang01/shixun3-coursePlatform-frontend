@@ -1,9 +1,8 @@
 <template>
-  <video autoplay loop muted class="background-video">
-    <source src="../assets/Basketball_CS2.mp4" type="video/mp4">
-    您的浏览器不支持视频播放。
-  </video>
   <div class="login-page">
+<!--    <video autoplay loop muted class="background-video">-->
+<!--      <source src="../assets/Basketball_CS2.mp4" type="video/mp4">-->
+<!--    </video>-->
     <div class="login-form-container">
       <el-card class="login-form" shadow="hover" style="border: 2px solid #805e73; border-radius: 30px">
         <h2 class="login-title">Login</h2>
@@ -96,10 +95,10 @@ const handleLogin = async () => {
 <style lang="scss" scoped>
 .login-page {
   height: 100vh;
-  //background-color: #c48db0;
-  //background-image: url("../assets/bg1.jpg");
-  //background-size: cover;
-  //background-position: center;
+  background-color: #c48db0;
+  background-image: url("../assets/bg1.jpg");
+  background-size: cover;
+  background-position: center;
   overflow: hidden;// 为视频背景加的，好像不影响原图片背景
   position: relative;// 同上
   display: flex;
@@ -125,8 +124,8 @@ const handleLogin = async () => {
 
 .login-form {
   padding: 20px;
-  //background-color: rgba(241, 167, 214, 0.6);
-  background-color: rgb(168, 159, 134, 0.6);
+  background-color: rgba(241, 167, 214, 0.6);
+  //background-color: rgb(168, 159, 134, 0.6);
   border-radius: 15px;
 }
 
