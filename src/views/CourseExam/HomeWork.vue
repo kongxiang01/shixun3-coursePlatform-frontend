@@ -73,9 +73,9 @@
     <div class="container">
       <div class="header" style="margin-bottom: 5px; display: flex; justify-content: space-between">
         <vertical-bar text="课程作业"></vertical-bar>
-        <el-button @click="deleteItem">批量删除</el-button>
         <div>
           <el-button size="default" @click="assignVisible = true">布置作业</el-button>
+          <el-button @click="deleteItem">批量删除</el-button>
           <el-button size="default" @click="goToHomeworkDetail">测试跳转</el-button>
           <el-dialog
               title="布置作业"
@@ -200,7 +200,7 @@ import {useCourseStore} from "@/stores/course.js";
 import {useUserStore} from "@/stores/user.js";
 import VerticalBar from "@/components/VerticalBar.vue";
 import {ElMessage, ElMessageBox} from "element-plus";
-import {assignHomeworkService, getAssignedHomeworkListService} from "@/api/homework.js";
+import {assignHomeworkService, deleteAssignedHomeworkService, getAssignedHomeworkListService} from "@/api/homework.js";
 import {Document} from "@element-plus/icons-vue";
 import {useHomeworkStore} from "@/stores/homework.js";
 
@@ -482,6 +482,15 @@ const deleteItem = async () => {
     return;
   }
   try {
+    await ElMessageBox.confirm(
+        '确认要删除这些作业吗？此操作不可撤回',
+        '警告',
+        {
+          confirmButtonText: '删除',
+          cancelButtonText: '取消',
+          type: 'error',
+        }
+    );
     // 假设后端接收一个包含文件ID的数组
     const labelsToDelete = selectedItems.value.map((item) => item.label);
     console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDCourseWare.vue: labelsToDelete', labelsToDelete)

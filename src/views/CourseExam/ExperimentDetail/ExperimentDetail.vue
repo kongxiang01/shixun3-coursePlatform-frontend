@@ -1,45 +1,3 @@
-<script setup>
-import { ref, onMounted } from "vue";
-import VerticalBar from "@/components/VerticalBar.vue";
-import { InfoFilled } from "@element-plus/icons-vue";
-import { useRouter } from "vue-router";
-import { getHomeworkInfoService } from "@/api/user.js"; // 假设已封装的请求方法路径
-
-const router = useRouter();
-const homeworkInfo = ref(); // 用于存储作业信息
-
-const handleClose = () => {
-  router.back();
-};
-
-// 获取作业信息
-onMounted(async () => {
-  try {
-    const response = await getHomeworkInfoService();
-    homeworkInfo.value = response.data; // 假设接口返回的数据存储在data字段
-  } catch (error) {
-    console.error("获取作业信息失败：", error);
-  }
-});
-
-// 附件预览和下载方法
-const handlePreviewAttachment = () => {
-  // 假设预览功能需要访问某个URL
-  const previewUrl = homeworkInfo.value?.attachmentPreviewUrl;
-  if (previewUrl) {
-    window.open(previewUrl, "_blank"); // 在新窗口打开预览
-  }
-};
-
-const handleDownloadAttachment = () => {
-  // 假设下载功能需要访问某个URL
-  const downloadUrl = homeworkInfo.value?.attachmentDownloadUrl;
-  if (downloadUrl) {
-    window.location.href = downloadUrl; // 下载文件
-  }
-};
-</script>
-
 <template>
   <div class="info-container">
     <div class="header">
@@ -50,7 +8,7 @@ const handleDownloadAttachment = () => {
         <div class="formItem">
           <div class="formItemTitle">作业标题：</div>
           <div class="formItemContent">
-            <span>{{ homeworkInfo?.title || '暂无数据' }}</span>
+            <span>{{ homeworkInfo?.workid || '暂无数据' }}</span>
           </div>
         </div>
         <div class="formItem">
@@ -74,12 +32,12 @@ const handleDownloadAttachment = () => {
         <div class="formItem">
           <div class="formItemTitle">提交时间：</div>
           <div class="formItemContent">
-            <time class="custom-time" :datetime="homeworkInfo?.submitStartTime">
-              {{ homeworkInfo?.submitStartTime || '暂无数据' }}
+            <time class="custom-time" :datetime="homeworkInfo?.start">
+              {{ formatDate(homeworkInfo.start) }}
             </time>
             <span> - </span>
-            <time class="custom-time" :datetime="homeworkInfo?.submitEndTime">
-              {{ homeworkInfo?.submitEndTime || '暂无数据' }}
+            <time class="custom-time" :datetime="homeworkInfo?.end">
+              {{ formatDate(homeworkInfo.end) }}
             </time>
           </div>
         </div>
@@ -103,6 +61,62 @@ const handleDownloadAttachment = () => {
     </div>
   </div>
 </template>
+
+<script setup>
+import { ref, onMounted } from "vue";
+import VerticalBar from "@/components/VerticalBar.vue";
+import { InfoFilled } from "@element-plus/icons-vue";
+import { useRouter } from "vue-router";
+import {getDownloadFileService, getHomeworkInfoService, getPreviewFileService} from "@/api/user.js";
+import {useHomeworkStore} from "@/stores/homework.js";
+import {ElMessage} from "element-plus";
+import {getDownloadAssignedService} from "@/api/homework.js"; // 假设已封装的请求方法路径
+
+const router = useRouter();
+
+const homeworkStore = useHomeworkStore()
+const homeworkInfo = homeworkStore.homework // 用于存储作业信息
+const handleClose = () => {
+  router.back();
+};
+
+const formatDate = (dateStr) => {
+  const date = new Date(dateStr);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+// 附件预览和下载方法
+const handlePreviewAttachment = () => {
+  console.log("ExperimentDetail.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqhomeworkInfo.value.workid：", homeworkInfo.value.workid);
+  router.push({ name: 'HomeworkPreview', query: { workid: homeworkInfo.value.workid } });
+};
+
+const handleDownloadAttachment = async () => {
+  console.log("ExperimentDetail.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqhomeworkInfo.value.workid：", homeworkInfo.value.workid);
+  try {
+    console.log("ExperimentDetail.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqhomeworkInfo.value.workid：", homeworkInfo.value.workid);
+    const res = await getDownloadAssignedService(homeworkInfo.value.workid); // 假设你在 api 中定义了 getDownloadFileService
+    const downloadUrl = res.data.downloadLink;
+    console.log("ExperimentDetail.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq  downloadUrl：", downloadUrl);
+    // 创建一个临时的 <a> 元素并触发点击事件来下载文件
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = homeworkInfo.value.workid;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error("下载文件失败:", error);
+    ElMessage.error("下载文件失败，请重试");
+  }
+};
+</script>
 
 <style scoped lang="scss">
 .info-container{
