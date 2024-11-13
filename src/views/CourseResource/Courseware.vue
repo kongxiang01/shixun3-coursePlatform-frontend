@@ -33,19 +33,19 @@
                 v-model="drawerVisible"
                 width="600px"
             >
-              <el-form ref="form" :model="uploadFormData" :rules="uploadRules" class="form">
+              <el-form ref="validateForm" :model="uploadFormData" :rules="uploadRules" class="form">
                 <el-form-item label="课程资源名称" prop="courseWareTitle">
                     <el-input
                         v-model="uploadFormData.courseWareTitle"
                         style="width: 240px"
-                        placeholder=""
+                        placeholder="选填"
                     ></el-input>
                 </el-form-item>
                   <el-form-item label="描述" prop="content">
                     <el-input
                         type="textarea"
                         :rows="6"
-                        placeholder="请输入3000字以内的描述！"
+                        placeholder="选填，3000字以内"
                         v-model="uploadFormData.content"
                     ></el-input>
                   </el-form-item>
@@ -64,7 +64,7 @@
                 </div><!--doc, pdf, ppt, xls, docx, pptx, xlsx, jpg, gif, jpeg, png, bmp-->
                 <div class="buttons" style="margin-top: 20px; display: flex; justify-content: space-between">
                   <el-button type="primary" @click="submitUploadForm">确定</el-button>
-                  <el-button @click="drawerVisible = false">取消</el-button>
+                  <el-button @click="handleSubmitCancel">取消</el-button>
                 </div>
               </el-form>
             </el-dialog>
@@ -92,20 +92,11 @@
                 <!-- 确定和取消按钮 -->
                 <div class="buttons" style="margin-top: 20px; display: flex; justify-content: space-between">
                   <el-button type="primary" @click="submitCreateFolderForm">确定</el-button>
-                  <el-button @click="createFolderVisible = false">取消</el-button>
+                  <el-button @click="handleCreateCancel">取消</el-button>
                 </div>
               </el-form>
             </el-dialog>
           </div>
-<!--          <el-input-->
-<!--              v-model="input"-->
-<!--              placeholder="输入资源名称查找"-->
-<!--              class="search-input"-->
-<!--          >-->
-<!--            <template #append>-->
-<!--              <el-button :icon="Search" class="search-button"></el-button>-->
-<!--            </template>-->
-<!--          </el-input>-->
         </el-row>
         <el-table :data="tableData" @selection-change="handleSelectionChange" class="resource-table">
           <el-table-column type="selection" width="55" />
@@ -145,7 +136,7 @@ import { useUserStore } from "@/stores/user.js";
 import {useCourseStore} from "@/stores/course.js";
 import {createFolderService, getDirectoryService, getDownloadFileService, uploadCourseWareService} from "@/api/user.js";
 import { useRouter } from 'vue-router'
-import {deleteItemsService} from "@/api/course.js";
+import {deleteItemsService} from "@/api/asset.js";
 
 const courseStore = useCourseStore()
 const courseInfo = computed( () => courseStore.course);
@@ -162,6 +153,7 @@ const userStore = useUserStore(); // 获取用户角色
 const userInfo = computed(() => userStore.user)
 
 const router = useRouter();
+const validateForm = ref();
 
 // 定义 el-tree 的 prop 配置
 const defaultProps = {
@@ -190,14 +182,14 @@ const deleteItem = async () => {
     const labelsToDelete = selectedItems.value.map((item) => item.label);
     console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDCourseWare.vue: labelsToDelete', labelsToDelete)
     let exampleItem = labelsToDelete[0]
-    await deleteItemsService(exampleItem);
+    await deleteItemsService(labelsToDelete);
+    ElMessage.success('成功删除: ' + labelsToDelete);
   } catch (error) {
     ElMessage.error('删除请求出错');
     console.error(error);
   }
 };
 
-// ******************************************************上传文件**********************************************************
 const drawerVisible = ref(false);
 const createFolderVisible = ref(false);
 // 表单数据
@@ -212,7 +204,7 @@ const createFolderFormData = ref({
   describe: '',
 });
 
-
+// ******************************************************上传文件**********************************************************
 const uploadRules = {
   courseWareTitle: [
     { required: false, message: '请输入课程资源名称', trigger: 'blur' },
@@ -251,12 +243,19 @@ const handleFileChange = (event) => {
 
 // 提交表单的函数
 const submitUploadForm = async () => {
+  await validateForm.value.validate()
   console.log('提交表单:', uploadFormData.value);
   try {
     if (uploadFormData.value.file) {
       console.log('Courseware.vue: currentPath.value:', currentPath.value);
       await uploadCourseWareService(uploadFormData.value.file, courseInfo.value.cid, currentPath.value)
       ElMessage.success('文件上传成功')
+      uploadFormData.value = {
+        courseWareTitle: '',
+        content: '',
+        file: null,
+        fileName: '',
+      };
     } else {
       ElMessage.info('请先选择文件')
     }
@@ -266,6 +265,18 @@ const submitUploadForm = async () => {
   }
 };
 
+const handleSubmitCancel = () => {
+  // 清空表单和文件
+  uploadFormData.value = {
+    courseWareTitle: '',
+    content: '',
+    file: null,
+    fileName: '',
+  };
+  drawerVisible.value = false; // 关闭对话框
+};
+
+// ******************************************************新建目录**********************************************************
 const submitCreateFolderForm = async () => {
   console.log('提交表单:', uploadFormData.value);
   try {
@@ -282,7 +293,14 @@ const submitCreateFolderForm = async () => {
     console.log('Courseware.vue: 上传失败222222222222222222222222', error)
   }
 };
-
+const handleCreateCancel = () => {
+  // 清空表单和文件
+  createFolderFormData.value = {
+    folderName: '',
+    describe: '',
+  };
+  createFolderVisible.value = false; // 关闭对话框
+};
 // *****************************************************显示目录***************************************************
 // 递归函数：过滤出所有 type 为 'directory' 的项
 const filterDirectories = (data) => {
