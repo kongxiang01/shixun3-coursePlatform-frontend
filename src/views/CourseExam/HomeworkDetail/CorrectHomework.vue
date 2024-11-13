@@ -4,6 +4,8 @@
       <vertical-bar text="批阅作业"></vertical-bar>
       <div>
         <el-button size="default" @click="">预留的按钮</el-button>
+        <el-button size="default" @click="goToHomeworkDetail">测试跳转</el-button>
+        <el-button class="closeButton" @click="router.back();">关闭</el-button>
       </div>
     </div>
     <el-table :data="submittedTableData">
@@ -33,13 +35,14 @@ import {ElMessage} from "element-plus";
 import {getSubmittedHomeworkListService} from "@/api/homework.js";
 import {useCourseStore} from "@/stores/course.js";
 import {useUserStore} from "@/stores/user.js";
+import { useRouter } from "vue-router";
 
+const router = useRouter()
 const courseStore = useCourseStore()
 const courseInfo = computed(() => courseStore.course)
 const userStore = useUserStore()
 const userInfo = computed(() => userStore.user)
 
-const submittedTableData = ref();
 const formatDate = (dateStr) => {
   const date = new Date(dateStr);
   const year = date.getFullYear();
@@ -50,6 +53,8 @@ const formatDate = (dateStr) => {
   const seconds = String(date.getSeconds()).padStart(2, '0');
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
+
+const submittedTableData = ref();
 const getSubmittedHomeworkList = async () => {
   try {
     const res = await getSubmittedHomeworkListService(courseInfo.value.cid)
@@ -57,6 +62,11 @@ const getSubmittedHomeworkList = async () => {
   } catch (error) {
     ElMessage.error('CorrectHomework.vue11111111:获取学生提交作业列表失败:', error);
   }
+}
+// 跳转批阅详情页面
+const goToHomeworkDetail = () => {
+  // router.push({ name: 'HomeworkDetail' });
+  router.push({ name: 'CorrectPreview' });
 }
 
 // ***************************************批阅和删除******************************

@@ -27,3 +27,6 @@ export const getHomeworkPreviewUrlService = ( workid ) =>
 
 export const correctHomeworkService = ( workid ) =>
     request.get('/api/homework/preview/assign', { params: {workid: workid} })
+
+export const deleteAssignedHomeworkService = ( selectedItems ) =>
+    request.post('/api/homework/delete', {fileName: selectedItems})

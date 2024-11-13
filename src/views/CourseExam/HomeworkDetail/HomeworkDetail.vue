@@ -32,12 +32,12 @@
         <div class="formItem">
           <div class="formItemTitle">提交时间：</div>
           <div class="formItemContent">
-            <time class="custom-time" :datetime="homeworkInfo?.submitStartTime">
-              {{ homeworkInfo?.start || '暂无数据' }}
+            <time class="custom-time" :datetime="homeworkInfo?.start">
+              {{ formatDate(homeworkInfo.start) }}
             </time>
             <span> - </span>
-            <time class="custom-time" :datetime="homeworkInfo?.submitEndTime">
-              {{ homeworkInfo?.end || '暂无数据' }}
+            <time class="custom-time" :datetime="homeworkInfo?.end">
+              {{ formatDate(homeworkInfo.end) }}
             </time>
           </div>
         </div>
@@ -80,14 +80,27 @@ const handleClose = () => {
   router.back();
 };
 
+const formatDate = (dateStr) => {
+  const date = new Date(dateStr);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
 // 附件预览和下载方法
 const handlePreviewAttachment = () => {
+  console.log("HomeworkDetail.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqhomeworkInfo.value.workid：", homeworkInfo.value.workid);
   router.push({ name: 'HomeworkPreview', query: { workid: homeworkInfo.value.workid } });
 };
 
 const handleDownloadAttachment = async () => {
+  console.log("HomeworkDetail.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqhomeworkInfo.value.workid：", homeworkInfo.value.workid);
   try {
-    console.log("HomeworkDetail.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqitem.label：", homeworkInfo.value.workid);
+    console.log("HomeworkDetail.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqhomeworkInfo.value.workid：", homeworkInfo.value.workid);
     const res = await getDownloadAssignedService(homeworkInfo.value.workid); // 假设你在 api 中定义了 getDownloadFileService
     const downloadUrl = res.data.downloadLink;
     console.log("HomeworkDetail.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq  downloadUrl：", downloadUrl);

@@ -7,7 +7,6 @@
           :src="fileUrl"
           width="100%"
           height="100%"
-          frameborder="0"
           title="作业预览"
       ></iframe>
       <p v-else>没有可预览的文件</p>
@@ -28,6 +27,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="submitGrading">提交</el-button>
+          <el-button class="closeButton" @click="router.back();">关闭</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -38,6 +38,9 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getHomeworkPreviewUrlService, correctHomeworkService } from '@/api/homework.js'
+import { useRouter } from "vue-router";
+
+const router = useRouter()
 
 // 初始化文件预览 URL
 const fileUrl = ref('')

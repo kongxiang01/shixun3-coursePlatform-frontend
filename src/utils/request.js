@@ -2,7 +2,7 @@ import axios from 'axios'
 import { useUserStore } from '../stores/user.js'
 import { ElMessage } from 'element-plus'
 // const baseURL = 'http://192.168.10.127:8080'// 寝室网
-// const baseURL = 'http://192.168.245.211:8080'// 杨帆热点
+// const baseURL = 'http://192.168.35.211:8080'// 杨帆热点
 const baseURL = 'http://localhost:8080'
 
 const instance = axios.create({

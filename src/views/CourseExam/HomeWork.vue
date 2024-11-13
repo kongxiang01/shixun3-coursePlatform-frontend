@@ -34,8 +34,8 @@
           direction="rtl"
           size="40%"
       >
-        <el-form ref="validateUploadFrom" :model="uploadFormData" class="form">
-          <el-form-item label="课程资源名称" prop="courseWareTitle">
+        <el-form ref="validateForm" :model="uploadFormData" :rules="uploadRules" class="form">
+          <el-form-item label="课程资源名称" prop="homeworkTitle">
             <el-input
                 v-model="uploadFormData.homeworkTitle"
                 style="width: 240px"
@@ -73,6 +73,7 @@
     <div class="container">
       <div class="header" style="margin-bottom: 5px; display: flex; justify-content: space-between">
         <vertical-bar text="课程作业"></vertical-bar>
+        <el-button @click="deleteItem">批量删除</el-button>
         <div>
           <el-button size="default" @click="assignVisible = true">布置作业</el-button>
           <el-button size="default" @click="goToHomeworkDetail">测试跳转</el-button>
@@ -82,7 +83,7 @@
               width="600px"
               :close-on-click-modal="false"
           >
-            <el-form ref="validateFrom" :model="assignFormData" :rules="assignRules" class="form">
+            <el-form ref="validateUploadForm" :model="assignFormData" :rules="assignRules" class="form">
               <el-form-item label="作业序号" prop="workId">
                 <div>
                   <el-input
@@ -144,23 +145,37 @@
           </el-dialog>
         </div>
       </div>
-      <el-table :data="assignedTableData">
-        <el-table-column prop="cname" label="作业标题" align="center">
+      <el-table :data="assignedTableData" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="50" align="center"/>
+        <el-table-column prop="cname" label="作业标题" align="center" width="300px">
 <!--          <template #default="scope">-->
 <!--            <el-link type="primary" :underline="false" @click="handleAssignHW">{{scope.row.cname}}</el-link>-->
 <!--          </template>-->
         </el-table-column>
-        <el-table-column prop="start" label="作业开始" align="center">
+        <el-table-column prop="start" label="作业开始" align="center" width="200px">
           <template #default="scope">
             {{ formatDate(scope.row.start) }}
           </template>
         </el-table-column>
-        <el-table-column prop="end" label="作业截止" align="center">
+        <el-table-column prop="end" label="作业截止" align="center" width="200px">
           <template #default="scope">
             {{ formatDate(scope.row.end) }}
           </template>
         </el-table-column>
         <el-table-column prop="submitRatio" label="提交人数" align="center"></el-table-column>
+        <el-table-column label="发布作业" align="center">
+          <template #default="scope">
+            <!--这里需要后端传来的assignedTableData里有isPublished这个键值-->
+            <el-switch
+                v-model="scope.row.isPublished"
+                @change="handlePublishChange(scope.row)"
+                size="large"
+                inline-prompt
+                active-text="已发布"
+                inactive-text="未发布">
+            </el-switch>
+          </template>
+        </el-table-column>
         <el-table-column label="批阅" align="center">
           <template #default="scope">
             <el-button size="small" type="primary" :underline="false" @click="handleCorrect(scope.row.cname)" :icon="Document"></el-button>
@@ -180,10 +195,7 @@
 <script setup>
 import {useRoute, useRouter} from "vue-router";
 import {computed, onMounted, ref} from "vue";
-import {
-  getHomeworkListService,
-  uploadHomeworkService
-} from "@/api/user.js";
+import {uploadHomeworkService} from "@/api/user.js";
 import {useCourseStore} from "@/stores/course.js";
 import {useUserStore} from "@/stores/user.js";
 import VerticalBar from "@/components/VerticalBar.vue";
@@ -223,8 +235,8 @@ const assignFormData = ref({
   timeRange: []
 });
 
-const validateFrom = ref()
-
+const validateForm = ref()
+const validateUploadForm = ref()
 const formatDate = (dateStr) => {
   const date = new Date(dateStr);
   const year = date.getFullYear();
@@ -236,6 +248,17 @@ const formatDate = (dateStr) => {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 // ******************************************************上传文件(交作业)********************************************************
+
+const uploadRules = {
+  homeworkTitle: [
+    { required: false, message: '请输入课程资源名称', trigger: 'blur' },
+    { min: 2, max: 30, message: '长度在 2 到 30 个字符', trigger: 'blur' }
+  ],
+  content: [
+    { required: false, message: '请输入描述', trigger: 'blur' },
+    { max: 3000, message: '描述不能超过3000字', trigger: 'blur' }
+  ]
+};
 // 选择文件
 const selectFile = () => {
   document.querySelector('input[type="file"]').click()
@@ -251,6 +274,7 @@ const handleFileChange = (event) => {
 }
 
 const submitUploadForm = async () => {
+  await validateUploadForm.value.validate()
   console.log('提交上传作业表单:', uploadFormData.value);
   try {
     // 传输作业相关信息
@@ -281,11 +305,6 @@ const handleSubmitCancel = () => {
 // ************************************************获取作业列表********************************************************
 const getHWData = async () => {
   try {
-    // if(userInfo.value.type === '0'){
-    //   console.log('HomeWork.vue:  courseInfo.value.cid: ', courseInfo.value.cid, 'userInfo.value.sno:', userInfo.value.sno, 'userInfo.value.type:', userInfo.value.type);
-    //   const res = await getHomeworkListService(courseInfo.value.cid, userInfo.value.sno); // 向后端获取作业列表
-    //   tableData.value = res.data.homeworkInfoList; // 将返回的数据赋值给tableData
-    // }else{
       console.log('HomeWork.vue: courseInfo.value.cid是',courseInfo.value.cid,'userInfo.value.type是',userInfo.value.type);
       const res = await getAssignedHomeworkListService(courseInfo.value.cid); // 向后端获取学生课程
       assignedTableData.value = res.data.homeworkList; // 将返回的数据赋值给courses
@@ -334,6 +353,17 @@ const handleAssignFileChange = (event) => {
 const assignRules = {
   workId: [
     { required: true, message: '请输入作业序号', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        const id = Number(value);
+        if (!Number.isInteger(id) || id < 1) {
+          callback(new Error('作业序号必须是大于等于1的整数'));
+        } else {
+          callback();
+        }
+      },
+      trigger: 'blur'
+    }
   ],
   fullScore: [
     { required: true, message: '请填写作业满分', trigger: 'blur' },
@@ -352,7 +382,7 @@ const assignRules = {
     }
   ],
   content: [
-    { required: true, message: '请输入作业内容', trigger: 'blur' },
+    { required: false, message: '请输入作业内容', trigger: 'blur' },
     { max: 3000, message: '内容不能超过3000字', trigger: 'blur' }
   ],
   timeRange: [
@@ -369,7 +399,7 @@ const assignRules = {
 };
 
 const submitAssignForm = async () => {
-  await validateFrom.value.validate()
+  await validateForm.value.validate()
   console.log('提交布置作业表单:', assignFormData);
   try {
     if (!assignFormData.value.file) {
@@ -405,6 +435,16 @@ const handleCorrect = (cname) => {
   router.push({ name: 'CorrectHomework' });
 };
 
+const handlePublishChange = async (row) => {
+  try {
+    // 调用封装的接口发送请求
+    await setHomeworkPublishService(row.cname, row.isPublished)
+    console.log(`作业 "${row.cname}" 已 ${row.isPublished ? '发布' : '撤销发布'}`)
+  } catch (error) {
+    console.error('操作失败:', error)
+  }
+}
+
 // 公布成绩
 const handlePublish = async () => {
   try {
@@ -417,6 +457,8 @@ const handlePublish = async () => {
           type: 'warning',
         }
     );
+
+
     // 在这里执行公布成绩的逻辑，例如请求后端 API
     ElMessage.success('成绩已公布');
   } catch {
@@ -424,7 +466,35 @@ const handlePublish = async () => {
   }
 };
 
-// 删除作业
+// ****************************************************删除操作*****************************************
+// 用于存储选中的行
+const selectedItems = ref([]);
+
+// 更新选中的行
+const handleSelectionChange = (selection) => {
+  selectedItems.value = selection;
+  console.log('CCCCCCCCCCCCCCCCourseWare.vue: selectedItems.value', selectedItems.value)
+};
+// 批量删除选中的行
+const deleteItem = async () => {
+  if (selectedItems.value.length === 0) {
+    ElMessage.warning('请先选择要删除的项');
+    return;
+  }
+  try {
+    // 假设后端接收一个包含文件ID的数组
+    const labelsToDelete = selectedItems.value.map((item) => item.label);
+    console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDCourseWare.vue: labelsToDelete', labelsToDelete)
+    let exampleItem = labelsToDelete[0]
+    await deleteAssignedHomeworkService(labelsToDelete);
+    ElMessage.success('成功删除: ' + labelsToDelete);
+  } catch (error) {
+    ElMessage.error('删除请求出错');
+    console.error(error);
+  }
+};
+
+// 删除单个作业
 const handleDelete = async (row) => {
   try {
     await ElMessageBox.confirm(
@@ -436,6 +506,9 @@ const handleDelete = async (row) => {
           type: 'error',
         }
     );
+
+
+
     // 在这里执行删除逻辑，例如请求后端 API 删除作业
     ElMessage.success('作业已删除');
   } catch {

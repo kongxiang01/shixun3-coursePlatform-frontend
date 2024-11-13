@@ -22,5 +22,3 @@ export const calendarPreviewService = ( cid ) =>
 
 // export const deleteItemsService = ( selectedItems ) =>
 //     request.post('/api/assets/delete', selectedItems )
-export const deleteItemsService = ( selectedItems ) =>
-    request.post('/api/assets/delete', {fileName: selectedItems})
