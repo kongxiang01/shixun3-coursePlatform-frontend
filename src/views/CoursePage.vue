@@ -3,22 +3,22 @@
     <el-header id="head">
       <el-row class="header-up">
         <el-col class="course-title" :span="12">
-          Course Page
+          {{ courseInfo.cname }}
         </el-col>
-        <el-col class="academy" :span="12">
-          所在学院12312
+        <el-col class="academy" :span="12" style="font-size: 20px; font-weight: bold">
+          {{ courseInfo.teacherInfo.major }}
         </el-col>
       </el-row>
       <el-row>
         <el-col class="relevant-info" :span="8">
-          <div class="teacher">主讲教师：</div>
+          <div class="teacher">主讲教师：{{ courseInfo.teacherInfo.tname }}</div>   <!--再来一个接口返回：讲课老师、学期、等等所有需要在coursePage展示的东西-->
           <div class="separator"></div>
-          <div class="cno">课程编号：</div>
+          <div class="cno">课程cno：{{ courseInfo.cno }}</div>
           <div class="separator"></div>
-          <div class="cid">课程ID: {{ courseId }}</div>
+          <div class="cid">课程cid: {{ courseInfo.cid }}</div>
         </el-col>
         <el-col class="time" :span="8" :offset="8">
-          学期： 当前教学周：
+          学期： 当前教学周：第 <span style="font-size: 20px; color: #f1dfa9">{{ courseStore.teachingWeek}}</span> 周
         </el-col>
       </el-row>
     </el-header>
@@ -109,6 +109,16 @@
               <span>讨论区</span>
             </el-menu-item>
           </el-sub-menu>
+          <!-- 互评 -->
+          <el-sub-menu :index="generateCoursePath('PeerEvaluation')">
+            <template #title>
+              <el-icon><FolderOpened /></el-icon>
+              <span>学生互评</span>
+            </template>
+            <el-menu-item :index="generateCoursePath('peerEvaluation')">
+              <span>互评</span>
+            </el-menu-item>
+          </el-sub-menu>
 
         </el-menu>
       </el-aside>
@@ -121,17 +131,19 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import {ChatDotSquare, FolderOpened, InfoFilled, Tickets, VideoCamera} from "@element-plus/icons-vue";
+import { computed } from 'vue';
+import {useCourseStore} from "@/stores/course.js";
 
 const route = useRoute();
-const courseId = ref(route.params.id);
-const courseNumber = ref(route.params.courseNumber);
+const courseStore = useCourseStore()
+console.log('CoursePage.vue:  courseStore: ', courseStore)
+const courseInfo = computed( () => courseStore.course);
 
 // 动态生成路径的函数
 const generateCoursePath = (suffix) => {
-  return `/course/courseId=${courseId.value}&courseNumber=${courseNumber.value}/${suffix}`;
+  return `/course/${suffix}`;
 };
 </script>
 

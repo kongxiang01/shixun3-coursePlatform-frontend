@@ -19,7 +19,7 @@ import HomeItems from "../views/HomeItem/HomeItems.vue";
 import UserInfo from "../views/UserInfo/UserInfo.vue";
 import {useUserStore} from "../stores/user.js";
 import HomeworkDetail from "../views/CourseExam/HomeworkDetail/HomeworkDetail.vue";
-
+import PeerEvaluation from '../views/PeerEvaluation/Evaluation.vue';
 const routes = [
     {
         path: '/login',
@@ -39,12 +39,10 @@ const routes = [
         ]
     },
     {
-        path: '/course/courseId=:id&courseNumber=:courseNumber',
+        path: '/course',
         name: 'CoursePage',
         component: CoursePage,
-        redirect: to => {
-            return `/course/courseId=${to.params.id}&courseNumber=${to.params.courseNumber}/courseIntro`;
-        },
+        redirect: '/course/courseIntro',
         props: true, // 是为了传上面的path: '/course/:id'的id
         meta: { title: '课程内容' },
         children: [
@@ -63,7 +61,8 @@ const routes = [
             { path: 'homeworkDetail', name: 'HomeworkDetail', component: HomeworkDetail,},
 
             { path: 'regularTest', name: 'RegularTest', component: RegularTest,},
-            { path: 'discussArea', name: 'DiscussArea', component: DiscussArea,}
+            { path: 'discussArea', name: 'DiscussArea', component: DiscussArea,},
+            { path: 'PeerEvaluation', name: 'PeerEvaluation', component: PeerEvaluation,},
         ]
     }
 ]
@@ -80,8 +79,8 @@ router.beforeEach((to, from, next) => {
         document.title = 'Smart Course'; // 如果没有设置 meta.title，使用默认标题
     }
 
-    const userStore=useUserStore()
-    console.log('这是token：' + userStore.token)
+    const userStore= useUserStore()
+    console.log('router/index.js:   这是token：' + userStore.token)
     if(!userStore.token && to.path!=='/login'){
         // return '/login';
         next('/login');
