@@ -35,20 +35,35 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import {ref, onMounted, computed} from 'vue'
 import { ElMessage } from 'element-plus'
-import { getHomeworkPreviewUrlService, correctHomeworkService } from '@/api/homework.js'
-import { useRouter } from "vue-router";
+import { getHomeworkPreviewService, correctHomeworkService } from '@/api/homework.js'
+import {useRoute, useRouter} from "vue-router";
+import {useCourseStore} from "@/stores/course.js";
+import {useUserStore} from "@/stores/user.js";
+import {useHomeworkStore} from "@/stores/homework.js";
 
 const router = useRouter()
+const route = useRoute()
+
+const courseStore = useCourseStore()
+const courseInfo = computed(() => courseStore.course)
+const userStore = useUserStore()
+const userInfo = computed(() => userStore.user)
+const homeworkStore = useHomeworkStore()
+const homeworkInfo = computed(() => homeworkStore.homework)
 
 // 初始化文件预览 URL
 const fileUrl = ref('')
 
+const cid = route.query.cid;
+const workid = route.query.workid;
+const sno = route.query.sno
+
 // 获取作业预览 URL
 const loadPreviewUrl = async () => {
   try {
-    fileUrl.value = await getHomeworkPreviewUrlService()
+    fileUrl.value = await getHomeworkPreviewService(cid, workid, sno) // cid, workid, sno
   } catch (error) {
     ElMessage.error('获取预览链接失败')
   }

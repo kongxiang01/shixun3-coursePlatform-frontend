@@ -165,9 +165,9 @@
         <el-table-column prop="submitRatio" label="提交人数" align="center"></el-table-column>
         <el-table-column label="发布作业" align="center">
           <template #default="scope">
-            <!--这里需要后端传来的assignedTableData里有isPublished这个键值-->
+            <!--这里需要后端传来的assignedTableData里有publish这个键值-->
             <el-switch
-                v-model="scope.row.isPublished"
+                v-model="scope.row.publish"
                 @change="handlePublishChange(scope.row)"
                 size="large"
                 inline-prompt
@@ -176,15 +176,27 @@
             </el-switch>
           </template>
         </el-table-column>
+        <el-table-column label="公布分数" align="center">
+          <template #default="scope">
+            <!--这里需要后端传来的assignedTableData里有publish这个键值-->
+            <el-switch
+                v-model="scope.row.publishscore"
+                @change="handlePublishScore(scope.row)"
+                size="large"
+                inline-prompt
+                active-text="已公布"
+                inactive-text="未公布">
+            </el-switch>
+          </template>
+        </el-table-column>
         <el-table-column label="批阅" align="center">
           <template #default="scope">
-            <el-button size="small" type="primary" :underline="false" @click="handleCorrect(scope.row.cname)" :icon="Document"></el-button>
+            <el-button size="small" type="primary" :underline="false" @click="handleCorrect(scope.row)" :icon="Document"></el-button>
           </template>
         </el-table-column>
         <el-table-column label="操作" align="center">
           <template #default="scope">
-            <el-link type="primary" :underline="false" @click="handlePublish" style="margin-right: 20px">公布成绩</el-link>
-            <el-link type="danger" :underline="false" @click="handleDelete(scope.row)">删除</el-link>
+            <el-button size="small" type="danger" :icon="Delete" @click="handleDelete(scope.row)"></el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -201,7 +213,7 @@ import {useUserStore} from "@/stores/user.js";
 import VerticalBar from "@/components/VerticalBar.vue";
 import {ElMessage, ElMessageBox} from "element-plus";
 import {assignHomeworkService, deleteAssignedHomeworkService, getAssignedHomeworkListService} from "@/api/homework.js";
-import {Document} from "@element-plus/icons-vue";
+import {Delete, Document} from "@element-plus/icons-vue";
 import {useHomeworkStore} from "@/stores/homework.js";
 
 const route = useRoute();
@@ -306,13 +318,19 @@ const handleSubmitCancel = () => {
 const getHWData = async () => {
   try {
       console.log('HomeWork.vue: courseInfo.value.cid是',courseInfo.value.cid,'userInfo.value.type是',userInfo.value.type);
-      const res = await getAssignedHomeworkListService(courseInfo.value.cid); // 向后端获取学生课程
-      assignedTableData.value = res.data.homeworkList; // 将返回的数据赋值给courses
-      tableData.value = res.data.homeworkList;
-    // }
+      if(userInfo.value.type === "1"){
+        console.log('HomeWork.vue: userInfo.value.tno是',userInfo.value.tno);
+
+        const res = await getAssignedHomeworkListService(courseInfo.value.cid, userInfo.value.tno); // 向后端获取学生课程
+        assignedTableData.value = res.data.homeworkList; // 将返回的数据赋值给courses
+      }else{
+        const res = await getAssignedHomeworkListService(courseInfo.value.cid, userInfo.value.sno); // 向后端获取学生课程
+        tableData.value = res.data.homeworkList;
+      }
 
     // console.log('HomeWork.vue22222222222222:   courseInfo.value.cid:', res.data.homeworkInfoList);
-    console.log('HomeWork.vue3333333333333:   tableData:', tableData);
+    console.log('HomeWork.vue3333333333333:   tableData:', tableData.value);
+    console.log('HomeWork.vue3333333333333:   assignedTableData:', assignedTableData.value);
   } catch (error) {
     ElMessage.error('Homework.vue:获取作业列表失败:', error);
   }
@@ -425,28 +443,28 @@ const submitAssignForm = async () => {
 
 // ****************************************************批阅和操作相关*****************************************
 const goToHomeworkDetail = () => {
-  // router.push({ name: 'HomeworkDetail' });
-  router.push({ name: 'CorrectPreview' });
+  router.push({ name: 'HomeworkDetail' });
+  // router.push({ name: 'CorrectPreview' });
 }
 // 打开批阅页面
-const handleCorrect = (cname) => {
-  ElMessage.info(cname)
+const handleCorrect = (row) => {
+  ElMessage.info(row.cname)
   // 跳转到批阅页面，可以传递作业ID或其他参数
-  router.push({ name: 'CorrectHomework' });
+  router.push({ name: 'CorrectHomework', query: {workid: row.workid}});
 };
 
 const handlePublishChange = async (row) => {
   try {
     // 调用封装的接口发送请求
-    await setHomeworkPublishService(row.cname, row.isPublished)
-    console.log(`作业 "${row.cname}" 已 ${row.isPublished ? '发布' : '撤销发布'}`)
+    await setHomeworkPublishService(row.cname, row.publish)
+    console.log(`作业 "${row.cname}" 已 ${row.publish ? '发布' : '撤销发布'}`)
   } catch (error) {
     console.error('操作失败:', error)
   }
 }
 
 // 公布成绩
-const handlePublish = async () => {
+const handlePublishScore = async () => {
   try {
     await ElMessageBox.confirm(
         '确认要公布该作业的成绩吗？',
@@ -490,15 +508,13 @@ const deleteItem = async () => {
           cancelButtonText: '取消',
           type: 'error',
         }
-    );
-    // 假设后端接收一个包含文件ID的数组
+    ); // 选取消会直接跳掉 catch 块里
     const labelsToDelete = selectedItems.value.map((item) => item.label);
     console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDCourseWare.vue: labelsToDelete', labelsToDelete)
-    let exampleItem = labelsToDelete[0]
     await deleteAssignedHomeworkService(labelsToDelete);
     ElMessage.success('成功删除: ' + labelsToDelete);
   } catch (error) {
-    ElMessage.error('删除请求出错');
+    ElMessage.error('已取消删除或删除请求出错');
     console.error(error);
   }
 };
@@ -516,12 +532,16 @@ const handleDelete = async (row) => {
         }
     );
 
-
+    const labelToDelete = [row.label];
+    console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDCourseWare.vue: labelsToDelete', labelToDelete)
+    await deleteAssignedHomeworkService(labelToDelete);
+    ElMessage.success('成功删除: ' + labelToDelete);
 
     // 在这里执行删除逻辑，例如请求后端 API 删除作业
     ElMessage.success('作业已删除');
-  } catch {
-    ElMessage.info('已取消删除');
+  } catch(error) {
+    ElMessage.info('已取消删除或删除请求出错');
+    console.error(error);
   }
 };
 

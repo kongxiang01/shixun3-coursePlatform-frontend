@@ -24,7 +24,7 @@
               <el-button @click="drawerVisible = true" type="primary">上传文件</el-button>
               <el-button @click="createFolderVisible = true">新建目录</el-button>
 <!--              <el-button @click="moveItem">移动</el-button>-->
-              <el-button @click="deleteItem">删除</el-button>
+              <el-button @click="deleteItems">删除</el-button>
 <!--              <el-button @click="publishItem">发布</el-button>-->
 <!--              <el-button @click="unpublishItem">取消发布</el-button>-->
             </template>
@@ -99,7 +99,7 @@
           </div>
         </el-row>
         <el-table :data="tableData" @selection-change="handleSelectionChange" class="resource-table">
-          <el-table-column type="selection" width="55" />
+          <el-table-column type="selection" width="50" align="center"/>
           <el-table-column label="文件名称">
             <template #default="scope">
               <el-link @click="handleNameClick(scope.row)">
@@ -115,11 +115,12 @@
           </el-table-column>
           <el-table-column prop="type" label="属性" />
           <!-- 操作列 -->
-          <el-table-column label="操作" width="120">
+          <el-table-column label="操作" width="120" align="center">
             <template #default="scope">
-              <el-link v-if="scope.row.type === 'file'" @click="downloadFile(scope.row)">
-                下载
-              </el-link>
+              <div style="display: flex;justify-content: space-between">
+                <el-link v-if="scope.row.type === 'file'" type="primary" @click="downloadFile(scope.row)">下载</el-link>
+                <el-link type="danger" @click="deleteItem(scope.row)">删除</el-link>
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -131,7 +132,7 @@
 <script setup>
 import {computed, onMounted, ref} from 'vue';
 import {Folder, Document } from "@element-plus/icons-vue";
-import {ElMessage} from "element-plus";
+import {ElMessage, ElMessageBox} from "element-plus";
 import { useUserStore } from "@/stores/user.js";
 import {useCourseStore} from "@/stores/course.js";
 import {createFolderService, getDirectoryService, getDownloadFileService, uploadCourseWareService} from "@/api/user.js";
@@ -172,20 +173,50 @@ const handleSelectionChange = (selection) => {
 };
 
 // 删除选中的行
-const deleteItem = async () => {
+const deleteItems = async () => {
   if (selectedItems.value.length === 0) {
     ElMessage.warning('请先选择要删除的项');
     return;
   }
   try {
     // 假设后端接收一个包含文件ID的数组
+    await ElMessageBox.confirm(
+        '确认要删除这些资源吗？此操作不可撤回',
+        '警告',
+        {
+          confirmButtonText: '删除',
+          cancelButtonText: '取消',
+          type: 'error',
+        }
+    );
     const labelsToDelete = selectedItems.value.map((item) => item.label);
     console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDCourseWare.vue: labelsToDelete', labelsToDelete)
     let exampleItem = labelsToDelete[0]
     await deleteItemsService(labelsToDelete);
     ElMessage.success('成功删除: ' + labelsToDelete);
   } catch (error) {
-    ElMessage.error('删除请求出错');
+    ElMessage.error('已取消删除或删除请求出错');
+    console.error(error);
+  }
+};
+// 删除一行
+const deleteItem = async (row) => {
+  try {
+    await ElMessageBox.confirm(
+        '确认要删除这些资源吗？此操作不可撤回',
+        '警告',
+        {
+          confirmButtonText: '删除',
+          cancelButtonText: '取消',
+          type: 'error',
+        }
+    );
+    const labelToDelete = [row.label];
+    console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDCourseWare.vue: labelsToDelete', labelToDelete)
+    await deleteItemsService(labelToDelete);
+    ElMessage.success('成功删除: ' + labelToDelete);
+  } catch (error) {
+    ElMessage.error('已取消删除或删除请求出错');
     console.error(error);
   }
 };
@@ -256,6 +287,7 @@ const submitUploadForm = async () => {
         file: null,
         fileName: '',
       };
+      drawerVisible.value = false;
     } else {
       ElMessage.info('请先选择文件')
     }

@@ -6,7 +6,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import {getPreviewFileService} from '@/api/user.js'
+import {getPreviewFileService} from '@/api/homework.js'
 
 const route = useRoute()
 const url = ref('')

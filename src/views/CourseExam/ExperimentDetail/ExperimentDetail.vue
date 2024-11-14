@@ -67,7 +67,8 @@ import { ref, onMounted } from "vue";
 import VerticalBar from "@/components/VerticalBar.vue";
 import { InfoFilled } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
-import {getDownloadFileService, getHomeworkInfoService, getPreviewFileService} from "@/api/user.js";
+import {getDownloadFileService, getHomeworkInfoService} from "@/api/user.js";
+import {getPreviewFileService} from "@/api/homework.js";
 import {useHomeworkStore} from "@/stores/homework.js";
 import {ElMessage} from "element-plus";
 import {getDownloadAssignedService} from "@/api/homework.js"; // 假设已封装的请求方法路径
