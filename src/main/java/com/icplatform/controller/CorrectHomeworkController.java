@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/teacher")
+    @RequestMapping("/api/teacher")
 @CrossOrigin(origins = "*")
 public class CorrectHomeworkController {
 

@@ -69,62 +69,129 @@ public class HomeworkController {
 
         System.out.println("Received homeworkDate: " + homeworkDate);
 
-        if (userType == 0 || userType == 1) {
+        if (userType == 0) {
             String cid = homeworkDate.get("cid");
-            String sno = homeworkDate.get("sno");
+            String sno = homeworkDate.get("pno");
 
-            if(cid != null && sno != null){
+            if(cid != null && sno != null && sno.charAt(0) == '2') {
 
                 int totalStudents = scService.countStudentsByCid(cid);
 
-                List<Homework> homeworkList = homeworkService.searchByCidAndSno(cid,sno);
-                if(homeworkList != null && homeworkList.size() > 0){
-                    List<Map<String, Object>> homeworkInfoList = new ArrayList<>();
+                List<Commit> commitList = commitService.findByCid(cid);
 
-                    for(Homework homework : homeworkList){
+                if(commitList != null && commitList.size() > 0) {
+                    List<Map<String, Object>> commitInfoList = new ArrayList<>();
+                    for (Commit commit : commitList) {
 
-                        int submitStudents = homeworkService.countSubmittedByCidAndWorkId(cid, homework.getWorkid());
+                        int publish = commit.getPublish();
+                        if (publish == 1) {
+                            int workId = commit.getWorkid();
+
+                            Homework homework = homeworkService.findByCidSnoAndWorkid(cid, sno, workId);
+
+                            if(homework != null){
+                                int submitStudents = homeworkService.countSubmittedByCidAndWorkId(cid, workId);
+
+                                String submitRatio = submitStudents + "/" + totalStudents;
+                                Map<String, Object> commitInfo = new HashMap<>();
+
+                                commitInfo.put("cname", commit.getCname());
+                                commitInfo.put("start", commit.getStart());
+                                commitInfo.put("end", commit.getEnd());
+                                commitInfo.put("submitRatio", submitRatio);
+                                if (homework != null) {
+                                    commitInfo.put("submitTime", homework.getStime());
+                                } else {
+                                    commitInfo.put("submitTime", "未提交");
+                                }
+                                if (commit.getPublishscore() == 1) {
+                                    commitInfo.put("score", homework.getScore());
+                                } else {
+                                    commitInfo.put("score", "未公布成绩");
+                                }
+                                commitInfo.put("reviestatus", homework.getReviestatus());
+
+                                LocalDateTime now = LocalDateTime.now();
+                                if (now.isBefore(homework.getStart()) || now.isAfter(homework.getEnd())) {
+                                    commitInfo.put("submitStatus", "not submission");
+                                } else {
+                                    commitInfo.put("submitStatus", "can submit");
+                                }
+                                commitInfoList.add(commitInfo);
+                            }
+                        }
+                    }
+                    String newToken = JWTUtil.generateToken(userType, username);
+
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("homeworkList",commitInfoList);
+                    response.put("status","success");
+                    response.put("message","作业列表返回成功");
+                    response.put("newToken",newToken);
+                    return response;
+                }else{
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("status","error");
+                    response.put("message","没作业");
+                    return response;
+                }
+            }
+            System.out.println(sno.charAt(0));
+            Map<String, Object> response = new HashMap<>();
+            response.put("status","error");
+            response.put("message","用户权限错误,请重新登录");
+            return response;
+        }else if (userType == 1) {
+
+            String cid = homeworkDate.get("cid");
+            String tno = homeworkDate.get("pno");
+
+            if(cid != null && tno != null && tno.charAt(0) == '5'){
+                int totalStudents = scService.countStudentsByCid(cid);
+                List<Commit> commitList = commitService.findByCid(cid);
+                if(commitList != null && commitList.size() > 0) {
+                    List<Map<String, Object>> commitInfoList = new ArrayList<>();
+                    for(Commit commit : commitList){
+
+                        int workId = commit.getWorkid();
+
+                        int submitStudents = homeworkService.countSubmittedByCidAndWorkId(cid, workId);
 
                         String submitRatio = submitStudents + "/" + totalStudents;
 
-                        Map<String, Object> homeworkInfo = new HashMap<>();
-                        homeworkInfo.put("homeworkName",homework.getHname());
-                        homeworkInfo.put("start",homework.getStart());
-                        homeworkInfo.put("end",homework.getEnd());
-                        homeworkInfo.put("submitTime",homework.getStime());
-                        homeworkInfo.put("submitRatio",submitRatio);
-                        homeworkInfo.put("score",homework.getScore());
-                        homeworkInfo.put("reviestatus",homework.getReviestatus());
+                        Map<String ,Object> commitInfo = new HashMap<>();
 
-                        // 获取当前时间并判断是否在可提交范围内
+                        commitInfo.put("cname",commit.getCname());
+                        commitInfo.put("start",commit.getStart());
+                        commitInfo.put("end",commit.getEnd());
+                        commitInfo.put("submitRatio",submitRatio);
 
-                        LocalDateTime now = LocalDateTime.now();
-                        if (now.isBefore(homework.getStart()) || now.isAfter(homework.getEnd())) {
-                            homeworkInfo.put("submitStatus", "not submitted");
-                        } else {
-                            homeworkInfo.put("submitStatus", "can submission");
-                        }
-
-                        homeworkInfoList.add(homeworkInfo);
+                        commitInfoList.add(commitInfo);
                     }
-
-                    // 返回作业信息和新token
                     String newToken = JWTUtil.generateToken(userType, username);
-                    Map<String, Object> result = new HashMap<>();
-                    result.put("homeworkInfoList", homeworkInfoList);
-                    result.put("newToken", newToken);
-                    result.put("status", "success");
-                    return result;
+
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("homeworkList",commitInfoList);
+                    response.put("status","success");
+                    response.put("message","作业列表返回成功");
+                    response.put("newToken",newToken);
+                    return response;
                 }else{
-                    // 没有找到作业记录
-                    Map<String, Object> errorResponse = new HashMap<>();
-                    errorResponse.put("message", "未找到作业记录");
-                    errorResponse.put("status", "error");
-                    return errorResponse;
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("status","error");
+                    response.put("message","没布置作业");
+                    return response;
                 }
             }
+            Map<String, Object> response = new HashMap<>();
+            response.put("status","error");
+            response.put("message","用户权限错误,请重新登录");
+            return response;
         }
-        return null;
+        Map<String, Object> response = new HashMap<>();
+        response.put("status","error");
+        response.put("message","用户权限错误");
+        return response;
     }
 
     //课程作业下载
@@ -154,7 +221,7 @@ public class HomeworkController {
     }
 
     //上传作业
-    @PostMapping("upload")
+    @PostMapping("/upload")
     public FileUploadResponse uploadHomework(@RequestHeader Map<String, String> header, @RequestParam("homeworkFile") MultipartFile homeworkFile, @RequestParam("cid") String cid, @RequestParam("sno") String sno, @RequestParam("workid") int workid, @RequestParam("reviestatus") String reviestatus) throws IOException {
 
         String token = header.get("token");
@@ -219,7 +286,14 @@ public class HomeworkController {
 
     //布置作业
     @PostMapping("/assign")
-    public Map<String, String> assignHomework(@RequestHeader Map<String, String> header, @RequestParam("homework") MultipartFile homework, @RequestParam("start") String start, @RequestParam("end") String end, @RequestParam("workid") int workid, @RequestParam("cid") String cid, @RequestParam("content") String content, @RequestParam("fullmark") int fullmark) throws IOException {
+    public Map<String, String> assignHomework(@RequestHeader Map<String, String> header,
+                                              @RequestParam("homework") MultipartFile homework,
+                                              @RequestParam("start") String start,
+                                              @RequestParam("end") String end,
+                                              @RequestParam("workid") int workid,
+                                              @RequestParam("cid") String cid,
+                                              @RequestParam("content") String content,
+                                              @RequestParam("fullmark") int fullmark) throws IOException {
 
         String token = header.get("token");
         DecodedJWT decodedJWT;
@@ -236,6 +310,14 @@ public class HomeworkController {
         int userType = decodedJWT.getClaim("usertype").asInt();
 
         if (userType == 1) {
+
+            boolean workIdExists = commitService.checkWorkIdExist(workid,cid);
+            if (workIdExists) {
+                Map<String, String> response = new HashMap<>();
+                response.put("status", "error");
+                response.put("message", "workid 已存在");
+                return response;
+            }
 
             System.out.println(start);
             System.out.println(end);
@@ -263,11 +345,7 @@ public class HomeworkController {
 
             // 将路径和文件名保存在数据库的commit表中
             String filePath = savedHomework.getAbsolutePath().replace("\\", "/");
-            try {
-                commitService.updateAssignHomework(startTime, endTime, workid, cid, filePath, originalFilename, content, fullmark);
-            } catch (IllegalArgumentException e) {
-                commitService.insertAssignHomework(startTime, endTime, workid, cid, filePath, originalFilename, content, fullmark);
-            }
+            commitService.insertAssignHomework(startTime, endTime, workid, cid, filePath, originalFilename, content, fullmark);
 
             String newToken = JWTUtil.generateToken(userType, username);
 
@@ -284,9 +362,77 @@ public class HomeworkController {
         return response;
     }
 
+    //更新布置的作业
+    @PostMapping("/assign/update")
+    public Map<String, String> uploadAssignHomework(@RequestHeader Map<String, String> header,
+                                                    @RequestParam("homework") MultipartFile homework,
+                                                    @RequestParam("start") String start,
+                                                    @RequestParam("end") String end,
+                                                    @RequestParam("workid") int workid,
+                                                    @RequestParam("cid") String cid,
+                                                    @RequestParam("content") String content,
+                                                    @RequestParam("fullmark") int fullmark) throws IOException {
+        String token = header.get("token");
+        DecodedJWT decodedJWT;
+        try {
+            decodedJWT = JWTUtil.verifyToken(token);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("status", "error");
+            response.put("message", "token已被清除或已过期");
+            return response;
+        }
+
+        String username = decodedJWT.getClaim("username").asString();
+        int userType = decodedJWT.getClaim("usertype").asInt();
+
+        if (userType == 1) {
+            if(!commitService.checkWorkIdExist(workid,cid)){
+                Map<String, String> response = new HashMap<>();
+                response.put("status", "error");
+                response.put("message","workid不存在，无法更新");
+                return response;
+            }
+
+            DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            LocalDateTime startTime = LocalDateTime.parse(start, df);
+            LocalDateTime endTime = LocalDateTime.parse(end, df);
+
+            // 保存文件到指定路径
+            String homeworkPath = "E:/ICPlatformStorage/AssignHomework/" + cid + "/" + workid;
+            File homeworkDir = new File(homeworkPath);
+
+            if (!homeworkDir.exists()) {
+                homeworkDir.mkdirs();
+            }
+
+            String originalFilename = homework.getOriginalFilename();
+            File savedHomework = new File(homeworkDir, originalFilename);
+
+            if (savedHomework.exists()) {
+                savedHomework.delete();
+            }
+
+            homework.transferTo(savedHomework);
+            // 将路径和文件名保存在数据库的commit表中
+            String filePath = savedHomework.getAbsolutePath().replace("\\", "/");
+            commitService.updateAssignHomework(startTime, endTime, workid, cid, filePath, originalFilename, content, fullmark);
+
+            String newToken = JWTUtil.generateToken(userType, username);
+            Map<String, String> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("message", "作业更新成功");
+            response.put("newToken", newToken);
+            return response;
+        }
+        Map<String, String> response = new HashMap<>();
+        response.put("status", "error");
+        response.put("message", "更新布置作业失败，权限不足");
+        return response;
+    }
 
     //下载作业链接
-    @GetMapping("/generateDownloadLink")// 生成的是学生提交的作业的下载链接,并且不该通过hname查(下面标记位置)
+    @GetMapping("/generateDownloadLink")
     public ResponseEntity<DownloadLinkResponse> generateDownloadLink(@RequestHeader Map<String, String> header, @RequestParam String homeworkName) {
         String token = header.get("token");
         DecodedJWT decodedJWT;
@@ -294,7 +440,7 @@ public class HomeworkController {
         try {
             decodedJWT = JWTUtil.verifyToken(token);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new DownloadLinkResponse("error", "无效的Token"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new DownloadLinkResponse("", "error"));
         }
 
         String username = decodedJWT.getClaim("username").asString();
@@ -312,15 +458,15 @@ public class HomeworkController {
                 System.out.println(correctedFileName);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new DownloadLinkResponse("error", "文件名解码失败"));
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new DownloadLinkResponse("", "error"));
             }
 
             System.out.println("解码后的文件名: " + correctedFileName);
-            String filePath = homeworkService.searchPathByHname(homeworkName);//  ************************************************************
+            String filePath = homeworkService.searchPathByHname(homeworkName);
             System.out.println("文件路径: " + filePath);
 
             if (filePath == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DownloadLinkResponse("error", "文件未找到"));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new DownloadLinkResponse("", "error"));
             }
 
             filePath = filePath.replace("\\", "/");
@@ -329,16 +475,16 @@ public class HomeworkController {
             try {
                 ipAddress = InetAddress.getLocalHost().getHostAddress();
             } catch (UnknownHostException e) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new DownloadLinkResponse("error", "无法获取IP地址"));
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new DownloadLinkResponse("", "error"));
             }
 
             String downloadUrl = "http://" + ipAddress + ":8080/api/homework/download?filePath=" + URLEncoder.encode(filePath, StandardCharsets.UTF_8);
             String newToken = JWTUtil.generateToken(userType,username);
 
-            return ResponseEntity.ok(new DownloadLinkResponse("success", downloadUrl,newToken));
+            return ResponseEntity.ok(new DownloadLinkResponse(downloadUrl, "success",newToken));
         }
 
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new DownloadLinkResponse("error", "用户权限不足"));
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new DownloadLinkResponse("", "error"));
     }
 
     //老师查看布置作业的列表
@@ -359,7 +505,7 @@ public class HomeworkController {
         String username = decodedJWT.getClaim("username").asString();
         int userType = decodedJWT.getClaim("usertype").asInt();
 
-        if (userType == 1 || userType == 0) {
+        if (userType == 1) {
 
             String cid = disData.get("cid");
             if(cid != null){
@@ -379,7 +525,7 @@ public class HomeworkController {
                     commitinfo.put("cid", cid);
                     commitinfo.put("start", start);
                     commitinfo.put("end", end);
-                    commitinfo.put("workid", "第" + workid + "次作业");
+                    commitinfo.put("workid", workid);
                     homeworkList.add(commitinfo);
                 }
 
