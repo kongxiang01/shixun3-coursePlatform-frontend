@@ -27,8 +27,9 @@
       <div v-if="selectedHomework">
         <h3>作业详情</h3>
 <!--        <p>作业名称: {{ selectedHomework.title }}</p>-->
-        <p>课程ID: {{ selectedHomework.homeworkName }}</p>
-        <p>学生学号: {{ selectedHomework. start }}</p>
+        <p>作业名称: {{ selectedHomework.homeworkName }}</p>
+        <p>开始时间: {{ selectedHomework. start }}</p>
+        <p>截止时间: {{ selectedHomework. end }}</p>
 <!--        <p>文件路径: {{ selectedHomework.filePath }}</p>-->
         <el-button type="primary" @click="downloadHW">
           下载作业
@@ -77,7 +78,7 @@ import {
   submitReview,
   viewPeerReviews,
   modifyReview,
-} from '@/api/user.js';
+} from '@/api/Evaluation.js';
 import {useUserStore} from "@/stores/user.js";
 import {useCourseStore} from "@/stores/course.js";
 
@@ -103,7 +104,10 @@ const userInfo = computed(() => userStore.user)
 const loadCourseHomeworkList = async () => {
   try {
     //console.log('HomeWork.vue111111111111111:   courseInfo.value.cid, userInfo.sno:', courseInfo.value.cid, userInfo.value.sno,courseInfo.value.workid);
-    const  res  = await getCourseHomework(userInfo.value.sno,1,1);
+    const  res  = await getCourseHomework(userInfo.value.sno,courseInfo.value.cid,1);
+    console.log('res.data',res.data)
+    console.log('userInfo',userInfo.value)
+    console.log('courseInfo',courseInfo.value)
     homeworkList.value = res.data.homeworkList;
     console.log('响应结果:', res);
     // 重新更新 reviewData 的字段
