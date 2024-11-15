@@ -33,7 +33,7 @@ const courseInfo = computed( () => courseStore.course);
     background-color: #9f7390;
     color: black;
     font-size: 14px;
-    min-height: 20px;
+    min-height: 500px;
   }
 }
 

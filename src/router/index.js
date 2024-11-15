@@ -23,6 +23,7 @@ import FilePreview from "@/views/CourseResource/FilePreview.vue";
 import CorrectHomework from "@/views/CourseExam/HomeworkDetail/CorrectHomework.vue";
 import HomeworkPreview from "@/views/CourseExam/HomeworkDetail/HomeworkPreview.vue";
 import CorrectPreview from "@/views/CourseExam/HomeworkDetail/CorrectPreview.vue";
+import StudentPreview from "@/views/CourseExam/HomeworkDetail/StudentPreview.vue";
 
 const routes = [
     {
@@ -69,6 +70,7 @@ const routes = [
             { path: 'homeworkPreview', name: 'HomeworkPreview', component: HomeworkPreview,},
             { path: 'correctHomework', name: 'CorrectHomework', component: CorrectHomework,},
             { path: 'correctPreview', name: 'CorrectPreview', component: CorrectPreview,},
+            { path: 'studentPreview', name: 'StudentPreview', component: StudentPreview,},
 
             { path: 'regularTest', name: 'RegularTest', component: RegularTest,},
             { path: 'discussArea', name: 'DiscussArea', component: DiscussArea,}

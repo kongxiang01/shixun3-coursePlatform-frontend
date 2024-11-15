@@ -15,7 +15,7 @@
           {{ formatDate(scope.row.stime) }}
         </template>
       </el-table-column>
-      <el-table-column prop="fullScore" label="作业满分" align="center"></el-table-column>
+      <el-table-column prop="fullMark" label="作业满分" align="center">{{ fullMark }}</el-table-column>
       <el-table-column prop="score" label="得分" align="center"></el-table-column>
       <el-table-column label="操作" align="center">
         <template #default="scope">
@@ -57,20 +57,19 @@ const formatDate = (dateStr) => {
 
 const submittedTableData = ref();
 const workId = route.query.workid
+const fullMark = route.query.fullMark
 const getSubmittedHomeworkList = async () => {
   try {
-    console.log('workId:', workId);
-
-    const res = await getSubmittedHomeworkListService(courseInfo.value.cid, '1')
+    const res = await getSubmittedHomeworkListService(courseInfo.value.cid, workId)
     submittedTableData.value = res.data.homeworkList
   } catch (error) {
     ElMessage.error('CorrectHomework.vue11111111:获取学生提交作业列表失败:', error);
   }
 }
 
-// ***************************************批阅和删除******************************
+// *********************************************************批阅和删除**************************************************
 const goToCorrect = (row) => {
-  router.push({ name: 'CorrectPreview', query: { cid: row.cid, workid: row.workid, sno: row.sno} });
+  router.push({ name: 'CorrectPreview', query: { cid: row.cid, workid: row.workid, sno: row.sno, fullMark: fullMark} });
 }
 
 const handleDelete = () => {

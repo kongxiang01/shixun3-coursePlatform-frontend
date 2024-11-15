@@ -64,5 +64,8 @@ export const getCourseListService = ( sno ) =>
     request.post('/api/course', { username: sno } )
 
 
-export const getCourseInfoService = (cid, cno) =>
-    request.post('/api/course/info', {}, { params: { cid, cno } })
+/*export const getCourseInfoService = (cid, cno) =>
+    request.post('/api/course/info', {}, { params: { cid, cno } })*/
+
+export const getCourseInfoService = (cid) =>
+    request.post('/api/course/info', { cid })

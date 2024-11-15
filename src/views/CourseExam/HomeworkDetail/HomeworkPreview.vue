@@ -12,12 +12,12 @@ const route = useRoute()
 const url = ref('')
 
 onMounted(async () => {
-  const workid = route.query.workid
-  if (workid) {
-    console.log("FilePreview.vue  222222222222222222222222222222222222222222222 fileUrl.value：", url.value);
-    const res = await getPreviewFileService(workid);
+  const cname = route.query.cname
+  if (cname) {
+    console.log("FilePreview.vue  222222222222222222222222222222222222222222222 cname：", cname);
+    const res = await getPreviewFileService(cname);
     url.value = res.data.previewLink;
-    console.log("FilePreview.vue  222222222222222222 fileUrl.value：", url.value);
+    console.log("FilePreview.vue  222222222222222222 url.value：", url.value);
   }
 })
 </script>

@@ -8,13 +8,13 @@
         <div class="formItem">
           <div class="formItemTitle">作业标题：</div>
           <div class="formItemContent">
-            <span>{{ homeworkInfo?.workid || '暂无数据' }}</span>
+            <span>{{ '第 ' + homeworkInfo?.workid + ' 次作业' || '暂无数据' }}</span>
           </div>
         </div>
         <div class="formItem">
           <div class="formItemTitle">作业满分：</div>
           <div class="formItemContent">
-            <span>{{ homeworkInfo?.fullScore || '未设置' }}</span> 分
+            <span>{{ homeworkInfo?.fullMark  || '未设置' }}</span> 分
           </div>
         </div>
         <div class="formItem">
@@ -23,12 +23,12 @@
             <span>{{ homeworkInfo?.content || '暂无数据' }}</span>
           </div>
         </div>
-        <div class="formItem">
+<!--        <div class="formItem">
           <div class="formItemTitle">
             <el-link type="primary" :underline="false">参考答案</el-link>
             <el-icon style="margin-left: 3px"><InfoFilled /></el-icon>
           </div>
-        </div>
+        </div>-->
         <div class="formItem">
           <div class="formItemTitle">提交时间：</div>
           <div class="formItemContent">
@@ -45,7 +45,7 @@
         <div class="formItem">
           <div class="formItemTitle">作业附件：</div>
           <div class="formItemContent">
-            <span>{{ homeworkInfo?.attachmentInfo || '无附件' }}</span>
+            <span style="color:#4daad2; font-size: 14px">{{ homeworkInfo?.cname || '无附件' }}</span>
           </div>
         </div>
 
@@ -71,10 +71,16 @@ import {getDownloadFileService, getHomeworkInfoService} from "@/api/user.js";
 import {useHomeworkStore} from "@/stores/homework.js";
 import {getPreviewFileService} from "@/api/homework.js";
 import {ElMessage} from "element-plus";
-import {getDownloadAssignedService} from "@/api/homework.js"; // 假设已封装的请求方法路径
+import {getDownloadAssignedService} from "@/api/homework.js";
+import {useCourseStore} from "@/stores/course.js";
+import {useUserStore} from "@/stores/user.js"; // 假设已封装的请求方法路径
 
 const router = useRouter();
 
+const courseStore = useCourseStore()
+const courseInfo = courseStore.course
+const userStore = useUserStore()
+const userInfo = userStore.user
 const homeworkStore = useHomeworkStore()
 const homeworkInfo = homeworkStore.homework // 用于存储作业信息
 const handleClose = () => {
@@ -94,21 +100,21 @@ const formatDate = (dateStr) => {
 
 // 附件预览和下载方法
 const handlePreviewAttachment = () => {
-  console.log("HomeworkDetail.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqhomeworkInfo.value.workid：", homeworkInfo.value.workid);
-  router.push({ name: 'HomeworkPreview', query: { workid: homeworkInfo.value.workid } });
+  console.log("HomeworkDetail.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqhomeworkInfo.value：", homeworkInfo);
+  router.push({ name: 'HomeworkPreview', query: { cname: homeworkInfo.cname } });
 };
 
 const handleDownloadAttachment = async () => {
-  console.log("HomeworkDetail.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqhomeworkInfo.value.workid：", homeworkInfo.value.workid);
+  console.log("HomeworkDetail.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqhomeworkInfo.value：", homeworkInfo);
   try {
-    console.log("HomeworkDetail.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqhomeworkInfo.value.workid：", homeworkInfo.value.workid);
-    const res = await getDownloadAssignedService(homeworkInfo.value.workid); // 假设你在 api 中定义了 getDownloadFileService
+    //                                            cid workid sno
+    const res = await getDownloadAssignedService(courseInfo.cid, homeworkInfo.workid, userInfo.sno); // 假设你在 api 中定义了 getDownloadFileService
     const downloadUrl = res.data.downloadLink;
     console.log("HomeworkDetail.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq  downloadUrl：", downloadUrl);
     // 创建一个临时的 <a> 元素并触发点击事件来下载文件
     const link = document.createElement("a");
     link.href = downloadUrl;
-    link.download = homeworkInfo.value.workid;
+    link.download = homeworkInfo.workid;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

@@ -11,9 +11,7 @@
             :props="defaultProps"
             @node-click="handleNodeClick"
             node-key="label"
-            :default-expanded-keys="['课程资源','电子课件']"
-            :default-checked-keys="['课程资源','电子课件']"
-            default-expand-all
+            :default-expanded-keys="['课程资源']"
         ></el-tree>
       </el-col>
       <el-col class="resource-table-container" :span="19">
@@ -33,7 +31,7 @@
                 v-model="drawerVisible"
                 width="600px"
             >
-              <el-form ref="validateForm" :model="uploadFormData" :rules="uploadRules" class="form">
+              <el-form ref="uploadForm" :model="uploadFormData" :rules="uploadRules" class="form">
                 <el-form-item label="课程资源名称" prop="courseWareTitle">
                     <el-input
                         v-model="uploadFormData.courseWareTitle"
@@ -73,7 +71,7 @@
                 v-model="createFolderVisible"
                 width="600px"
             >
-              <el-form ref="form" :model="createFolderFormData" :rules="createRules" class="form">
+              <el-form ref="createForm" :model="createFolderFormData" :rules="createRules" class="form">
                 <el-form-item label="目录名称" prop="folderName">
                   <el-input
                       v-model="createFolderFormData.folderName"
@@ -85,7 +83,7 @@
                   <el-input
                       type="textarea"
                       :rows="6"
-                      placeholder="请输入3000字以内的描述！"
+                      placeholder="选填，3000字以内的描述！"
                       v-model="createFolderFormData.describe"
                   ></el-input>
                 </el-form-item>
@@ -113,7 +111,7 @@
               </el-link>
             </template>
           </el-table-column>
-          <el-table-column prop="type" label="属性" />
+          <el-table-column prop="type" label="属性" align="center"/>
           <!-- 操作列 -->
           <el-table-column label="操作" width="120" align="center">
             <template #default="scope">
@@ -230,10 +228,12 @@ const uploadFormData = ref({
   file: null,
   fileName: '',
 });
+const uploadForm = ref()
 const createFolderFormData = ref({
   folderName: '',
   describe: '',
 });
+const createForm = ref()
 
 // ******************************************************上传文件**********************************************************
 const uploadRules = {
@@ -274,7 +274,7 @@ const handleFileChange = (event) => {
 
 // 提交表单的函数
 const submitUploadForm = async () => {
-  await validateForm.value.validate()
+  await uploadForm.value.validate()
   console.log('提交表单:', uploadFormData.value);
   try {
     if (uploadFormData.value.file) {
@@ -288,6 +288,7 @@ const submitUploadForm = async () => {
         fileName: '',
       };
       drawerVisible.value = false;
+      window.location.reload();
     } else {
       ElMessage.info('请先选择文件')
     }
@@ -312,14 +313,14 @@ const handleSubmitCancel = () => {
 const submitCreateFolderForm = async () => {
   console.log('提交表单:', uploadFormData.value);
   try {
-    if (createFolderFormData.value.folderName) {
-      console.log('Courseware.vue5555555555555555555555555: createFolderFormData.value.folderName:', createFolderFormData.value.folderName);
-      const folderPath = `${currentPath.value}/${createFolderFormData.value.folderName}`;
-      await createFolderService(folderPath)
-      ElMessage.success('新建目录成功')
-    } else {
-      ElMessage.info('Courseware.vue：请填写目录名称')
-    }
+    await createForm.value.validate()
+    console.log('Courseware.vue5555555555555555555555555: createFolderFormData.value.folderName:', createFolderFormData.value.folderName);
+    const folderPath = `${currentPath.value}/${createFolderFormData.value.folderName}`;
+    await createFolderService(folderPath)
+    ElMessage.success('新建目录成功')
+    createFolderFormData.value.folderName = ''
+    createFolderFormData.value.describe = ''
+    createFolderVisible.value = false
   } catch (error) {
     ElMessage.error('上传失败', error)
     console.log('Courseware.vue: 上传失败222222222222222222222222', error)

@@ -18,12 +18,19 @@
           </template>
         </el-table-column>
         <el-table-column prop="submitRatio" label="提交人数" align="center" width="100px"></el-table-column>
-        <el-table-column prop="submitTime" label="提交时间" align="center"></el-table-column>
+        <el-table-column prop="submitTime" label="提交时间" align="center">
+          <template #default="scope">
+            {{ formatDate(scope.row.submitTime) }}
+          </template>
+        </el-table-column>
         <el-table-column prop="score" label="得分" align="center" width="100px"></el-table-column>
         <el-table-column prop="reviestatus" label="批改状态" align="center" width="120px"></el-table-column>
         <el-table-column label="操作" align="center">
-          <template #default>
-            <el-link type="primary" :underline="false" @click="drawerVisible = true">提交</el-link>
+          <template #default="scope">
+            <el-link v-if="scope.row.submitStatus === '1' && scope.row.submitTime !== '未提交'" type="primary" :underline="false" @click="handleView(scope.row)">查看</el-link>
+            <el-link v-if="scope.row.submitStatus === '1' && scope.row.submitTime !== '未提交'" type="primary" :underline="false" @click="handleSubmit(scope.row)">提交</el-link>
+            <el-link v-if="scope.row.submitStatus === '0' && scope.row.submitTime !== '未提交'" type="primary" :underline="false" @click="handleView(scope.row)">查看</el-link>
+            <el-link v-if="scope.row.submitStatus === '1' && scope.row.submitTime === '未提交'" type="primary" :underline="false" @click="handleSubmit(scope.row)">提交</el-link>
           </template>
         </el-table-column>
       </el-table>
@@ -168,6 +175,8 @@
             <!--这里需要后端传来的assignedTableData里有publish这个键值-->
             <el-switch
                 v-model="scope.row.publish"
+                :active-value="1"
+                :inactive-value="0"
                 @change="handlePublishChange(scope.row)"
                 size="large"
                 inline-prompt
@@ -180,7 +189,9 @@
           <template #default="scope">
             <!--这里需要后端传来的assignedTableData里有publish这个键值-->
             <el-switch
-                v-model="scope.row.publishscore"
+                v-model="scope.row.publishScore"
+                :active-value="1"
+                :inactive-value="0"
                 @change="handlePublishScore(scope.row)"
                 size="large"
                 inline-prompt
@@ -212,7 +223,12 @@ import {useCourseStore} from "@/stores/course.js";
 import {useUserStore} from "@/stores/user.js";
 import VerticalBar from "@/components/VerticalBar.vue";
 import {ElMessage, ElMessageBox} from "element-plus";
-import {assignHomeworkService, deleteAssignedHomeworkService, getAssignedHomeworkListService} from "@/api/homework.js";
+import {
+  assignHomeworkService,
+  deleteAssignedHomeworkService,
+  getAssignedHomeworkListService, setHomeworkPublishScoreService, setHomeworkPublishService,
+  submitHomeworkService
+} from "@/api/homework.js";
 import {Delete, Document} from "@element-plus/icons-vue";
 import {useHomeworkStore} from "@/stores/homework.js";
 
@@ -249,7 +265,11 @@ const assignFormData = ref({
 
 const validateForm = ref()
 const validateUploadForm = ref()
+
 const formatDate = (dateStr) => {
+  if(dateStr === '未提交'){
+    return;
+  }
   const date = new Date(dateStr);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -284,16 +304,20 @@ const handleFileChange = (event) => {
     uploadFormData.value.fileName = file.name
   }
 }
-
+const submittingWorkId = ref()
+const handleSubmit = (row) => {
+  submittingWorkId.value = row.workid
+  drawerVisible.value = true;
+}
 const submitUploadForm = async () => {
-  await validateUploadForm.value.validate()
+  // await validateUploadForm.value.validate()
   console.log('提交上传作业表单:', uploadFormData.value);
   try {
     // 传输作业相关信息
     if (uploadFormData.value.file) {
-      console.log('Homework.vue: uploadFormData.value.file:', uploadFormData.value.file);
-      await uploadHomeworkService(uploadFormData.value.file, courseInfo.value.cid)
-      ElMessage.success('作业附件上传成功')
+      console.log('Homework.vue: uploadFormData.value.file:', uploadFormData.value.file, courseInfo.value.cid, userInfo.value.sno, submittingWorkId.value);
+      await submitHomeworkService(uploadFormData.value.file, courseInfo.value.cid, userInfo.value.sno, submittingWorkId.value) // homeworkFile, cid, sno, workid
+      ElMessage.success('作业上传成功')
     } else {
       ElMessage.info('请先选择文件')
     }
@@ -336,6 +360,7 @@ const getHWData = async () => {
   }
 };
 
+// ************************************************跳转作业信息页面********************************************************
 const handleHWDetail = (row) => {
   homeworkStore.setHomework(row)
   console.log('HomeWork.vue:  homeworkStore.homework: ', homeworkStore.homework)
@@ -404,20 +429,13 @@ const assignRules = {
     { max: 3000, message: '内容不能超过3000字', trigger: 'blur' }
   ],
   timeRange: [
-    { type: 'array', required: true, message: '请选择提交时间范围', trigger: 'change' },
-    { validator: (rule, value, callback) => {
-        if (value && value[0] && value[1] && new Date(value[0]) >= new Date(value[1])) {
-          callback(new Error('开始时间应小于结束时间'));
-        } else {
-          callback();
-        }
-      }, trigger: 'change'
-    }
+    { type: 'array', required: true, message: '请选择提交时间范围', trigger: 'blur' },
   ],
 };
 
 const submitAssignForm = async () => {
-  await validateForm.value.validate()
+  console.log('validateUploadForm.value: ', validateUploadForm.value)
+  await validateUploadForm.value.validate()
   console.log('提交布置作业表单:', assignFormData);
   try {
     if (!assignFormData.value.file) {
@@ -434,7 +452,7 @@ const submitAssignForm = async () => {
         assignFormData.value.content,
         assignFormData.value.fullScore,
     );
-    ElMessage.error('布置作业成功');
+    ElMessage.success('布置作业成功');
   } catch (error) {
     ElMessage.error('布置作业失败');
     console.error('66666666666666Homework.vue: 布置作业失败', error);
@@ -450,38 +468,7 @@ const goToHomeworkDetail = () => {
 const handleCorrect = (row) => {
   ElMessage.info(row.cname)
   // 跳转到批阅页面，可以传递作业ID或其他参数
-  router.push({ name: 'CorrectHomework', query: {workid: row.workid}});
-};
-
-const handlePublishChange = async (row) => {
-  try {
-    // 调用封装的接口发送请求
-    await setHomeworkPublishService(row.cname, row.publish)
-    console.log(`作业 "${row.cname}" 已 ${row.publish ? '发布' : '撤销发布'}`)
-  } catch (error) {
-    console.error('操作失败:', error)
-  }
-}
-
-// 公布成绩
-const handlePublishScore = async () => {
-  try {
-    await ElMessageBox.confirm(
-        '确认要公布该作业的成绩吗？',
-        '提示',
-        {
-          confirmButtonText: '确认',
-          cancelButtonText: '取消',
-          type: 'warning',
-        }
-    );
-
-
-    // 在这里执行公布成绩的逻辑，例如请求后端 API
-    ElMessage.success('成绩已公布');
-  } catch {
-    ElMessage.info('已取消公布成绩');
-  }
+  router.push({ name: 'CorrectHomework', query: {workid: row.workid, fullMark: row.fullMark}});
 };
 
 // ****************************************************删除操作*****************************************
@@ -544,6 +531,32 @@ const handleDelete = async (row) => {
     console.error(error);
   }
 };
+
+// **************************************************发布相关*****************************************************
+const handlePublishChange = async (row) => {
+  try {
+    console.log('row.publish: ', row.publish)
+    console.log('row.publish: ', row)
+    await setHomeworkPublishService( row.publish, courseInfo.value.cid, row.workid)
+    ElMessage.success(row.publish ? '作业已发布' : '已撤销发布');
+  } catch (error) {
+    // ElMessage.info('已撤销操作');
+  }
+}
+// 公布成绩
+const handlePublishScore = async (row) => {
+  try {
+    console.log('row.publishScore: ', row.publishScore)
+    await setHomeworkPublishScoreService( row.publishScore, courseInfo.value.cid, row.workid)
+    ElMessage.success(row.publishScore ? '分数已公布' : '已撤销公布');
+  } catch {
+    // ElMessage.info('已撤销操作');
+  }
+};
+const handleView = (row) =>{
+  router.push({ name: 'StudentPreview', query: {cid: courseInfo.value.cid, sno: userInfo.value.sno, workid: row.workid}});
+  // 预览学生自己提交的作业
+}
 
 onMounted(()=>{
   getHWData();
