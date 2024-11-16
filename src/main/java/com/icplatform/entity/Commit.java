@@ -84,10 +84,10 @@ public class Commit {
     public void setPublish(int publish) {
         this.publish = publish;
     }
-    public int getPublishScore() {
+    public int getPublishscore() {
         return publishscore;
     }
-    public void setPublishScore(int publishScore) {
-        this.publishscore = publishScore;
+    public void setPublishscore(int publishscore) {
+        this.publishscore = publishscore;
     }
 }

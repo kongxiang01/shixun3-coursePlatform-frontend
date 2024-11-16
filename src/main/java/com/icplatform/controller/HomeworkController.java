@@ -105,12 +105,13 @@ public class HomeworkController {
                                 commitInfo.put("end", commit.getEnd());
                                 commitInfo.put("submitRatio", submitRatio);
                                 commitInfo.put("workid", workId);
+                                commitInfo.put("fullMark", commit.getFullmark());
                                 if (homework != null) {
                                     commitInfo.put("submitTime", homework.getStime());
                                 }else{
                                     commitInfo.put("submitTime", "未提交");
                                 }
-                                if (commit.getPublishScore() == 1) {
+                                if (commit.getPublishscore() == 1) {
                                     commitInfo.put("score", homework.getScore());
                                 } else {
                                     commitInfo.put("score", "未公布成绩");
@@ -171,10 +172,11 @@ public class HomeworkController {
                         commitInfo.put("submitRatio",submitRatio);
                         commitInfo.put("workid",workId);
                         commitInfo.put("publish",commit.getPublish());
-                        commitInfo.put("publishScore",commit.getPublishScore());
+                        commitInfo.put("publishScore",commit.getPublishscore());
+                        commitInfo.put("fullMark",commit.getFullmark());
 
                         System.out.println("publish:" + commit.getPublish());
-                        System.out.println("publishScore:" + commit.getPublishScore());
+                        System.out.println("publishScore:" + commit.getPublishscore());
 
                         commitInfoList.add(commitInfo);
                     }
