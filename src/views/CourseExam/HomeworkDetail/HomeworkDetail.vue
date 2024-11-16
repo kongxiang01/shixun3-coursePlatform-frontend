@@ -108,7 +108,7 @@ const handleDownloadAttachment = async () => {
   console.log("HomeworkDetail.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqhomeworkInfo.value：", homeworkInfo);
   try {
     //                                            cid workid sno
-    const res = await getDownloadAssignedService(courseInfo.cid, homeworkInfo.workid, userInfo.sno); // 假设你在 api 中定义了 getDownloadFileService
+    const res = await getDownloadAssignedService(courseInfo.cid, homeworkInfo.workid); // 假设你在 api 中定义了 getDownloadFileService
     const downloadUrl = res.data.downloadLink;
     console.log("HomeworkDetail.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq  downloadUrl：", downloadUrl);
     // 创建一个临时的 <a> 元素并触发点击事件来下载文件

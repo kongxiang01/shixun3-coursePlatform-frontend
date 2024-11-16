@@ -391,7 +391,6 @@ const handleNameClick = (item) => {
     // 打开目录
     currentPath.value = `${currentPath.value}/${item.label}`;
     console.log('currentPath.value11111111111: ' + currentPath.value)
-    // breadcrumb.push({ label: item.label, path: currentPath.value });
     fetchDirectoryContents();
   } else {
     // 预览文件

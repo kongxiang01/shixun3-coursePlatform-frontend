@@ -73,7 +73,9 @@ const routes = [
             { path: 'studentPreview', name: 'StudentPreview', component: StudentPreview,},
 
             { path: 'regularTest', name: 'RegularTest', component: RegularTest,},
-            { path: 'discussArea', name: 'DiscussArea', component: DiscussArea,}
+            { path: 'discussArea', name: 'DiscussArea', component: DiscussArea,},
+/*
+            { path: 'peerEvaluation', name: 'PeerEvaluation', component: PeerEvaluation,},*/
         ]
     }
 ]

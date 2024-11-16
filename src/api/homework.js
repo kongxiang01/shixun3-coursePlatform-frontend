@@ -21,7 +21,11 @@ export const getSubmittedHomeworkListService = ( cid, workid ) =>
     request.post('/api/teacher/displayCorrect', { cid, workid } )
 
 // 下载布置的作业
-export const getDownloadAssignedService = ( cid, workid, sno ) =>
+export const getDownloadAssignedService = ( cid, workid ) =>
+    request.get('/api/homework/assign/generateDownloadLink', { params: {cid, workid} })
+
+// 下载学生自己交的作业
+export const getDownloadSubmittedService = ( cid, workid, sno ) =>
     request.get('/api/homework/generateDownloadLink', { params: {cid, workid, sno} })// cid workid sno
 
 // 预览布置的作业
