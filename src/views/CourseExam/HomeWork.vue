@@ -154,10 +154,16 @@
       </div>
       <el-table :data="assignedTableData" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="50" align="center"/>
+
+        <el-table-column prop="workid" label="作业序号" align="center" width="100px">
+          <template #default="scope">
+            <span>第 {{scope.row.workid}} 次作业</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="cname" label="作业标题" align="center" width="300px">
-<!--          <template #default="scope">-->
-<!--            <el-link type="primary" :underline="false" @click="handleAssignHW">{{scope.row.cname}}</el-link>-->
-<!--          </template>-->
+          <template #default="scope">
+            <el-link type="primary" :underline="false" @click="handleDownloadAssignHW(scope.row)">{{scope.row.cname}}</el-link>
+          </template>
         </el-table-column>
         <el-table-column prop="start" label="作业开始" align="center" width="200px">
           <template #default="scope">
@@ -226,7 +232,7 @@ import {ElMessage, ElMessageBox} from "element-plus";
 import {
   assignHomeworkService,
   deleteAssignedHomeworkService,
-  getAssignedHomeworkListService, setHomeworkPublishScoreService, setHomeworkPublishService,
+  getAssignedHomeworkListService, getDownloadAssignedService, setHomeworkPublishScoreService, setHomeworkPublishService,
   submitHomeworkService
 } from "@/api/homework.js";
 import {Delete, Document} from "@element-plus/icons-vue";
@@ -368,8 +374,24 @@ const handleHWDetail = (row) => {
 }
 
 // ************************************************布置作业********************************************************
-const handleAssignHW = () => {
+const handleDownloadAssignHW = async (row) => {
   // 这里是点击文件名的处理
+  try {
+    //                                            cid workid sno
+    const res = await getDownloadAssignedService(courseInfo.value.cid, row.workid); // 假设你在 api 中定义了 getDownloadFileService
+    const downloadUrl = res.data.downloadLink;
+    console.log("HomeworkDetail.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq  downloadUrl：", downloadUrl);
+    // 创建一个临时的 <a> 元素并触发点击事件来下载文件
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = row.workid;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error("下载文件失败:", error);
+    ElMessage.error("下载文件失败，请重试");
+  }
 }
 const handleAssignCancel = () => {
   // 清空表单和文件
@@ -383,15 +405,6 @@ const handleAssignCancel = () => {
   };
   assignVisible.value = false; // 关闭抽屉
 };
-
-// 文件变化的处理
-const handleAssignFileChange = (event) => {
-  const file = event.target.files[0]
-  if (file) {
-    assignFormData.value.file = file
-    assignFormData.value.fileName = file.name
-  }
-}
 
 const assignRules = {
   workId: [
@@ -432,6 +445,15 @@ const assignRules = {
     { type: 'array', required: true, message: '请选择提交时间范围', trigger: 'blur' },
   ],
 };
+
+// 文件变化的处理
+const handleAssignFileChange = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    assignFormData.value.file = file
+    assignFormData.value.fileName = file.name
+  }
+}
 
 const submitAssignForm = async () => {
   console.log('validateUploadForm.value: ', validateUploadForm.value)
