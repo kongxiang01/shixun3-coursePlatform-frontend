@@ -409,7 +409,7 @@ public class CourseController {
 
     //上传课程通知
     @PostMapping("/notification/upload")
-    public Map<String, Object> uploadNotification(@RequestHeader Map<String, String> header,@RequestBody Map<String, String> notificationData) throws IOException {
+    public Map<String, Object> uploadNotification(@RequestHeader Map<String, String> header, @RequestBody Map<String, String> notificationData) throws IOException {
         String token = header.get("token");
         DecodedJWT decodedJWT;
         try {
@@ -454,8 +454,7 @@ public class CourseController {
 
     //删除课程通知
     @PostMapping("/notification/delete")
-    public Map<String, Object> deleteNotification(@RequestHeader Map<String, String> header,
-                                                  @RequestBody Map<String, Object> deleteData) {
+    public Map<String, Object> deleteNotification(@RequestHeader Map<String, String> header, @RequestBody Map<String, Object> deleteData) {
         String token = header.get("token");
         DecodedJWT decodedJWT;
         try {
