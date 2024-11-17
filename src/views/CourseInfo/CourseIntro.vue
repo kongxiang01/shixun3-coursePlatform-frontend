@@ -30,10 +30,16 @@ const courseInfo = computed( () => courseStore.course);
     padding: 20px;
     margin: 20px;
     border-radius: 5px;
-    background-color: #9f7390;
-    color: black;
-    font-size: 14px;
+    background-color: rgba(159, 115, 144, 0.2);
     min-height: 500px;
+    color: black;
+    font-size: 18px;
+
+    //font-family: "Pacifico", "Comic Sans MS", cursive;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    //line-height: 1.6;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
   }
 }
 

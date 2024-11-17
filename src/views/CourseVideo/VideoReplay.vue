@@ -1,44 +1,46 @@
 <template>
-  <el-button type="primary" @click="handleUpload">上传视频</el-button>
-  <el-dialog
-      title="上传视频"
-      v-model="uploadVisible"
-      width="600px"
-      :close-on-click-modal="false"
-  >
-    <el-form ref="validateVideoForm" :model="videoFormData" :rules="videoRules" class="form">
-      <!-- 视频标题 -->
-      <el-form-item label="视频标题" prop="title">
-        <el-input
-            v-model="videoFormData.title"
-            placeholder="请输入视频标题"
-            style="width: 100%;"
-        ></el-input>
-      </el-form-item>
+  <div class="buttons" style="margin: 0 10px">
+    <el-button type="primary" @click="uploadVisible = true" style="margin-right: 160px">上传视频</el-button>
+    <el-button type="danger" :disabled="!activeVideo" @click="handleDelete">删除视频</el-button>
+    <el-dialog
+        title="上传视频"
+        v-model="uploadVisible"
+        width="500px"
+        :close-on-click-modal="false"
+    >
+      <el-form ref="validateVideoForm" :model="videoFormData" :rules="videoRules" class="form">
+        <!-- 视频标题 -->
+        <el-form-item label="视频标题" prop="title">
+          <el-input
+              v-model="videoFormData.title"
+              placeholder="请输入视频标题"
+              style="width: 100%;"
+          ></el-input>
+        </el-form-item>
 
-      <!-- 视频文件 -->
-      <el-form-item label="选择视频文件" prop="file">
-        <el-button type="text" @click="selectVideoFile">选择文件</el-button>
-        <span v-if="videoFormData.fileName" style="margin-left: 10px">{{ videoFormData.fileName }}</span>
-        <input type="file" ref="videoFileInput" accept="video/*" style="display: none" @change="handleVideoFileChange" />
-      </el-form-item>
+        <!-- 视频文件 -->
+        <el-form-item label="选择视频文件" prop="file">
+          <el-button type="text" @click="selectVideoFile">选择文件</el-button>
+          <span v-if="videoFormData.fileName" style="margin-left: 10px">{{ videoFormData.fileName }}</span>
+          <input type="file" ref="videoFileInput" accept="video/*" style="display: none" @change="handleVideoFileChange" />
+        </el-form-item>
 
-      <!-- 分割线 -->
-      <el-divider style="height: 2px; background-color: #a8a2a2; margin: 10px 0"></el-divider>
+        <!-- 分割线 -->
+        <el-divider style="height: 2px; background-color: #a8a2a2; margin: 10px 0"></el-divider>
 
-      <!-- 文件上传提示 -->
-      <div class="el-upload__tip" style="margin: 0;padding: 0">
-        允许上传的视频类型: mp4, avi, mkv, mov
-      </div>
+        <!-- 文件上传提示 -->
+        <div class="el-upload__tip" style="margin: 0;padding: 0">
+          允许上传的视频类型: mp4, avi, mkv, mov
+        </div>
 
-      <!-- 确定和取消按钮 -->
-      <div class="buttons" style="margin-top: 20px; display: flex; justify-content: space-between">
-        <el-button type="primary" @click="submitVideoForm">确定</el-button>
-        <el-button @click="handleUploadCancel">取消</el-button>
-      </div>
-    </el-form>
-  </el-dialog>
-  <el-button type="danger" :disabled="!activeVideo" @click="handleDelete">删除视频</el-button>
+        <!-- 确定和取消按钮 -->
+        <div class="buttons" style="margin-top: 20px; display: flex; justify-content: space-between">
+          <el-button type="primary" @click="submitVideoForm">确定</el-button>
+          <el-button @click="handleUploadCancel">取消</el-button>
+        </div>
+      </el-form>
+    </el-dialog>
+  </div>
   <div class="video-replay">
     <!-- 左侧视频列表 -->
     <div class="video-list">
@@ -50,9 +52,6 @@
             @click="playVideo(video)"
             :class="{ active: activeVideo?.id === video.id }"
         >
-          <div class="video-thumbnail">
-            <img :src="video.thumbnail" alt="视频缩略图" />
-          </div>
           <div class="video-info">
             <p class="video-title">{{ video.title }}</p>
           </div>
@@ -189,6 +188,7 @@ const handleDelete = async () => {
 </script>
 
 <style scoped>
+/*@import url('https://fonts.loli.net/css2?family=Pacifico&display=swap');*/
 .video-replay {
   display: flex;
   height: calc(100% - 32px);
@@ -196,32 +196,48 @@ const handleDelete = async () => {
   .video-list {
     width: 27%;
     background-color: #f5f5f5;
+    border-radius: 5px;
     overflow-y: auto;
     border-right: 1px solid #dcdfe6;
 
     .scrollbar {
       height: 100%;
       padding: 10px;
+      background-color: rgb(244, 219, 237);
+      //background-image: url("@/assets/selectVideo_bg1.jpg");
+      //background-repeat: no-repeat; /* 防止背景图重复 */
+      //background-size: cover; /* 让背景图适应容器尺寸 */
+      //background-position: center; /* 居中对齐背景图 */
 
       .video-card {
         display: flex;
         align-items: center;
+        border-radius: 10px;
         margin: 8px;
         cursor: pointer;
         transition: transform 0.3s, box-shadow 0.3s;
-
-        .video-thumbnail img {
-          width: 60px;
-          height: 60px;
-          border-radius: 4px;
-          margin-right: 10px;
-        }
+        background-color: rgba(255, 158, 244, 0.2);
 
         .video-info .video-title {
-          font-size: 14px;
-          font-weight: 500;
-          color: #333;
+          font-family: cursive;
+          font-size: 18px;
+          font-weight: 800;
+          color: #a52a2a;
+          letter-spacing: 0.5px;
+          line-height: 1.6;
+          text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
+      }
+
+      .video-card:hover {
+        transform: scale(1.04);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .video-card.active {
+        border: 3px solid #9f5b97;
+        background-color: rgb(239, 169, 202);
+        box-shadow: 0 4px 8px rgba(64, 158, 255, 0.2);
+        transform: scale(1.04);
       }
     }
   }
@@ -246,15 +262,4 @@ const handleDelete = async () => {
   }
 }
 
-.video-card.active {
-  //border: 2px solid #409eff;
-  background-color: #ff9ef4;
-  box-shadow: 0 4px 8px rgba(64, 158, 255, 0.2);
-  transform: scale(1.05);
-}
-
-.video-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
 </style>

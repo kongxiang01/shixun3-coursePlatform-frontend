@@ -24,6 +24,8 @@ import CorrectHomework from "@/views/CourseExam/HomeworkDetail/CorrectHomework.v
 import HomeworkPreview from "@/views/CourseExam/HomeworkDetail/HomeworkPreview.vue";
 import CorrectPreview from "@/views/CourseExam/HomeworkDetail/CorrectPreview.vue";
 import StudentPreview from "@/views/CourseExam/HomeworkDetail/StudentPreview.vue";
+import PeerEvaluation from "@/views/PeerEvaluation/PeerEvaluation.vue";
+import HomeworkList from "@/views/PeerEvaluation/HomeworkList.vue";
 
 const routes = [
     {
@@ -74,8 +76,9 @@ const routes = [
 
             { path: 'regularTest', name: 'RegularTest', component: RegularTest,},
             { path: 'discussArea', name: 'DiscussArea', component: DiscussArea,},
-/*
-            { path: 'peerEvaluation', name: 'PeerEvaluation', component: PeerEvaluation,},*/
+
+            { path: 'homeworkList', name: 'HomeworkList', component: HomeworkList,},
+            { path: 'peerEvaluation', name: 'PeerEvaluation', component: PeerEvaluation,},
         ]
     }
 ]

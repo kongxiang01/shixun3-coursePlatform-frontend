@@ -110,15 +110,15 @@
             </el-menu-item>
           </el-sub-menu>
           <!-- 互评 -->
-<!--          <el-sub-menu :index="generateCoursePath('PeerEvaluation')">
+          <el-sub-menu :index="generateCoursePath('PeerEvaluation')">
             <template #title>
               <el-icon><FolderOpened /></el-icon>
               <span>学生互评</span>
             </template>
-            <el-menu-item :index="generateCoursePath('peerEvaluation')">
+            <el-menu-item :index="generateCoursePath('homeworkList')">
               <span>互评</span>
             </el-menu-item>
-          </el-sub-menu>-->
+          </el-sub-menu>
         </el-menu>
       </el-aside>
 
