@@ -103,17 +103,21 @@ const userInfo = computed(() => userStore.user)
 // 获取课程作业列表
 const loadCourseHomeworkList = async () => {
   try {
+    console.log('courseInfo',courseInfo.value)
+    //reviewData.value.cid = courseInfo.value.cid || '';
     //console.log('HomeWork.vue111111111111111:   courseInfo.value.cid, userInfo.sno:', courseInfo.value.cid, userInfo.value.sno,courseInfo.value.workid);
     const  res  = await getCourseHomework(userInfo.value.sno,courseInfo.value.cid,1);
     console.log('res.data',res.data)
     console.log('userInfo',userInfo.value)
     console.log('courseInfo',courseInfo.value)
+
     homeworkList.value = res.data.homeworkList;
     console.log('响应结果:', res);
     // 重新更新 reviewData 的字段
     reviewData.value.revieweeSno = String(homeworkList.value[0]?.revieweeSno || '0');  // 将值转换为字符串
 // 假设获取第一个作业信息
-    // reviewData.value.cid = homeworkList.value[0]?.cid || '';
+     reviewData.value.cid = courseInfo.value.cid || '';
+    console.log('courseInfo111', reviewData.value.cid )
     // reviewData.value.workid = homeworkList.value[0]?.workid || '';
     console.log('111HomeWork',reviewData.value.revieweeSno,reviewData.value.cid);
     console.log('222HomeWork',reviewData.value);
