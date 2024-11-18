@@ -1,5 +1,13 @@
 import request from '../utils/request'
 
+// 获取课程列表
+export const getCourseListService = ( sno ) =>
+    request.post('/api/course', { username: sno } )
+
+//
+export const getCourseInfoService = (cid) =>
+    request.post('/api/course/info', { cid })
+
 // 上传大纲
 export const outlineUploadService = ( file, cid ) =>{
     const formData = new FormData();
@@ -23,9 +31,6 @@ export const calendarUploadService = ( file, cid ) =>{
 // 预览教学日历
 export const calendarPreviewService = ( cid ) =>
     request.get('/api/course/calendar', { params: {cid} })
-
-// export const deleteItemsService = ( selectedItems ) =>
-//     request.post('/api/assets/delete', selectedItems )
 
 // 上传课程通知
 export const notificationUploadService = ( name, cid, tno, uploadTime, content ) =>{

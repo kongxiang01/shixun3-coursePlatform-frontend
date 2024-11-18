@@ -133,9 +133,14 @@ import {Folder, Document } from "@element-plus/icons-vue";
 import {ElMessage, ElMessageBox} from "element-plus";
 import { useUserStore } from "@/stores/user.js";
 import {useCourseStore} from "@/stores/course.js";
-import {createFolderService, getDirectoryService, getDownloadFileService, uploadCourseWareService} from "@/api/user.js";
+
 import { useRouter } from 'vue-router'
-import {deleteItemsService} from "@/api/asset.js";
+import {
+  createFolderService,
+  uploadCourseWareService,
+  deleteItemsService,
+  getDirectoryService,
+  getDownloadFileService} from "@/api/asset.js";
 
 const courseStore = useCourseStore()
 const courseInfo = computed( () => courseStore.course);
@@ -406,7 +411,7 @@ const downloadFile = async (item) => {
     // 获取带 Token 的下载链接
 
     console.log("Courseware.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqitem.label：", item.label);
-    const res = await getDownloadFileService(item.label); // 假设你在 api 中定义了 getDownloadFileService
+    const res = await getDownloadFileService(item.label);
     const downloadUrl = res.data.downloadLink;
     console.log("Courseware.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq  downloadUrl：", downloadUrl);
     // 创建一个临时的 <a> 元素并触发点击事件来下载文件

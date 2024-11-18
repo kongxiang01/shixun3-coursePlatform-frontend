@@ -36,7 +36,7 @@
 import {onMounted, ref} from 'vue';
 import {useRouter} from 'vue-router';
 import VerticalBar from "../../components/VerticalBar.vue";
-import {getCourseInfoService, getCourseListService, uploadCourseWareService} from "@/api/user.js";
+import {getCourseInfoService, getCourseListService} from "@/api/course.js";
 import {useUserStore} from "@/stores/user.js";
 import {useCourseStore} from "@/stores/course.js";
 

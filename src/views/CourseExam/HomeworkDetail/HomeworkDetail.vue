@@ -63,11 +63,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
 import VerticalBar from "@/components/VerticalBar.vue";
-import { InfoFilled } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
-import {getDownloadFileService, getHomeworkInfoService} from "@/api/user.js";
 import {useHomeworkStore} from "@/stores/homework.js";
 import {getPreviewFileService} from "@/api/homework.js";
 import {ElMessage} from "element-plus";
