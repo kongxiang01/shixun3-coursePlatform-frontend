@@ -4,7 +4,7 @@
       <el-table :data="tableData">
         <el-table-column prop="cname" label="作业标题" align="center" width="300px">
           <template #default="scope">
-            <el-link type="primary" :underline="false" @click="goToPeerEvaluatino(scope.row)">{{scope.row.cname}}</el-link>
+            <el-link type="primary" :underline="false" @click="goToPeerEvaluation(scope.row)">{{scope.row.cname}}</el-link>
           </template>
         </el-table-column>
         <el-table-column prop="start" label="作业开始" align="center">
@@ -223,7 +223,7 @@ const getHWData = async () => {
 };
 
 // ************************************************跳转作业信息页面********************************************************
-const goToPeerEvaluatino = (row) => {
+const goToPeerEvaluation = (row) => {
   homeworkStore.setHomework(row)
   console.log('HomeWork.vue:  homeworkStore.homework: ', homeworkStore.homework)
   router.push({ name: 'PeerEvaluation', query: { workid: row.workid}});

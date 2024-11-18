@@ -195,7 +195,6 @@
 <script setup>
 import {useRoute, useRouter} from "vue-router";
 import {computed, onMounted, ref} from "vue";
-import {uploadHomeworkService} from "@/api/user.js";
 import {useCourseStore} from "@/stores/course.js";
 import {useUserStore} from "@/stores/user.js";
 import VerticalBar from "@/components/VerticalBar.vue";
