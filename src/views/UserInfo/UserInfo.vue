@@ -19,14 +19,11 @@
                          width="500"
                          align-center>
                 <el-form :model="form" ref="formRef">
-<!--                  <el-form-item label="原密码" prop="oldPassword" :rules="[{ required: true, message: '请输入原密码' }]">-->
-<!--                    <el-input v-model="form.oldPassword" type="password" placeholder="请输入原密码"></el-input>-->
-<!--                  </el-form-item>-->
-                  <el-form-item label="新密码" prop="newPassword" :rules="[{ required: true, message: '请输入新密码' }]">
-                    <el-input v-model="form.newPassword" type="password" placeholder="请输入新密码"></el-input>
+                  <el-form-item label="新密码" :rules="[{ required: true, message: '请输入新密码' }]">
+                    <el-input v-model="form.newPassword" type="password" show-password placeholder="请输入新密码"></el-input>
                   </el-form-item>
                   <el-form-item label="确认新密码" prop="confirmPassword" :rules="[{ required: true, message: '请确认新密码' }]">
-                    <el-input v-model="form.confirmPassword" type="password" placeholder="请确认新密码"></el-input>
+                    <el-input v-model="form.confirmPassword" type="password" show-password  placeholder="请确认新密码"></el-input>
                   </el-form-item>
                 </el-form>
                 <span class="dialog-footer">
@@ -108,7 +105,7 @@
 
 <script setup>
 import {computed, ref} from "vue";
-import { useUserStore } from '@/stores/user.js' // 引入userStore
+import { useUserStore } from '@/stores/user.js'
 import { ElMessage } from 'element-plus';
 import {changePasswordService} from "@/api/user.js";
 import { useRouter } from 'vue-router'
@@ -125,6 +122,10 @@ const userInfo = computed(() => userStore.user) // 从 userStore 获取用户信
 
 // 打开对话框
 const openDialog = () => {
+  form.value = {
+    newPassword: '',
+    confirmPassword: '',
+  };
   dialogVisible.value = true;
 };
 // 修改密码逻辑
@@ -139,10 +140,12 @@ const handleChangePassword = async () => {
     console.log('form.value.newPassword: ', form.value.newPassword)
     await changePasswordService(form.value.newPassword);
     ElMessage.success('密码修改成功');
-    dialogVisible.value = false; // 关闭对话框
     // 清空表单
-    form.value.newPassword = '';
-    form.value.confirmPassword = '';
+    form.value = {
+      newPassword: '',
+      confirmPassword: '',
+    };
+    dialogVisible.value = false; // 关闭对话框
     userStore.removeToken() // 清空token重新登录
     await router.push('/login')
   } catch (error) {

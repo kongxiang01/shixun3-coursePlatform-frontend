@@ -30,10 +30,7 @@
           <el-form-item>
             <div style="width: 100%">
               <a href="#"
-                 class="forgot-password"
-                 style="float: right;
-               font-size: 12px;
-               color: #5e1d41;">Forgot Password?</a>
+                 class="forgot-password"></a>
             </div>
           </el-form-item>
           <el-form-item>

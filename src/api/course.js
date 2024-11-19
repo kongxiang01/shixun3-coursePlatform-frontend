@@ -20,6 +20,10 @@ export const outlineUploadService = ( file, cid ) =>{
 export const outlinePreviewService = ( cid ) =>
     request.get('/api/course/outline', { params: {cid} })
 
+// 预览教学日历
+export const calendarPreviewService = ( cid ) =>
+    request.get('/api/course/calendar', { params: {cid} })
+
 // 上传教学日历
 export const calendarUploadService = ( file, cid ) =>{
     const formData = new FormData();
@@ -28,19 +32,15 @@ export const calendarUploadService = ( file, cid ) =>{
     return request.post('/api/course/calendar/upload', formData)
 }
 
-// 预览教学日历
-export const calendarPreviewService = ( cid ) =>
-    request.get('/api/course/calendar', { params: {cid} })
-
 // 上传课程通知
-export const notificationUploadService = ( name, cid, tno, uploadTime, content ) =>{
-    return request.post('/api/course/notification/upload', { name, cid, tno, uploadTime, content })
+export const notificationUploadService = ( name, cid, nid, tno, time, content ) =>{
+    return request.post('/api/notification/upload', { name, cid, nid, tno, time, content })
 }
 
 // 删除课程通知
 export const deleteNotificationService = ( cid, nid ) =>{
-    return request.post('/api/course/notification/upload', {cid, nid})
+    return request.post('/api/notification/delete', {cid, nid})
 }
 
 export const getNotificationListService = ( cid ) =>
-    request.get('/api/course/notification/display', { params: {cid} })
+    request.post('/api/notification/display', { cid })

@@ -3,7 +3,6 @@
     <div class="header" style="margin-bottom: 5px; display: flex; justify-content: space-between">
       <vertical-bar text="批阅作业"></vertical-bar>
       <div>
-        <el-button size="default" @click="">预留的按钮</el-button>
         <el-button class="closeButton" @click="router.back();">关闭</el-button>
       </div>
     </div>

@@ -5,19 +5,22 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import { useRoute, useRouter} from 'vue-router'
 import { getPreviewFileService} from '@/api/asset.js'
+import {useCourseStore} from "@/stores/course.js";
 
 const route = useRoute()
 const router = useRouter()
+const courseStore = useCourseStore()
+const courseInfo = computed( () => courseStore.course);
 const fileUrl = ref('')
 
 onMounted(async () => {
-  const filename = route.query.fileName
+  const aid = route.query.aid
   if (filename) {
     console.log("FilePreview.vue  222222222222222222222222222222222222222222222 fileUrl.value：", fileUrl.value);
-    const res = await getPreviewFileService(filename);
+    const res = await getPreviewFileService(courseInfo.value.cid, aid);
     fileUrl.value = res.data.previewLink;
     console.log("FilePreview.vue  222222222222222222 fileUrl.value：", fileUrl.value);
   }

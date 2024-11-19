@@ -82,8 +82,7 @@
         <vertical-bar text="课程作业"></vertical-bar>
         <div>
           <el-button size="default" @click="assignVisible = true">布置作业</el-button>
-          <el-button @click="deleteItem">批量删除</el-button>
-          <el-button size="default" @click="goToHomeworkDetail">测试跳转</el-button>
+          <el-button type="danger" @click="deleteItem">批量删除</el-button>
           <el-dialog
               title="布置作业"
               v-model="assignVisible"
@@ -104,7 +103,7 @@
                 <div>
                   <el-input
                       v-model="assignFormData.fullScore"
-                      style="width: 40px"
+                      style="width: 60px"
                       placeholder=""
                   ></el-input>
                   <span style="margin-left: 5px">分</span>
@@ -120,7 +119,7 @@
                   ></el-input>
                 </el-form-item>
               </div>
-              <el-form-item label="提交时间" porp="timeRange">
+              <el-form-item label="提交时间" prop="timeRange">
                 <el-date-picker
                     v-model="assignFormData.timeRange"
                     type="datetimerange"
@@ -291,7 +290,7 @@ const formatDate = (dateStr) => {
 
 const uploadRules = {
   homeworkTitle: [
-    { required: false, message: '请输入课程资源名称', trigger: 'blur' },
+    { required: false, message: '请输入作业名称', trigger: 'blur' },
     { min: 2, max: 30, message: '长度在 2 到 30 个字符', trigger: 'blur' }
   ],
   content: [
@@ -326,6 +325,7 @@ const submitUploadForm = async () => {
       console.log('Homework.vue: uploadFormData.value.file:', uploadFormData.value.file, courseInfo.value.cid, userInfo.value.sno, submittingWorkId.value);
       await submitHomeworkService(uploadFormData.value.file, courseInfo.value.cid, userInfo.value.sno, submittingWorkId.value) // homeworkFile, cid, sno, workid
       ElMessage.success('作业上传成功')
+      window.location.reload();
     } else {
       ElMessage.info('请先选择文件')
     }
@@ -477,6 +477,7 @@ const submitAssignForm = async () => {
         assignFormData.value.fullScore,
     );
     ElMessage.success('布置作业成功');
+    window.location.reload();
   } catch (error) {
     ElMessage.error('布置作业失败');
     console.error('66666666666666Homework.vue: 布置作业失败', error);
@@ -484,10 +485,6 @@ const submitAssignForm = async () => {
 };
 
 // ****************************************************批阅和操作相关*****************************************
-const goToHomeworkDetail = () => {
-  router.push({ name: 'HomeworkDetail' });
-  // router.push({ name: 'CorrectPreview' });
-}
 // 打开批阅页面
 const handleCorrect = (row) => {
   ElMessage.info(row.cname)
@@ -520,10 +517,13 @@ const deleteItem = async () => {
           type: 'error',
         }
     ); // 选取消会直接跳掉 catch 块里
-    const labelsToDelete = selectedItems.value.map((item) => item.label);
-    console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDCourseWare.vue: labelsToDelete', labelsToDelete)
-    await deleteAssignedHomeworkService(labelsToDelete);
-    ElMessage.success('成功删除: ' + labelsToDelete);
+    const workIdsToDelete = selectedItems.value.map((item) => item.workid);
+
+    const cidS = workIdsToDelete.map(() => courseInfo.value.cid);
+    console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDHomework.vue: workIdsToDelete', workIdsToDelete)
+    await deleteAssignedHomeworkService(cidS, workIdsToDelete);
+    ElMessage.success('成功删除: 第 ' + workIdsToDelete + ' 次作业');
+    window.location.reload();
   } catch (error) {
     ElMessage.error('已取消删除或删除请求出错');
     console.error(error);
@@ -543,13 +543,14 @@ const handleDelete = async (row) => {
         }
     );
 
-    const labelToDelete = [row.label];
-    console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDCourseWare.vue: labelsToDelete', labelToDelete)
-    await deleteAssignedHomeworkService(labelToDelete);
-    ElMessage.success('成功删除: ' + labelToDelete);
+    const workIdToDelete = [row.workid];
+    console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDCourseWare.vue: labelsToDelete', workIdToDelete)
+    await deleteAssignedHomeworkService([courseInfo.value.cid], workIdToDelete);
+    ElMessage.success('成功删除: ' + workIdToDelete);
 
     // 在这里执行删除逻辑，例如请求后端 API 删除作业
     ElMessage.success('作业已删除');
+    window.location.reload();
   } catch(error) {
     ElMessage.info('已取消删除或删除请求出错');
     console.error(error);

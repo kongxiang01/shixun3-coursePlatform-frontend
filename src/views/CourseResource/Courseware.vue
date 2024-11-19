@@ -23,8 +23,6 @@
               <el-button @click="createFolderVisible = true">新建目录</el-button>
 <!--              <el-button @click="moveItem">移动</el-button>-->
               <el-button @click="deleteItems">删除</el-button>
-<!--              <el-button @click="publishItem">发布</el-button>-->
-<!--              <el-button @click="unpublishItem">取消发布</el-button>-->
             </template>
             <el-dialog
                 title="上传课件"
@@ -166,6 +164,7 @@ const defaultProps = {
   children: 'children',
 };
 
+// ******************************************************删除操作************************************************
 // 用于存储选中的行
 const selectedItems = ref([]);
 
@@ -193,9 +192,10 @@ const deleteItems = async () => {
         }
     );
     const labelsToDelete = selectedItems.value.map((item) => item.label);
+    // const aidsToDelete = selectedItems.value.map((item) => item.aid);
     console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDCourseWare.vue: labelsToDelete', labelsToDelete)
-    let exampleItem = labelsToDelete[0]
-    await deleteItemsService(labelsToDelete);
+    // await deleteItemsService(labelsToDelete);
+    // await deleteItemsService(labelsToDelete, aidsToDelete);
     ElMessage.success('成功删除: ' + labelsToDelete);
   } catch (error) {
     ElMessage.error('已取消删除或删除请求出错');
@@ -284,7 +284,7 @@ const submitUploadForm = async () => {
   try {
     if (uploadFormData.value.file) {
       console.log('Courseware.vue: currentPath.value:', currentPath.value);
-      await uploadCourseWareService(uploadFormData.value.file, courseInfo.value.cid, currentPath.value)
+      await uploadCourseWareService(uploadFormData.value.file, courseInfo.value.cid, currentPath.value, 1)
       ElMessage.success('文件上传成功')
       uploadFormData.value = {
         courseWareTitle: '',
@@ -357,7 +357,6 @@ const fetchFolderStructure = async () => {
     // console.log(' response.data.folderStructure：', response.data.folderStructure);
     treeData.value = filterDirectories(response.data.folderStructure);
     console.log(' 22222222222222222222222222222222222222222222222222222222treeData.value：', treeData.value);
-    console.log(' 22222222222222222222222222222222222222222222222222222222treeData.value[0].label：', treeData.value[0].label);
   } catch (error) {
     console.log('Courseware.vue: fetch 目录结构失败：', error);
   }
@@ -399,9 +398,9 @@ const handleNameClick = (item) => {
     fetchDirectoryContents();
   } else {
     // 预览文件
-    const fileName = item.label;
+    const aid = item.aid
     console.log("Courseware.vue: iiiiiiiiiiiiiiiiiiiiiiiiii  item.label：", item.label);
-    router.push({ name: 'FilePreview', query: { fileName: fileName } });
+    router.push({ name: 'FilePreview', query: { aid: aid } });
   }
 };
 
@@ -425,18 +424,6 @@ const downloadFile = async (item) => {
     console.error("下载文件失败:", error);
     ElMessage.error("下载文件失败，请重试");
   }
-};
-
-const moveItem = () => {
-  // 实现移动功能逻辑
-};
-
-const publishItem = () => {
-  // 实现发布功能逻辑
-};
-
-const unpublishItem = () => {
-  // 实现取消发布功能逻辑
 };
 
 // 在组件挂载时获取数据

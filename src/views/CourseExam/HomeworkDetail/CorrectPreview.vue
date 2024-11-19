@@ -15,6 +15,9 @@
     <!-- 右侧批改部分 -->
     <div class="grading-section">
       <el-form ref="gradingForm" :model="gradingData" :rules="correctRules" label-width="80px">
+        <el-form-item>
+          <el-button type="primary" @click="handleDownload">下载作业</el-button>
+        </el-form-item>
         <el-form-item prop="score" label="分数">
           <el-input v-model="gradingData.score" :placeholder="'请输入分数, 满分为 ' + fullMark" />
         </el-form-item>
@@ -35,26 +38,35 @@
 </template>
 
 <script setup>
-import {ref, onMounted, computed} from 'vue'
+import {ref, onMounted} from 'vue'
 import { ElMessage } from 'element-plus'
-import {getHomeworkPreviewService, correctHomeworkScoreService} from '@/api/homework.js'
+import {getHomeworkPreviewService, correctHomeworkScoreService, getDownloadSubmittedService} from '@/api/homework.js'
 import {useRoute, useRouter} from "vue-router";
-import {useCourseStore} from "@/stores/course.js";
-import {useUserStore} from "@/stores/user.js";
-import {useHomeworkStore} from "@/stores/homework.js";
 
 const router = useRouter()
 const route = useRoute()
 
-const courseStore = useCourseStore()
-const courseInfo = computed(() => courseStore.course)
-const userStore = useUserStore()
-const userInfo = computed(() => userStore.user)
-const homeworkStore = useHomeworkStore()
-const homeworkInfo = computed(() => homeworkStore.homework)
-
 // 初始化文件预览 URL
 const fileUrl = ref('')
+const handleDownload = async () => {
+  try {
+    console.log('cid: ', cid,'workid: ', workid,'sno: ', sno)
+    // cid, workid, sno
+    const res = await getDownloadSubmittedService(cid, workid, sno)
+    const downloadUrl = res.data.downloadLink;
+    console.log("StudentPreview.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq  downloadUrl：", downloadUrl);
+    // 创建一个临时的 <a> 元素并触发点击事件来下载文件
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = sno;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error("下载文件失败:", error);
+    ElMessage.error("下载文件失败，请重试");
+  }
+}
 
 // 获取作业预览 URL
 const loadPreviewUrl = async () => {

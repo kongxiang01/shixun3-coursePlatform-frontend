@@ -1,54 +1,56 @@
 <template>
   <div class="buttons" style="margin: 0 10px">
-    <el-button type="primary" @click="uploadVisible = true" style="margin-right: 160px">上传视频</el-button>
-    <el-button type="danger" :disabled="!activeVideo" @click="handleDelete">删除视频</el-button>
-    <el-dialog
-        title="上传视频"
-        v-model="uploadVisible"
-        width="500px"
-        :close-on-click-modal="false"
-    >
-      <el-form ref="validateVideoForm" :model="videoFormData" :rules="videoRules" class="form">
-        <!-- 视频标题 -->
-        <el-form-item label="视频序号" prop="vid">
-          <el-input
-              v-model="videoFormData.vid"
-              placeholder="请输入视频序号"
-              style="width: 100%;"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="上课时间" prop="timeRange">
-          <el-date-picker
-              v-model="videoFormData.timeRange"
-              type="datetimerange"
-              range-separator="至"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              format="YYYY-MM-DD HH:mm"
-              value-format="YYYY-MM-DDTHH:mm:ss"
-              style="width: 100%;"
-          />
-        </el-form-item>
-        <!-- 视频文件 -->
-        <el-form-item label="选择视频文件" prop="file">
-          <el-button type="text" @click="selectVideoFile">选择文件</el-button>
-          <span v-if="videoFormData.fileName" style="margin-left: 10px">{{ videoFormData.fileName }}</span>
-          <input type="file" ref="videoFileInput" accept="video/*" style="display: none" @change="handleVideoFileChange" />
-        </el-form-item>
-        <!-- 分割线 -->
-        <el-divider style="height: 2px; background-color: #a8a2a2; margin: 10px 0"></el-divider>
-        <!-- 文件上传提示 -->
-        <div class="el-upload__tip" style="margin: 0;padding: 0">
-          允许上传的视频类型: mp4, avi, mkv, mov
-        </div>
+    <template v-if="userInfo.type === '1'">
+      <el-button type="primary" @click="uploadVisible = true" style="margin-right: 160px">上传视频</el-button>
+      <el-button type="danger" :disabled="!activeVideo" @click="handleDelete">删除视频</el-button>
+      <el-dialog
+          title="上传视频"
+          v-model="uploadVisible"
+          width="500px"
+          :close-on-click-modal="false"
+      >
+        <el-form ref="validateVideoForm" :model="videoFormData" :rules="videoRules" class="form">
+          <!-- 视频标题 -->
+          <el-form-item label="视频序号" prop="vid">
+            <el-input
+                v-model="videoFormData.vid"
+                placeholder="请输入视频序号"
+                style="width: 100%;"
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="上课时间" prop="timeRange">
+            <el-date-picker
+                v-model="videoFormData.timeRange"
+                type="datetimerange"
+                range-separator="至"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                format="YYYY-MM-DD HH:mm"
+                value-format="YYYY-MM-DDTHH:mm:ss"
+                style="width: 100%;"
+            />
+          </el-form-item>
+          <!-- 视频文件 -->
+          <el-form-item label="选择视频文件" prop="file">
+            <el-button type="text" @click="selectVideoFile">选择文件</el-button>
+            <span v-if="videoFormData.fileName" style="margin-left: 10px">{{ videoFormData.fileName }}</span>
+            <input type="file" ref="videoFileInput" accept="video/*" style="display: none" @change="handleVideoFileChange" />
+          </el-form-item>
+          <!-- 分割线 -->
+          <el-divider style="height: 2px; background-color: #a8a2a2; margin: 10px 0"></el-divider>
+          <!-- 文件上传提示 -->
+          <div class="el-upload__tip" style="margin: 0;padding: 0">
+            允许上传的视频类型: mp4, avi, mkv, mov
+          </div>
 
-        <!-- 确定和取消按钮 -->
-        <div class="buttons" style="margin-top: 20px; display: flex; justify-content: space-between">
-          <el-button type="primary" @click="submitVideoForm">确定</el-button>
-          <el-button @click="handleUploadCancel">取消</el-button>
-        </div>
-      </el-form>
-    </el-dialog>
+          <!-- 确定和取消按钮 -->
+          <div class="buttons" style="margin-top: 20px; display: flex; justify-content: space-between">
+            <el-button type="primary" @click="submitVideoForm">确定</el-button>
+            <el-button @click="handleUploadCancel">取消</el-button>
+          </div>
+        </el-form>
+      </el-dialog>
+    </template>
   </div>
   <div class="video-replay">
     <!-- 左侧视频列表 -->
@@ -73,7 +75,6 @@
       <video
           v-if="activeVideo"
           controls
-          autoplay
           :src="activeVideoUrl"
           class="player"
       ></video>
@@ -211,7 +212,7 @@ const getVideoListData = async () => {
   try {
     console.log('VideoReplay.vue: courseInfo.value.cid是',courseInfo.value.cid);
     const res = await getVideoListService(courseInfo.value.cid); // 向后端获取学生课程
-    videoList.value = res.data.notificationList; // 将返回的数据赋值给courses
+    videoList.value = res.data.videoList; // 将返回的数据赋值给courses
 
     // console.log('HomeWork.vue22222222222222:   courseInfo.value.cid:', res.data.homeworkInfoList);
     console.log('VideoReplay.vue3333333333333:   videoList:', videoList.value);

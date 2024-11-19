@@ -19,6 +19,9 @@ export const getAssignedHomeworkListService = ( cid, pno ) =>
 // 老师查看学生交的作业
 export const getSubmittedHomeworkListService = ( cid, workid ) =>
     request.post('/api/teacher/displayCorrect', { cid, workid } )
+// // 老师查看学生交的作业
+// export const getStudentSubmittedHomeworkListService = ( cid, pno ) =>
+//     request.post('/api/homework/display', { cid, pno } )
 
 // 下载布置的作业
 export const getDownloadAssignedService = ( cid, workid ) =>
@@ -29,8 +32,8 @@ export const getDownloadSubmittedService = ( cid, workid, sno ) =>
     request.get('/api/homework/generateDownloadLink', { params: {cid, workid, sno} })// cid workid sno
 
 // 预览布置的作业
-export const getPreviewFileService = ( fileName ) =>
-    request.get('/api/assets/preview', { params: {fileName: fileName} })
+export const getPreviewFileService = ( cid, workid ) =>
+    request.get('/api/homework/assign/preview', { params: {cid, workid} })
 
 // 学生提交作业
 export const submitHomeworkService = ( homeworkFile, cid, sno, workid ) => {
@@ -47,8 +50,13 @@ export const getHomeworkPreviewService = ( cid, workid, sno ) =>
     request.get('/api/teacher/sendHomework', { params: {cid, workid, sno} })
 
 // 老师删除布置的作业
-export const deleteAssignedHomeworkService = ( selectedItems ) =>
-    request.post('/api/homework/delete', {fileName: selectedItems})
+export const deleteAssignedHomeworkService = ( cid, workid ) =>
+    request.post('/api/homework/assign/delete', { cid, workid })
+
+
+// 老师删除布置的作业
+export const deleteAssignedHomeworkService111 = ( cid, workIds ) =>
+    request.post('/api/homework/assign/delete', { cid, workIds })
 
 // 学生预览自己交的作业
 export const getStudentHomeworkPreviewService = ( cid, sno, workid ) =>

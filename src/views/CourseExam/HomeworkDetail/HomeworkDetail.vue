@@ -14,7 +14,7 @@
         <div class="formItem">
           <div class="formItemTitle">作业满分：</div>
           <div class="formItemContent">
-            <span>{{ homeworkInfo?.fullMark  || '未设置' }}</span> 分
+            <span>{{ homeworkInfo?.fullmark  || '未设置' }}</span> 分
           </div>
         </div>
         <div class="formItem">
@@ -66,7 +66,6 @@
 import VerticalBar from "@/components/VerticalBar.vue";
 import { useRouter } from "vue-router";
 import {useHomeworkStore} from "@/stores/homework.js";
-import {getPreviewFileService} from "@/api/homework.js";
 import {ElMessage} from "element-plus";
 import {getDownloadAssignedService} from "@/api/homework.js";
 import {useCourseStore} from "@/stores/course.js";
@@ -98,7 +97,7 @@ const formatDate = (dateStr) => {
 // 附件预览和下载方法
 const handlePreviewAttachment = () => {
   console.log("HomeworkDetail.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqhomeworkInfo.value：", homeworkInfo);
-  router.push({ name: 'HomeworkPreview', query: { cname: homeworkInfo.cname } });
+  router.push({ name: 'HomeworkPreview', query: { workid: homeworkInfo.workid } });
 };
 
 const handleDownloadAttachment = async () => {

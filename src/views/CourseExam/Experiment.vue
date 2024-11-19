@@ -1,3 +1,4 @@
+<!--
 <template>
   <template v-if="userInfo.type === '0'">
     <div class="container">
@@ -55,12 +56,12 @@
             <span v-if="uploadFormData.fileName">{{ uploadFormData.fileName }}</span>
             <input type="file" ref="fileInput" style="display: none" @change="handleFileChange" />
           </div>
-          <!-- 分割线 -->
+          &lt;!&ndash; 分割线 &ndash;&gt;
           <el-divider style="height: 2px; background-color: #a8a2a2; margin: 10px 0"></el-divider>
           <div class="el-upload__tip" style="margin: 0;padding: 0">
             请勿上传与已存在文件同名的文件，否则已存在文件将被替换。
             允许上传的文件类型: doc, pdf, ppt, xls, docx, pptx, xlsx, jpg, gif, jpeg, png, bmp
-          </div><!--doc, pdf, ppt, xls, docx, pptx, xlsx, jpg, gif, jpeg, png, bmp-->
+          </div>&lt;!&ndash;doc, pdf, ppt, xls, docx, pptx, xlsx, jpg, gif, jpeg, png, bmp&ndash;&gt;
           <div class="buttons" style="margin-top: 20px; display: flex; justify-content: space-between">
             <el-button type="primary" @click="submitUploadForm">确定</el-button>
             <el-button @click="handleSubmitCancel">取消</el-button>
@@ -113,7 +114,7 @@
                   ></el-input>
                 </el-form-item>
               </div>
-              <el-form-item label="提交时间" porp="timeRange">
+              <el-form-item label="提交时间" prop="timeRange">
                 <el-date-picker
                     v-model="assignFormData.timeRange"
                     type="datetimerange"
@@ -130,13 +131,13 @@
                 <span v-if="assignFormData.fileName" style="margin-left: 10px">{{ assignFormData.fileName }}</span>
                 <input type="file" ref="fileInput" style="display: none" @change="handleAssignFileChange" />
               </div>
-              <!-- 分割线 -->
+              &lt;!&ndash; 分割线 &ndash;&gt;
               <el-divider style="height: 2px; background-color: #a8a2a2; margin: 10px 0"></el-divider>
-              <!-- 文件上传提示 -->
+              &lt;!&ndash; 文件上传提示 &ndash;&gt;
               <div class="el-upload__tip" style="margin: 0;padding: 0">
                 允许上传的文件类型: doc, pdf, ppt, xls, docx, pptx, xlsx, jpg, gif, jpeg, png, bmp
               </div>
-              <!-- 确定和取消按钮 -->
+              &lt;!&ndash; 确定和取消按钮 &ndash;&gt;
               <div class="buttons" style="margin-top: 20px; display: flex; justify-content: space-between">
                 <el-button type="primary" @click="submitAssignForm">确定</el-button>
                 <el-button @click="handleAssignCancel">取消</el-button>
@@ -148,9 +149,9 @@
       <el-table :data="assignedTableData" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="50" align="center"/>
         <el-table-column prop="cname" label="作业标题" align="center" width="300px">
-          <!--          <template #default="scope">-->
-          <!--            <el-link type="primary" :underline="false" @click="handleAssignHW">{{scope.row.cname}}</el-link>-->
-          <!--          </template>-->
+          &lt;!&ndash;          <template #default="scope">&ndash;&gt;
+          &lt;!&ndash;            <el-link type="primary" :underline="false" @click="handleAssignHW">{{scope.row.cname}}</el-link>&ndash;&gt;
+          &lt;!&ndash;          </template>&ndash;&gt;
         </el-table-column>
         <el-table-column prop="start" label="作业开始" align="center" width="200px">
           <template #default="scope">
@@ -165,7 +166,7 @@
         <el-table-column prop="submitRatio" label="提交人数" align="center"></el-table-column>
         <el-table-column label="发布作业" align="center">
           <template #default="scope">
-            <!--这里需要后端传来的assignedTableData里有isPublished这个键值-->
+            &lt;!&ndash;这里需要后端传来的assignedTableData里有isPublished这个键值&ndash;&gt;
             <el-switch
                 v-model="scope.row.isPublished"
                 @change="handlePublishChange(scope.row)"
@@ -199,7 +200,7 @@ import {useCourseStore} from "@/stores/course.js";
 import {useUserStore} from "@/stores/user.js";
 import VerticalBar from "@/components/VerticalBar.vue";
 import {ElMessage, ElMessageBox} from "element-plus";
-import {assignHomeworkService, getAssignedHomeworkListService} from "@/api/homework.js";
+import {assignHomeworkService, deleteAssignedHomeworkService, getAssignedHomeworkListService} from "@/api/homework.js";
 import {Document} from "@element-plus/icons-vue";
 import {useHomeworkStore} from "@/stores/homework.js";
 
@@ -484,7 +485,6 @@ const deleteItem = async () => {
     // 假设后端接收一个包含文件ID的数组
     const labelsToDelete = selectedItems.value.map((item) => item.label);
     console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDCourseWare.vue: labelsToDelete', labelsToDelete)
-    let exampleItem = labelsToDelete[0]
     await deleteAssignedHomeworkService(labelsToDelete);
     ElMessage.success('成功删除: ' + labelsToDelete);
   } catch (error) {
@@ -541,3 +541,4 @@ onMounted(()=>{
   }
 }
 </style>
+-->
