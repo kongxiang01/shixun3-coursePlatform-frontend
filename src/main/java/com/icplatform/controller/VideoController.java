@@ -149,7 +149,7 @@ public class VideoController {
                 response.put("status", "success");
                 response.put("message","成功");
                 response.put("newToken", newToken);
-                response.put("notificationList",list);
+                response.put("videoList",list);
                 return response;
             }
         }
