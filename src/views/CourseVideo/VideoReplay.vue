@@ -10,24 +10,33 @@
     >
       <el-form ref="validateVideoForm" :model="videoFormData" :rules="videoRules" class="form">
         <!-- 视频标题 -->
-        <el-form-item label="视频标题" prop="title">
+        <el-form-item label="视频序号" prop="vid">
           <el-input
-              v-model="videoFormData.title"
-              placeholder="请输入视频标题"
+              v-model="videoFormData.vid"
+              placeholder="请输入视频序号"
               style="width: 100%;"
           ></el-input>
         </el-form-item>
-
+        <el-form-item label="上课时间" prop="timeRange">
+          <el-date-picker
+              v-model="videoFormData.timeRange"
+              type="datetimerange"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              format="YYYY-MM-DD HH:mm"
+              value-format="YYYY-MM-DDTHH:mm:ss"
+              style="width: 100%;"
+          />
+        </el-form-item>
         <!-- 视频文件 -->
         <el-form-item label="选择视频文件" prop="file">
           <el-button type="text" @click="selectVideoFile">选择文件</el-button>
           <span v-if="videoFormData.fileName" style="margin-left: 10px">{{ videoFormData.fileName }}</span>
           <input type="file" ref="videoFileInput" accept="video/*" style="display: none" @change="handleVideoFileChange" />
         </el-form-item>
-
         <!-- 分割线 -->
         <el-divider style="height: 2px; background-color: #a8a2a2; margin: 10px 0"></el-divider>
-
         <!-- 文件上传提示 -->
         <div class="el-upload__tip" style="margin: 0;padding: 0">
           允许上传的视频类型: mp4, avi, mkv, mov
@@ -47,13 +56,13 @@
       <el-scrollbar class="scrollbar">
         <el-card
             v-for="(video, index) in videoList"
-            :key="video.id"
+            :key="video.vid"
             class="video-card"
             @click="playVideo(video)"
-            :class="{ active: activeVideo?.id === video.id }"
+            :class="{ active: activeVideo?.vid === video.vid }"
         >
           <div class="video-info">
-            <p class="video-title">{{ video.title }}</p>
+            <p class="video-title">课程回放 {{ video.vid }}</p>
           </div>
         </el-card>
       </el-scrollbar>
@@ -65,7 +74,7 @@
           v-if="activeVideo"
           controls
           autoplay
-          :src="activeVideo.url"
+          :src="activeVideoUrl"
           class="player"
       ></video>
       <p v-else class="placeholder">请选择一个视频进行播放</p>
@@ -74,53 +83,65 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import {computed, onMounted, ref} from 'vue';
 import { useUserStore } from "@/stores/user.js";
-import { uploadVideoService, deleteVideoService } from "@/api/video.js";
+import {uploadVideoService, deleteVideoService, getVideoListService, previewVideoService} from "@/api/video.js";
 import {ElMessage} from "element-plus";
+import {useCourseStore} from "@/stores/course.js";
 
 const userStore = useUserStore();
 const userInfo = userStore.user;
+const courseStore = useCourseStore()
+const courseInfo = computed( () => courseStore.course);
 
-const videoList = ref([
-  {
-    id: 1,
-    title: '教学视频 1',
-    url: 'https://www.example.com/video1.mp4',
-    thumbnail: 'https://www.example.com/thumbnail1.jpg',
-  },
-  {
-    id: 2,
-    title: '教学视频 2',
-    url: 'https://www.example.com/video2.mp4',
-    thumbnail: 'https://www.example.com/thumbnail2.jpg',
-  },
-  {
-    id: 3,
-    title: '教学视频 3',
-    url: 'https://www.example.com/video3.mp4',
-    thumbnail: 'https://www.example.com/thumbnail3.jpg',
-  },
-]);
+const videoList = ref([]);
+
+const activeVideoUrl = ref();
 
 const activeVideo = ref(null);
 
-const playVideo = (video) => {
-  activeVideo.value = video;
+const playVideo = async (video) => {
+  try {
+    activeVideo.value = video;
+    console.log('VideoReplay.vue: courseInfo.value.cid是',courseInfo.value.cid,"video.value.vid是：", video.vid );
+    const res = await previewVideoService(courseInfo.value.cid, video.vid); // 向后端获取学生课程
+    activeVideoUrl.value = res.data.previewLink; // 将返回的数据赋值给courses
+
+  } catch (error) {
+    ElMessage.error('视频播放失败:', error);
+    console.error('视频播放失败:', error);
+  }
 };
 
 // *****************************************上传视频*****************************************
 const uploadVisible = ref(false);
 
 const videoFormData = ref({
-  title: '',
+  vid: '',
   file: null,
   fileName: '',
+  timeRange: []
 });
 
 const videoRules = {
-  title: [{ required: true, message: '请填写视频标题', trigger: 'blur' }],
+  vid: [
+    { required: true, message: '请输入课程视频序号', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        const id = Number(value);
+        if (!Number.isInteger(id) || id < 1) {
+          callback(new Error('作业序号必须是大于等于1的整数'));
+        } else {
+          callback();
+        }
+      },
+      trigger: 'blur'
+    }
+  ],
   file: [{ required: true, message: '请上传视频文件', trigger: 'change' }],
+  timeRange: [
+    { type: 'array', required: true, message: '请选择上课时间范围', trigger: 'blur' },
+  ],
 };
 
 const validateVideoForm = ref();
@@ -143,19 +164,18 @@ const handleVideoFileChange = (event) => {
 const submitVideoForm = async () => {
   try {
     await validateVideoForm.value.validate();
-    //
-    // if (!videoFormData.value.file) {
-    //   ElMessage.info('请先选择文件');
-    //   return;
-    // }
-
-    // 上传视频
-    await uploadVideoService(videoFormData.value.file, videoFormData.value.title);
+    // 上传视频video, start, end, cid, vid
+    await uploadVideoService(
+        videoFormData.value.file,
+        courseInfo.value.cid,
+        videoFormData.value.vid,
+        videoFormData.value.timeRange[0],
+        videoFormData.value.timeRange[1]);
     ElMessage.success('视频上传成功');
     uploadVisible.value = false;
 
     // 清空表单
-    videoFormData.value = { title: '', file: null, fileName: '' };
+    videoFormData.value = { vid: '', file: null, fileName: '', timeRange: [] };
   } catch (error) {
     console.error('上传视频失败', error);
     ElMessage.error('视频上传失败');
@@ -165,7 +185,7 @@ const submitVideoForm = async () => {
 // 取消上传
 const handleUploadCancel = () => {
   uploadVisible.value = false;
-  videoFormData.value = { title: '', file: null, fileName: '' };
+  videoFormData.value = { title: '', file: null, fileName: '', timeRange: [] };
 };
 
 
@@ -185,6 +205,24 @@ const handleDelete = async () => {
     ElMessage.error("视频删除失败！");
   }
 };
+
+// ************************************************获取视频列表********************************************************
+const getVideoListData = async () => {
+  try {
+    console.log('VideoReplay.vue: courseInfo.value.cid是',courseInfo.value.cid);
+    const res = await getVideoListService(courseInfo.value.cid); // 向后端获取学生课程
+    videoList.value = res.data.notificationList; // 将返回的数据赋值给courses
+
+    // console.log('HomeWork.vue22222222222222:   courseInfo.value.cid:', res.data.homeworkInfoList);
+    console.log('VideoReplay.vue3333333333333:   videoList:', videoList.value);
+  } catch (error) {
+    ElMessage.error('Homework.vue:获取视频列表失败:', error);
+  }
+};
+
+onMounted(()=>{
+  getVideoListData()
+})
 </script>
 
 <style scoped>
@@ -249,10 +287,17 @@ const handleDelete = async () => {
     justify-content: center;
     background-color: #000;
     //border: 2px solid #409eff;
+    border-radius: 5px;
 
     .player {
-      max-width: 100%;
-      max-height: 50%;
+      //max-width: 100%;
+      //max-height: 100%;
+      //border: 2px solid #409eff;
+      width: 100%; /* 宽度充满容器 */
+      height: 100%; /* 高度充满容器 */
+      //border: 2px solid #409eff;
+      border-radius: 5px;
+      object-fit: contain; /* 视频内容适应容器，保持比例 */
     }
 
     .placeholder {

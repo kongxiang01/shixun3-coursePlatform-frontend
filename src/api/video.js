@@ -1,13 +1,20 @@
 import request from "@/utils/request.js";
 
-export const uploadVideoService = (videoFile, cid, describe, time, vid) =>{
+export const uploadVideoService = (video, cid, vid, start, end) =>{
     const formData = new FormData();
-    formData.append("videoFile", videoFile);
+    formData.append("video", video);
     formData.append("cid", cid);
-    formData.append("content", describe);
     formData.append("vid", vid);
-    return request.post('/api/course/uploadVideo', formData)
+    formData.append("start", start);
+    formData.append("end", end);
+    return request.post('/api/video/upload', formData)
 }
 
 export const deleteVideoService = ( selectedItems ) =>
-    request.post('/api/course/video/delete', {fileName: selectedItems})
+    request.post('/api/video/delete', {fileName: selectedItems})
+
+export const getVideoListService = ( cid ) =>
+    request.post('/api/video/display', { cid })
+
+export const previewVideoService = ( cid, vid ) =>
+    request.get('/api/video/preview', { params: { cid, vid } } )
