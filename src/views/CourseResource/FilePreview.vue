@@ -18,7 +18,7 @@ const fileUrl = ref('')
 
 onMounted(async () => {
   const aid = route.query.aid
-  if (filename) {
+  if (aid) {
     console.log("FilePreview.vue  222222222222222222222222222222222222222222222 fileUrl.value：", fileUrl.value);
     const res = await getPreviewFileService(courseInfo.value.cid, aid);
     fileUrl.value = res.data.previewLink;

@@ -5,17 +5,14 @@ import request from "@/utils/request.js";
 export const getPreviewFileService = ( cid, aid ) =>
     request.get('/api/assets/preview', { params: {cid: cid, aid: aid} })
 
-export const deleteItemsService = ( selectedItems ) =>
-    request.post('/api/assets/delete', {fileName: selectedItems})
-
-export const deleteItemsService1111 = ( selectedItems, aids ) =>
-    request.post('/api/assets/delete', {fileName: selectedItems, aid: aids})
+export const deleteItemsService = ( cid, aids ) =>
+    request.post('/api/assets/delete', {cid: cid, aid: aids})
 
 export const getDirectoryService = ( path ) =>
     request.get('/api/assets/catalogue', { params: {path: path} })
 
-export const getDownloadFileService = ( fileName ) =>
-    request.get('/api/assets/generateDownloadLink', { params: {fileName: fileName} })
+export const getDownloadFileService = ( cid, aid ) =>
+    request.get('/api/assets/generateDownloadLink', { params: { cid, aid } })
 
 export const uploadCourseWareService = (file, cid, tPath, aid) =>{
     const formData = new FormData();

@@ -2,19 +2,21 @@
   <div class="peer-evaluation">
     <h2>作业互评</h2>
 
-    <!-- 课程作业信息列表，点击作业显示详情弹窗 -->
+    <!-- 课程作业信息列表，使用 el-table -->
     <div v-if="homeworkList && homeworkList.length" class="homework-list">
       <h3>课程作业列表</h3>
-      <div
-          v-for="homework in homeworkList"
-          :key="homework.id"
-          class="homework-item"
-      >
-        <p>{{ homework.homeworkName }}</p>
-        <el-button type="text" @click="showHomeworkDetails(homework)">
-          查看详情
-        </el-button>
-      </div>
+      <el-table :data="homeworkList" style="width: 100%" border>
+        <el-table-column prop="homeworkName" label="作业名称" />
+        <el-table-column prop="start" label="开始时间" />
+        <el-table-column prop="end" label="截止时间" />
+        <el-table-column label="操作" width="120">
+          <template #default="scope">
+            <el-button type="primary" size="small" @click="showHomeworkDetails(scope.row)">
+              查看详情
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
     </div>
 
     <!-- 详情弹窗 -->
@@ -26,14 +28,10 @@
     >
       <div v-if="selectedHomework">
         <h3>作业详情</h3>
-        <!--        <p>作业名称: {{ selectedHomework.title }}</p>-->
         <p>作业名称: {{ selectedHomework.homeworkName }}</p>
-        <p>开始时间: {{ selectedHomework. start }}</p>
-        <p>截止时间: {{ selectedHomework. end }}</p>
-        <!--        <p>文件路径: {{ selectedHomework.filePath }}</p>-->
-        <el-button type="primary" @click="downloadHW">
-          下载作业
-        </el-button>
+        <p>开始时间: {{ selectedHomework.start }}</p>
+        <p>截止时间: {{ selectedHomework.end }}</p>
+        <el-button type="primary" @click="downloadHW">下载作业</el-button>
 
         <h3>提交或修改评分</h3>
         <el-input
@@ -46,7 +44,7 @@
             :min="0"
             :max="100"
             label="评分（百分制）"
-            placeholder="请输入0- 100的分数"
+            placeholder="请输入 0-100 的分数"
         />
 
         <div class="dialog-footer" slot="footer">
@@ -70,55 +68,51 @@
 </template>
 
 <script setup>
-import { ref, onMounted ,computed} from 'vue';
-import { ElMessage, ElButton, ElDialog, ElInput, ElInputNumber } from 'element-plus';
+import { ref, onMounted, computed } from 'vue';
+import { ElMessage, ElButton, ElDialog, ElInput, ElInputNumber, ElTable, ElTableColumn } from 'element-plus';
 import {
-  getCourseHomework,
   peerDownload,
   submitReview,
   viewPeerReviews,
   modifyReview,
 } from '@/api/Evaluation.js';
-import {useUserStore} from "@/stores/user.js";
-import {useCourseStore} from "@/stores/course.js";
+import { useUserStore } from '@/stores/user.js';
+import { useCourseStore } from '@/stores/course.js';
 import { useRoute } from 'vue-router'
 import axios from "axios";
-
 const homeworkList = ref([]);
 const selectedHomework = ref(null);
 const reviewData = ref({
-  revieweeSno: '0',  // 修改为字符串类型
-  cid: '1',          // 如果需要，转换其他字段也为字符串
-  score: '0',        // 如果 score 是字符串
+  revieweeSno: '0',
+  cid: '1',
+  score: '0',
   comment: '',
-  workid: '1'        // 如果 workid 是字符串
+  workid: '1',
 });
-
+const route = useRoute()
 const peerReviews = ref([]);
 const isDialogVisible = ref(false);
-const isEditMode = ref(false); // 是否为修改模式
-const courseStore = useCourseStore()
-const courseInfo = computed(() => courseStore.course)
-const userStore = useUserStore()
-const userInfo = computed(() => userStore.user)
-
-const route = useRoute()
+const isEditMode = ref(false);
+const courseStore = useCourseStore();
+const courseInfo = computed(() => courseStore.course);
+const userStore = useUserStore();
+const userInfo = computed(() => userStore.user);
 const workid = route.query.workid
 
-// 获取课程作业列表
 const loadCourseHomeworkList = async () => {
   try {
     console.log('courseInfo',courseInfo.value)
     //reviewData.value.cid = courseInfo.value.cid || '';
     //console.log('HomeWork.vue111111111111111:   courseInfo.value.cid, userInfo.sno:', courseInfo.value.cid, userInfo.value.sno,courseInfo.value.workid);
     // const  res  = await getCourseHomework(userInfo.value.sno,courseInfo.value.cid,workid);
-    const res = await axios.post('http://192.168.10.161:8080/api/student/peerDisplay', {
+    const res = await axios.post('http://192.168.10.124:8080/api/student/peerDisplay', {
       reviewerSno: userInfo.value.sno,
       cid: courseInfo.value.cid,
       workid,
     });
+
     console.log('res.data',res.data)
-    console.log('userInfo',userInfo.value)
+    console.log('userInfo',res.data.revieweeSno)
     console.log('courseInfo',courseInfo.value)
 
     homeworkList.value = res.data.homeworkList;
@@ -139,75 +133,118 @@ const loadCourseHomeworkList = async () => {
 // 打开作业详情弹窗
 const showHomeworkDetails = (homework) => {
   selectedHomework.value = homework;
-  //reviewData.value = { score: 0, comment: '' };
-  isEditMode.value = false; // 初始化为非修改模式
+  isEditMode.value = false;
   isDialogVisible.value = true;
-  //loadPeerReviews(homework);
 };
-
-
-const downloadHW = async() => {
+/*const downloadHW = async () => {
   try {
-    // 调用接口并传入用户学号
-    const response = await peerDownload(userInfo.value.sno);
+    const response = await peerDownload(userInfo.value.sno, courseInfo.value.cid, workid);
 
-    // 假设返回的是二进制数据，你需要使用 Blob 来处理这个数据
-    const url = window.URL.createObjectURL(new Blob([response.data])); // 创建下载链接
-    const link = document.createElement('a'); // 创建一个隐藏的下载链接
+    // 检查 Blob 是否为空或异常
+    if (!response.data || response.data.size < 1024) { // 假设 ZIP 文件最小为 1KB
+      const errorText = await new Response(response.data).text(); // 尝试解析错误信息
+      console.error('下载失败，错误信息:', errorText);
+      ElMessage.error('下载失败，可能是服务器错误或文件不存在');
+      return;
+    }
+
+    // 解析文件名
+    const contentDisposition = response.headers['content-disposition'];
+    const fileNameMatch = contentDisposition && contentDisposition.match(/filename="?([^"]*)"?/);
+    const fileName = fileNameMatch ? decodeURIComponent(fileNameMatch[1]) : 'homework.zip';
+
+    // 创建下载链接
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', 'homework.zip'); // 设置下载文件的名称（可以根据实际情况修改）
-    document.body.appendChild(link); // 将链接添加到文档中
-    link.click(); // 自动触发点击事件，开始下载
-    document.body.removeChild(link); // 下载完成后移除链接
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+
+    // 清理
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    ElMessage.success('下载成功');
   } catch (error) {
-    // 错误处理
-    ElMessage.error('下载失败');
+    console.error('下载失败:', error);
+    ElMessage.error('下载失败，请稍后重试');
+  }
+};*/
+const downloadHW = async () => {
+  try {
+    //                                            cid workid sno
+    console.log('selectedHomework.value.revieweeSno',selectedHomework.value.revieweeSno)
+    const res =  await peerDownload(selectedHomework.value.revieweeSno,courseInfo.value.cid,workid);// revieweesno, cid, workid
+    console.log('res.data',res.data)// 假设你在 api 中定义了 getDownloadFileService
+    const downloadUrl = res.data.downloadLink;
+    console.log("HomeworkDetail.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq  downloadUrl：",  res.data.downloadLink);
+    // 创建一个临时的 <a> 元素并触发点击事件来下载文件
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = workid;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error("下载文件失败:", error);
+    ElMessage.error("下载文件失败，请重试");
   }
 };
 
-// 提交或修改评分
+
+// const downloadHW = async () => {
+//   try {
+//     //console.log('111response.data')
+//     const response = await peerDownload(userInfo.value.sno,courseInfo.value.cid,workid);
+//     console.log('111response.data',response.data.downloadLink)
+//     const url = window.URL.createObjectURL(new Blob([response.data]));
+//     const link = document.createElement('a');
+//     link.href = url;
+//     link.setAttribute('download', 'homework.zip');
+//     document.body.appendChild(link);
+//     link.click();
+//     document.body.removeChild(link);
+//   } catch (error) {
+//     ElMessage.error('下载失败');
+//   }
+// };
+
 const submitOrUpdateReview = async () => {
   try {
-    // 在提交时将 score 转换为字符串
-    const reviewDataToSubmit = {
-      ...reviewData.value,
-      score: String(reviewData.value.score)  // 确保score是字符串
-    };
-    console.log('reviewData.value.score',reviewData.value.score)
+    console.log('selectedHomework.value',selectedHomework.value.revieweeSno)
+    reviewData.value.revieweeSno=selectedHomework.value.revieweeSno
+    reviewData.value.reviewerSno=userInfo.value.sno
+    reviewData.value.score = String(reviewData.value.score);
     console.log('reviewData.value',reviewData.value)
     if (isEditMode.value) {
-
       await modifyReview(reviewData.value);
-
       ElMessage.success('修改评分成功');
     } else {
       await submitReview(reviewData.value);
       ElMessage.success('提交评分成功');
     }
-    isDialogVisible.value = false; // 关闭弹窗
-    await loadPeerReviews (selectedHomework.value); // 刷新互评列表
+    isDialogVisible.value = false;
+    loadPeerReviews(selectedHomework.value);
   } catch (error) {
     ElMessage.error(isEditMode.value ? '修改评分失败' : '提交评分失败');
   }
 };
 
-// 获取互评
 const loadPeerReviews = async () => {
-  console.log("res:" )
   try {
-    const res = await viewPeerReviews( reviewData.value);
-
+    const res = await viewPeerReviews(reviewData.value);
     peerReviews.value = res;
     if (res && res.length > 0) {
-      reviewData.value = res[0]; // 加载已有的评价到表单中
+      console.log()
+      reviewData.value = res[0];
       isEditMode.value = true;
     }
   } catch (error) {
-    //ElMessage.error('加载互评信息失败');
+    // Handle error
   }
 };
 
-// 初始加载课程作业列表
 onMounted(() => {
   loadCourseHomeworkList();
 });
@@ -216,10 +253,5 @@ onMounted(() => {
 <style scoped>
 .peer-evaluation {
   padding: 20px;
-}
-.homework-list,
-.submit-review,
-.view-reviews {
-  margin-bottom: 20px;
 }
 </style>

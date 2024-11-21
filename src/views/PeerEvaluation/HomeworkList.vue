@@ -17,20 +17,10 @@
             {{ formatDate(scope.row.end) }}
           </template>
         </el-table-column>
-        <el-table-column prop="submitRatio" label="提交人数" align="center" width="100px"></el-table-column>
+        <!--        <el-table-column prop="submitRatio" label="提交人数" align="center" width="100px"></el-table-column>-->
         <el-table-column prop="submitTime" label="提交时间" align="center">
           <template #default="scope">
             {{ formatDate(scope.row.submitTime) }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="score" label="得分" align="center" width="100px"></el-table-column>
-        <el-table-column prop="reviestatus" label="批改状态" align="center" width="120px"></el-table-column>
-        <el-table-column label="操作" align="center">
-          <template #default="scope">
-            <el-link v-if="scope.row.submitStatus === '1' && scope.row.submitTime !== '未提交'" type="primary" :underline="false" @click="handleView(scope.row)">查看</el-link>
-            <el-link v-if="scope.row.submitStatus === '1' && scope.row.submitTime !== '未提交'" type="primary" :underline="false" @click="handleSubmit(scope.row)">提交</el-link>
-            <el-link v-if="scope.row.submitStatus === '0' && scope.row.submitTime !== '未提交'" type="primary" :underline="false" @click="handleView(scope.row)">查看</el-link>
-            <el-link v-if="scope.row.submitStatus === '1' && scope.row.submitTime === '未提交'" type="primary" :underline="false" @click="handleSubmit(scope.row)">提交</el-link>
           </template>
         </el-table-column>
       </el-table>
@@ -85,13 +75,7 @@ import {useCourseStore} from "@/stores/course.js";
 import {useUserStore} from "@/stores/user.js";
 import VerticalBar from "@/components/VerticalBar.vue";
 import {ElMessage, ElMessageBox} from "element-plus";
-import {
-  assignHomeworkService,
-  deleteAssignedHomeworkService,
-  getAssignedHomeworkListService, getDownloadAssignedService, setHomeworkPublishScoreService, setHomeworkPublishService,
-  submitHomeworkService
-} from "@/api/homework.js";
-import {Delete, Document} from "@element-plus/icons-vue";
+import {getAssignedHomeworkListService } from "@/api/homework.js";
 import {useHomeworkStore} from "@/stores/homework.js";
 
 const route = useRoute();
@@ -142,6 +126,7 @@ const formatDate = (dateStr) => {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 // ******************************************************上传文件(交作业)********************************************************
+/*
 
 const uploadRules = {
   homeworkTitle: [
@@ -199,6 +184,7 @@ const handleSubmitCancel = () => {
   };
   drawerVisible.value = false; // 关闭对话框
 };
+*/
 
 // ************************************************获取作业列表********************************************************
 const getHWData = async () => {
@@ -228,8 +214,8 @@ const goToPeerEvaluation = (row) => {
   console.log('HomeWork.vue:  homeworkStore.homework: ', homeworkStore.homework)
   router.push({ name: 'PeerEvaluation', query: { workid: row.workid}});
 }
-
 // ************************************************布置作业********************************************************
+/*
 const handleDownloadAssignHW = async (row) => {
   // 这里是点击文件名的处理
   try {
@@ -434,7 +420,7 @@ const handlePublishScore = async (row) => {
 const handleView = (row) =>{
   router.push({ name: 'StudentPreview', query: {cid: courseInfo.value.cid, sno: userInfo.value.sno, workid: row.workid}});
   // 预览学生自己提交的作业
-}
+}*/
 
 onMounted(()=>{
   getHWData();

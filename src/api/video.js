@@ -10,8 +10,8 @@ export const uploadVideoService = (video, cid, vid, start, end) =>{
     return request.post('/api/video/upload', formData)
 }
 
-export const deleteVideoService = ( selectedItems ) =>
-    request.post('/api/video/delete', {fileName: selectedItems})
+export const deleteVideoService = ( cid, vid ) =>
+    request.post('/api/video/delete', {cid, vid})
 
 export const getVideoListService = ( cid ) =>
     request.post('/api/video/display', { cid })

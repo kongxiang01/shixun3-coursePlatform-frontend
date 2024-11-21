@@ -8,8 +8,8 @@ export const getCourseHomework = ( reviewerSno, cid, workid ) =>
 
 
 // 课程作业下载
-export const peerDownload = (reviewersno) => {
-    return request.get('/api/student/peerDownload', { reviewersno })
+export const peerDownload = ( revieweeSno, cid, workid ) => {
+    return request.get('/api/student/generatePeerDownloadLink', {params: { revieweeSno, cid, workid }})
 }
 
 // 提交作业评分

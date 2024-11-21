@@ -191,12 +191,12 @@ const deleteItems = async () => {
           type: 'error',
         }
     );
-    const labelsToDelete = selectedItems.value.map((item) => item.label);
-    // const aidsToDelete = selectedItems.value.map((item) => item.aid);
-    console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDCourseWare.vue: labelsToDelete', labelsToDelete)
+    // const labelsToDelete = selectedItems.value.map((item) => item.label);
+    const aidsToDelete = selectedItems.value.map((item) => item.aid);
+    const cidS = aidsToDelete.map(() => courseInfo.value.cid);
     // await deleteItemsService(labelsToDelete);
-    // await deleteItemsService(labelsToDelete, aidsToDelete);
-    ElMessage.success('成功删除: ' + labelsToDelete);
+    await deleteItemsService(cidS, aidsToDelete);
+    ElMessage.success('成功删除: ' + aidsToDelete);
   } catch (error) {
     ElMessage.error('已取消删除或删除请求出错');
     console.error(error);
@@ -214,10 +214,10 @@ const deleteItem = async (row) => {
           type: 'error',
         }
     );
-    const labelToDelete = [row.label];
-    console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDCourseWare.vue: labelsToDelete', labelToDelete)
-    await deleteItemsService(labelToDelete);
-    ElMessage.success('成功删除: ' + labelToDelete);
+    const aidToDelete = [row.aid];
+    console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDCourseWare.vue: labelsToDelete', aidToDelete)
+    await deleteItemsService([courseInfo.value.cid], aidToDelete);
+    ElMessage.success('成功删除: ' + aidToDelete);
   } catch (error) {
     ElMessage.error('已取消删除或删除请求出错');
     console.error(error);
@@ -410,7 +410,7 @@ const downloadFile = async (item) => {
     // 获取带 Token 的下载链接
 
     console.log("Courseware.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqitem.label：", item.label);
-    const res = await getDownloadFileService(item.label);
+    const res = await getDownloadFileService(courseInfo.value.cid, item.aid);
     const downloadUrl = res.data.downloadLink;
     console.log("Courseware.vue: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq  downloadUrl：", downloadUrl);
     // 创建一个临时的 <a> 元素并触发点击事件来下载文件

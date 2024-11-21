@@ -197,8 +197,9 @@ const handleDelete = async () => {
     return;
   }
   try {
-    await deleteVideoService(activeVideo.value.id);
-    videoList.value = videoList.value.filter((video) => video.id !== activeVideo.value.id);
+    // cid, vid
+    await deleteVideoService(courseInfo.value.cid, activeVideo.value.vid);
+    videoList.value = videoList.value.filter((video) => video.vid !== activeVideo.value.vid);
     activeVideo.value = null;
     ElMessage.success("视频删除成功！");
   } catch (error) {
