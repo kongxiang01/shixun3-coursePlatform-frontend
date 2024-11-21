@@ -1,6 +1,5 @@
-<!--
 <template>
-  <template v-if="userInfo.type === '0'">
+<!--  <template v-if="userInfo.type === '0'">
     <div class="container">
       <el-table :data="tableData">
         <el-table-column prop="cname" label="作业标题" align="center" width="300px">
@@ -190,11 +189,11 @@
         </el-table-column>
       </el-table>
     </div>
-  </template>
+  </template>-->
 </template>
 
 <script setup>
-import {useRoute, useRouter} from "vue-router";
+/*import {useRoute, useRouter} from "vue-router";
 import {computed, onMounted, ref} from "vue";
 import {useCourseStore} from "@/stores/course.js";
 import {useUserStore} from "@/stores/user.js";
@@ -518,11 +517,11 @@ const handleDelete = async (row) => {
 onMounted(()=>{
   getHWData();
   console.log('HomeWork.vue: onMounted：获取作业列表', tableData.value);
-})
+})*/
 </script>
 
 <style lang="scss" scoped>
-.container {
+/*.container {
   padding: 20px;
 
   .el-table {
@@ -539,6 +538,5 @@ onMounted(()=>{
   .el-button {
     margin: 0 50px;
   }
-}
+}*/
 </style>
--->
