@@ -201,18 +201,14 @@ const submitDiscussion = async () => {
 };
 
 // ***********************************************删除讨论*********************************
-const deleteDiscussion = async (discussion) => {
+const deleteDiscussion = async (discussionUuid) => {
   try {
+    console.log('discussionUuid:', discussionUuid,'userInfo.value.sno: ', userInfo.value.sno)
     const response = await deleteDiscussionApi({
-      discussionUuid: discussion,
+      discussionUuid: discussionUuid,
       Sno:userInfo.value.sno, // 示例学号，实际需动态替换
     });
-    if (response.status === 'success') {
-      ElMessage.success('讨论已删除');
-      discussions.value = discussions.value.filter((d) => d.uuid !== discussion.uuid);
-    } else {
-      //ElMessage.error('删除讨论失败');
-    }
+    ElMessage.success('讨论已删除');
   } catch (error) {
     console.error(error);
     ElMessage.error('删除讨论时发生错误');

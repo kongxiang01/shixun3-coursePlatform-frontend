@@ -290,7 +290,7 @@ const handleDelete = async (row) => {
 };
 
 
-// 获取通知列表
+// ******************************************************获取通知列表***************************************
 const fetchNoticeList = async () => {
   try {
     const res = await getNotificationListService(courseInfo.value.cid); // 假设需要课程ID

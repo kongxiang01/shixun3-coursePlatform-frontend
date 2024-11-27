@@ -90,6 +90,12 @@ const gradingData = ref({
   comments: ''
 })
 
+
+const cid = route.query.cid;
+const workid = route.query.workid;
+const sno = route.query.sno
+const fullMark = route.query.fullMark;
+
 // ****************************************************提交批改*********************************************
 const correctRules = {
   score: [
@@ -99,8 +105,8 @@ const correctRules = {
         const score = Number(value);
         if (isNaN(score)) {
           callback(new Error('得分必须是数字'));
-        // } else if (score < 1 || score > 100) {
-        //   callback(new Error('满分应在1到100之间'));
+        } else if (score < 0 || score > fullMark) {
+          callback(new Error(`满分应在0 到 ${fullMark} 之间`));
         } else {
           callback();
         }
@@ -113,11 +119,6 @@ const correctRules = {
     { max: 3000, message: '评价不能超过3000字', trigger: 'blur' }
   ]
 };
-
-const cid = route.query.cid;
-const workid = route.query.workid;
-const sno = route.query.sno
-const fullMark = route.query.fullMark;
 
 const submitGrading = async () => {
   try {

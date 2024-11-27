@@ -9,6 +9,8 @@
         <el-table-column prop="homeworkName" label="作业名称" />
         <el-table-column prop="start" label="开始时间" />
         <el-table-column prop="end" label="截止时间" />
+        <el-table-column prop="studentscore" label="分数" width="120">
+        </el-table-column>
         <el-table-column label="操作" width="120">
           <template #default="scope">
             <el-button type="primary" size="small" @click="showHomeworkDetails(scope.row)">
@@ -105,7 +107,7 @@ const loadCourseHomeworkList = async () => {
     //reviewData.value.cid = courseInfo.value.cid || '';
     //console.log('HomeWork.vue111111111111111:   courseInfo.value.cid, userInfo.sno:', courseInfo.value.cid, userInfo.value.sno,courseInfo.value.workid);
     // const  res  = await getCourseHomework(userInfo.value.sno,courseInfo.value.cid,workid);
-    const res = await axios.post('http://192.168.10.124:8080/api/student/peerDisplay', {
+    const res = await axios.post('http://192.168.35.211:8080/api/student/peerDisplay', {
       reviewerSno: userInfo.value.sno,
       cid: courseInfo.value.cid,
       workid,
