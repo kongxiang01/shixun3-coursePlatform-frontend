@@ -153,7 +153,7 @@ const submitReply = async () => {
   }
   try {
     console.log('111userInfo.value.Sno',userInfo.value.sno)
-    newReply.value.creatorSno=userInfo.value.sno
+    newReply.value.creatorSno=userInfo.value.sno||userInfo.value.tno
     console.log('newReply.value',newReply.value)
     const response = await createComment(newReply.value);
     console.log('response.status',response.status)
@@ -182,15 +182,15 @@ const submitDiscussion = async () => {
     ElMessage.error('请填写完整的讨论信息');
     return;
   }
-  newDiscussion.value.creatorSno = userInfo.value.sno
-  console.log('newDiscussion.value',userInfo.value.sno,newDiscussion.value)
+  newDiscussion.value.creatorSno = userInfo.value.sno||userInfo.value.tno
+  console.log('newDiscussion.value', userInfo.value.sno, newDiscussion.value)
   try {
     const response = await createDiscussion(newDiscussion.value);
     if (response.status === 200) {
       ElMessage.success('讨论发布成功');
       await loadDiscussions(); // 重新加载列表
       newDiscussionDialogVisible.value = false;
-      newDiscussion.value = { title: '', content: '', creatorSno: '20240101' };
+      newDiscussion.value = {title: '', content: '', creatorSno: '20240101'};
     } else {
       ElMessage.error('讨论发布失败');
     }
@@ -203,12 +203,13 @@ const submitDiscussion = async () => {
 // ***********************************************删除讨论*********************************
 const deleteDiscussion = async (discussionUuid) => {
   try {
-    console.log('discussionUuid:', discussionUuid,'userInfo.value.sno: ', userInfo.value.sno)
-    const response = await deleteDiscussionApi({
+    console.log('discussionUuid:', discussionUuid, 'userInfo.value.sno: ', userInfo.value.sno)
+    await deleteDiscussionApi({
       discussionUuid: discussionUuid,
-      Sno:userInfo.value.sno, // 示例学号，实际需动态替换
+      Sno: userInfo.value.sno||userInfo.value.tno, // 示例学号，实际需动态替换
     });
     ElMessage.success('讨论已删除');
+    await loadDiscussions();
   } catch (error) {
     console.error(error);
     ElMessage.error('删除讨论时发生错误');

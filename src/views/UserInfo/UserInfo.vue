@@ -23,7 +23,7 @@
                     <el-input v-model="form.newPassword" type="password" show-password placeholder="请输入新密码"></el-input>
                   </el-form-item>
                   <el-form-item label="确认新密码" prop="confirmPassword" :rules="[{ required: true, message: '请确认新密码' }]">
-                    <el-input v-model="form.confirmPassword" type="password" show-password  placeholder="请确认新密码"></el-input>
+                    <el-input v-model="form.confirmPassword" type="password" show-password placeholder="请确认新密码"></el-input>
                   </el-form-item>
                 </el-form>
                 <span class="dialog-footer">
@@ -37,66 +37,67 @@
           <el-divider></el-divider>
 
           <el-row>
-            <el-col :span="12">
+            <el-col :span="18">
               <!-- 根据 userInfo.type 动态显示学生或老师的信息 -->
-              <table v-if="userInfo.type === '0'"> <!-- 学生信息 -->
+              <table> <!-- 学生信息 -->
                 <tbody>
                 <tr class="info-row">
                   <th class="info-left">姓名</th>
-                  <td>{{ userInfo.studentName }}</td>
+                  <td>{{  userInfo.type === '0' ? userInfo.studentName : userInfo.teacherName  }}</td>
                 </tr>
                 <tr class="info-row">
                   <th class="info-left">性别</th>
                   <td>{{ userInfo.gender }}</td>
                 </tr>
                 <tr class="info-row">
-                  <th class="info-left">学号</th>
-                  <td>{{ userInfo.sno }}</td>
+                  <th class="info-left">编号</th>
+                  <td>{{ userInfo.type === '0' ? userInfo.sno : userInfo.tno }}</td>
                 </tr>
                 <tr class="info-row">
-                  <th class="info-left">学院</th>
+                  <th class="info-left">学院/院系</th>
                   <td>{{ userInfo.major }}</td>
                 </tr>
-                <tr class="info-row">
+                <tr class="info-row" v-if="userInfo.type === '0'">
                   <th class="info-left">班级</th>
                   <td>{{ userInfo.studentName }}</td>
                 </tr>
                 <tr class="info-row">
                   <th class="info-left">邮件</th>
-                  <td>{{ userInfo.semail }}</td>
-                </tr>
-                </tbody>
-              </table>
-              <table v-else-if="userInfo.type === '1'"> <!-- 老师信息 -->
-                <tbody>
-                <tr class="info-row">
-                  <th class="info-left">姓名</th>
-                  <td>{{ userInfo.teacherName }}</td>
-                </tr>
-                <tr class="info-row">
-                  <th class="info-left">性别</th>
-                  <td>{{ userInfo.gender }}</td>
-                </tr>
-                <tr class="info-row">
-                  <th class="info-left">教师编号</th>
-                  <td>{{ userInfo.teacherName }}</td>
-                </tr>
-                <tr class="info-row">
-                  <th class="info-left">院系</th>
-                  <td>{{ userInfo.major }}</td>
-                </tr>
-                <tr class="info-row">
-                  <th class="info-left">职称</th>
-                  <td>{{ userInfo.title }}</td>
-                </tr>
-                <tr class="info-row">
-                  <th class="info-left">邮件</th>
-                  <td>{{ userInfo.temail }}</td>
+                  <td>
+                    <div v-if="!isEditingEmail">
+                      {{ userInfo.type === '0' ? userInfo.semail : userInfo.temail }}
+                    </div>
+                    <div v-else>
+                      <el-input
+                          v-model="editEmail"
+                          placeholder="请输入新邮箱"
+                          size="default"
+                          style="width: 100%;"
+                      ></el-input>
+                    </div>
+                  </td>
                 </tr>
                 </tbody>
               </table>
             </el-col>
           </el-row>
+
+          <div style="margin-top: 20px; display: flex; justify-content: center">
+            <div v-if="!isEditingEmail" >
+              <el-button size="small" type="primary" @click="startEditEmail">编辑</el-button>
+            </div>
+            <div v-else>
+              <el-button
+                  size="small"
+                  type="primary"
+                  @click="updateEmail"
+                  :disabled="!isEmailValid"
+              >
+                确认
+              </el-button>
+              <el-button size="small" type="danger" @click="cancelEditEmail">取消</el-button>
+            </div>
+          </div>
         </el-card>
       </el-col>
     </el-row>
@@ -104,23 +105,58 @@
 </template>
 
 <script setup>
-import {computed, ref} from "vue";
-import { useUserStore } from '@/stores/user.js'
+import { computed, ref } from "vue";
+import { useUserStore } from '@/stores/user.js';
 import { ElMessage } from 'element-plus';
-import {changePasswordService} from "@/api/user.js";
-import { useRouter } from 'vue-router'
+import { changePasswordService, updateUserEmail } from "@/api/user.js";
+import { useRouter } from 'vue-router';
 
-const router = useRouter()
+const router = useRouter();
 const dialogVisible = ref(false);
 const form = ref({
   newPassword: '',
   confirmPassword: ''
 });
 
-const userStore = useUserStore() // 使用userStore
-const userInfo = computed(() => userStore.user) // 从 userStore 获取用户信息
+const userStore = useUserStore(); // 使用 userStore
+const userInfo = computed(() => userStore.user); // 从 userStore 获取用户信息
 
-// 打开对话框
+// 邮箱编辑逻辑
+const isEditingEmail = ref(false);
+const editEmail = ref("");
+
+// 邮箱格式验证
+const isEmailValid = computed(() =>
+    /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$/.test(editEmail.value)
+);
+
+const startEditEmail = () => {
+  isEditingEmail.value = true;
+  editEmail.value = userInfo.value.type === "0" ? userInfo.value.semail : userInfo.value.temail;
+};
+
+const cancelEditEmail = () => {
+  isEditingEmail.value = false;
+  editEmail.value = "";
+};
+
+const updateEmail = async () => {
+  try {
+    const pno = userInfo.value.type === "0" ? userInfo.value.sno : userInfo.value.tno;
+    await updateUserEmail(pno, editEmail.value);
+    ElMessage.success("邮箱修改成功");
+    if (userInfo.value.type === "0") {
+      userInfo.value.semail = editEmail.value;
+    } else {
+      userInfo.value.temail = editEmail.value;
+    }
+    cancelEditEmail();
+  } catch (error) {
+    ElMessage.error("邮箱修改失败");
+  }
+};
+
+// 修改密码逻辑
 const openDialog = () => {
   form.value = {
     newPassword: '',
@@ -128,39 +164,26 @@ const openDialog = () => {
   };
   dialogVisible.value = true;
 };
-// 修改密码逻辑
+
 const handleChangePassword = async () => {
-  // 验证新密码与确认密码是否一致
   if (form.value.newPassword !== form.value.confirmPassword) {
     ElMessage.error('新密码与确认密码不一致');
     return;
   }
   try {
-    // 发送修改密码的请求
-    console.log('form.value.newPassword: ', form.value.newPassword)
     await changePasswordService(form.value.newPassword);
     ElMessage.success('密码修改成功');
-    // 清空表单
     form.value = {
       newPassword: '',
       confirmPassword: '',
     };
-    dialogVisible.value = false; // 关闭对话框
-    userStore.removeToken() // 清空token重新登录
-    await router.push('/login')
+    dialogVisible.value = false;
+    userStore.removeToken();
+    await router.push('/login');
   } catch (error) {
     ElMessage.error('修改密码时出错');
   }
 };
-
-
-// 下面这个设置userInfo为响应式数据的方法行不通，用computed()可以，为什么呢
-// const userInfo = ref()
-//
-// onMounted(() => {
-//   userInfo.value = userStore.user;
-//   console.log('UserInfo.vue: UserInfo.type: ', userInfo.value.type)
-// })
 </script>
 
 <style lang="scss" scoped>

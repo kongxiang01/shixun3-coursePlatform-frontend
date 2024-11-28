@@ -1,5 +1,5 @@
 <script setup>
-import UserInfo from "./UserCard.vue";
+import UserCard from "./UserCard.vue";
 import CourseList from "./CourseList.vue";
 import RightPart from "./RightPart.vue";
 </script>
@@ -9,7 +9,7 @@ import RightPart from "./RightPart.vue";
     <el-row :gutter="20">
       <el-col :span="6">
         <div class="left-panel">
-          <UserInfo></UserInfo>
+          <UserCard></UserCard>
         </div>
       </el-col>
       <el-col :span="12">

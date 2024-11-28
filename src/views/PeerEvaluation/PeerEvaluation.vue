@@ -107,7 +107,7 @@ const loadCourseHomeworkList = async () => {
     //reviewData.value.cid = courseInfo.value.cid || '';
     //console.log('HomeWork.vue111111111111111:   courseInfo.value.cid, userInfo.sno:', courseInfo.value.cid, userInfo.value.sno,courseInfo.value.workid);
     // const  res  = await getCourseHomework(userInfo.value.sno,courseInfo.value.cid,workid);
-    const res = await axios.post('http://192.168.35.211:8080/api/student/peerDisplay', {
+    const res = await axios.post('http://192.168.10.127:8080/api/student/peerDisplay', {
       reviewerSno: userInfo.value.sno,
       cid: courseInfo.value.cid,
       workid,

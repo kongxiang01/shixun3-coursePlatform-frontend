@@ -85,7 +85,7 @@
             <el-menu-item :index="generateCoursePath('homeWork')">
               <span>作业</span>
             </el-menu-item>
-            <el-menu-item :index="generateCoursePath('courseReport')">
+<!--            <el-menu-item :index="generateCoursePath('courseReport')">
               <span>课程报告</span>
             </el-menu-item>
             <el-menu-item :index="generateCoursePath('experiment')">
@@ -96,7 +96,7 @@
             </el-menu-item>
             <el-menu-item :index="generateCoursePath('finalAssessment')">
               <span>结课考核</span>
-            </el-menu-item>
+            </el-menu-item>-->
           </el-sub-menu>
 
           <!-- 答疑讨论 -->

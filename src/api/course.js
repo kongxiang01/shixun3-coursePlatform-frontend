@@ -42,5 +42,10 @@ export const deleteNotificationService = ( cid, nid ) =>{
     return request.post('/api/notification/delete', {cid, nid})
 }
 
+// 获取通知列表
 export const getNotificationListService = ( cid ) =>
     request.post('/api/notification/display', { cid })
+
+// 更新课程简介
+export const updateCourseIntroService = ( cid, description ) =>
+    request.post('/api/course/description/alter', { cid, description })

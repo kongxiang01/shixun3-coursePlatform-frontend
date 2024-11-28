@@ -4,7 +4,7 @@
       <VerticalBar text="课程列表" />
     </div>
     <!-- 选择学期 -->
-    <el-row class="select-semester">
+<!--    <el-row class="select-semester">
       <el-select v-model="selectedSemester" placeholder="请选择学期" @change="handleSemesterChange" style="width: 300px">
         <el-option
             v-for="(semester, index) in semesters"
@@ -13,7 +13,7 @@
             :value="semester">
         </el-option>
       </el-select>
-    </el-row>
+    </el-row>-->
     <!-- 课程列表 -->
     <el-row class="course-list" :gutter="10">
       <el-col v-for="(course, index) in courses" :key="index" :span="8">
@@ -40,12 +40,6 @@ import {getCourseInfoService, getCourseListService} from "@/api/course.js";
 import {useUserStore} from "@/stores/user.js";
 import {useCourseStore} from "@/stores/course.js";
 
-const selectedSemester = ref('');
-const semesters = [
-  '2024-2025第一学期',
-  '2023-2024第二学期',
-];
-
 const router = useRouter();
 const userStore = useUserStore()
 const courseStore = useCourseStore()
@@ -55,8 +49,7 @@ const courses = ref([]); // 存储获取的课程信息
 const getCourses = async () => {
   try {
     // console.log('CourseList.vue111:   userStore.user.sno:', userStore.user.sno);
-
-    let res = ref();
+    let res;
     //加个判断传sno还是tno
     if(userStore.user.type === '0'){
       res = await getCourseListService(userStore.user.sno); // 向后端获取学生课程

@@ -18,8 +18,8 @@
       <el-table-column prop="score" label="得分" align="center"></el-table-column>
       <el-table-column label="操作" align="center">
         <template #default="scope">
-          <el-link type="primary" :underline="false" @click="goToCorrect(scope.row)" style="margin-right: 20px">批阅</el-link>
-          <el-link type="danger" :underline="false" @click="handleDelete" style="margin-right: 20px">删除</el-link>
+          <el-link type="primary" :underline="false" @click="goToCorrect(scope.row)">批阅</el-link>
+<!--          <el-link type="danger" :underline="false" @click="handleDelete" style="margin-right: 20px">删除</el-link>-->
         </template>
       </el-table-column>
     </el-table>

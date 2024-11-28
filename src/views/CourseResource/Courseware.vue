@@ -197,6 +197,8 @@ const deleteItems = async () => {
     // await deleteItemsService(labelsToDelete);
     await deleteItemsService(cidS, aidsToDelete);
     ElMessage.success('成功删除: ' + aidsToDelete);
+    const response = await getDirectoryService(currentPath.value)
+    tableData.value = response.data.folderStructure;
   } catch (error) {
     ElMessage.error('已取消删除或删除请求出错');
     console.error(error);
@@ -218,6 +220,8 @@ const deleteItem = async (row) => {
     console.log('DDDDDDDDDDDDDDDDDDDDDDDDDDDCourseWare.vue: labelsToDelete', aidToDelete)
     await deleteItemsService([courseInfo.value.cid], aidToDelete);
     ElMessage.success('成功删除: ' + aidToDelete);
+    const response = await getDirectoryService(currentPath.value)
+    tableData.value = response.data.folderStructure;
   } catch (error) {
     ElMessage.error('已取消删除或删除请求出错');
     console.error(error);
@@ -293,7 +297,8 @@ const submitUploadForm = async () => {
         fileName: '',
       };
       drawerVisible.value = false;
-      window.location.reload();
+      const response = await getDirectoryService(currentPath.value)
+      tableData.value = response.data.folderStructure;
     } else {
       ElMessage.info('请先选择文件')
     }

@@ -15,3 +15,7 @@ export const userLoginService = ({ username, password }) =>
 // 修改密码
 export const changePasswordService = ( password ) =>
     request.post('/api/change', { password: password })
+
+// 编辑邮箱
+export const updateUserEmail = ( pno, email ) =>
+    request.post('/api/change/email', { pno, email })

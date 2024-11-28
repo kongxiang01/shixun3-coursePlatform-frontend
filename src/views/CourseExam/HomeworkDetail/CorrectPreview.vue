@@ -46,6 +46,8 @@ import {useRoute, useRouter} from "vue-router";
 const router = useRouter()
 const route = useRoute()
 
+const gradingForm = ref()
+
 // 初始化文件预览 URL
 const fileUrl = ref('')
 const handleDownload = async () => {
@@ -106,7 +108,7 @@ const correctRules = {
         if (isNaN(score)) {
           callback(new Error('得分必须是数字'));
         } else if (score < 0 || score > fullMark) {
-          callback(new Error(`满分应在0 到 ${fullMark} 之间`));
+          callback(new Error(`满分应在 0 到 ${fullMark} 之间`));
         } else {
           callback();
         }
@@ -122,6 +124,7 @@ const correctRules = {
 
 const submitGrading = async () => {
   try {
+    await gradingForm.value.validate()
     await correctHomeworkScoreService(gradingData.value.score, cid, workid, sno) // score, cid, workid, sno
     ElMessage.success('批改提交成功')
     gradingData.value.score = ''

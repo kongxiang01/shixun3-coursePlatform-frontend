@@ -325,7 +325,7 @@ const submitUploadForm = async () => {
       console.log('Homework.vue: uploadFormData.value.file:', uploadFormData.value.file, courseInfo.value.cid, userInfo.value.sno, submittingWorkId.value);
       await submitHomeworkService(uploadFormData.value.file, courseInfo.value.cid, userInfo.value.sno, submittingWorkId.value) // homeworkFile, cid, sno, workid
       ElMessage.success('作业上传成功')
-      window.location.reload();
+      await getHWData();
     } else {
       ElMessage.info('请先选择文件')
     }
@@ -430,8 +430,6 @@ const assignRules = {
         const score = Number(value);
         if (isNaN(score)) {
           callback(new Error('满分必须是数字'));
-        } else if (score < 1 || score > 100) {
-          callback(new Error('满分应在1到100之间'));
         } else {
           callback();
         }
